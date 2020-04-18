@@ -41,3 +41,4 @@ phpunit.phar
 /backend/web/robots.txt
 storage/uploads/
 /storage/uploads/
+.htaccess

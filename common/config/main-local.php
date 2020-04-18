@@ -3,9 +3,9 @@ return [
     'components' => [
         'db' => [
             'class' => 'yii\db\Connection',
-            'dsn' => 'mysql:host=localhost;dbname=onlineportal',
-            'username' => 'root',
-            'password' => 'colourfade',
+            'dsn' => 'mysql:host=10.16.3.196;dbname=amplweb_db',
+            'username' => 'admin',
+            'password' => 'xSQPJKXRT2nq',
             'charset' => 'utf8',
         ],
         'mailer' => [
