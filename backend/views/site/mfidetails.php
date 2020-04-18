@@ -86,19 +86,19 @@ $this->title = 'Home';
 				
 					<!-- <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/index']);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button> -->
         <?php if ($type == 34) {?>
-           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>34]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>34,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
        <?php  } ?>
        <?php if ($type == 35) {?>
-           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>35]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>35,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
        <?php  } ?>
        <?php if ($type == 36) {?>
-           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>36]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>36,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
        <?php  } ?>
         <?php if ($type == 37) {?>
-           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>37]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>37,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
        <?php  } ?>
        <?php if ($type == 38) {?>
-           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>38]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/mfisms','id'=>$value->RecordId,'type'=>38,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
        <?php  } ?>
 					</td>
 			</tr>

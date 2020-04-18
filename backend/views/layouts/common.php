@@ -168,6 +168,19 @@ AppAsset::register($this);
           <?php
           }
           ?>
+
+           <?php
+          if (Yii::$app->user->identity->Role == 1) { ?>
+             <li class="nav-item">
+            <a class="nav-link"  href="<?= Url::to(['site/paymentreport']) ?>" >
+              <span class="menu-title">Payment Details</span>
+              <i class="mdi mdi-format-list-bulleted menu-icon"></i>
+            </a>
+
+          </li>
+          <?php
+          }
+          ?>
            
           <?php
          if (Yii::$app->user->identity->Role == 1) {

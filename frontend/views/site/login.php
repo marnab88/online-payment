@@ -206,7 +206,6 @@ $this->registerJs($js);
 	}
 
 	function fetchmob(){
-		$('#mob_info').html('');
 		var loannum = $("#loanpaymentform-loanaccno").val();
 		/*console.log(loannum);
 		console.log(loannum.length);*/

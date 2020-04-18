@@ -6,7 +6,7 @@ use yii\helpers\Url;
 
 
 
-$this->title = 'record_update';
+$this->title = 'Payment Report';
 
 ?>
 <div class="site-login">
@@ -14,45 +14,53 @@ $this->title = 'record_update';
 		<div class="col-lg-12 grid-margin stretch-card">
 			<div class="card">
 				<div class="card-body">
-					<h4 class="card-title">Individual Records</h4>
+					<h4 class="card-title">Payment Report</h4>
 					<div class="table-responsive">
 					<table class="table table-striped table-bordered">
 						<thead>
 							<tr>
-							<th>Download FIle</th>
-							<th>File Type</th>
-							<th>Date</th>
-							<th>Uploaded By</th>
-							<th>Month</th>
-							<th>Number of Records </th>
-							<th>Cleared</th>
-							<th>Mismatch</th>
-							<th>View Details</th>
-						<!-- 	<?php if (Yii::$app->user->identity->Role != 2) {?>
-							<th>Delete</th>
-							<?php } ?> -->
+							<th>Sl. No.</th>
+				              <th>Type</th>
+				              <th>Branch Name</th>
+				              <th>Cluster</th>
+				              <th>State</th>
+				              <th>Client Id</th>
+				              <th>LoanAccountNo </th>
+				              <th>Client Name</th>
+				              <?php if ($type == 'MFI') {?>
+				              <th>Spouse Name</th>
+				              <th>Village Name</th>
+				              <th>Center</th>
+				              <th>Group Name</th>
+				             <?php }else{echo'';}?>
+				              <th>MobileNo</th>
+				              <th>EmiSrNo</th>
+				              <th>DemandDate</th>
+				              <th>LastMonthDue</th>
+				              <th>CurrentMonthDue</th>
+				              <th>LatePenalty</th>
+				              <th>NextInstallmentDate</th>
+				              <th>UploadMonth</th>
+				              <th>ProductVertical</th>
+				              <th>Payment Amount</th>
+							
 								
 						
 							
 						</tr>
-						</thead>
-						<tbody>
 						<?php
 						
-						foreach ($details as $key => $value) {
+						foreach ($getallreport as $key => $value) {
 							
 							
 							?>
 							<tr>
-								<td><a href="<?= Yii::getAlias('@storageUrl').'/uploads/'.$value->File?>" target="_blank" style="color:#d89d51;">Download</a></td>
 								<td><?= $value->Type ?></td>
-								<td><?= date('d-m-Y',strtotime($value->OnDate)) ?></td>
+								<td><?= date('d-m-Y',strtotime($value->OnDate))  ?></td>
 								<td><?= ($value->user)?$value->user->UserName:''; ?></td>
 								<td><?= $value->MonthYear  ?></td>
 								<td><?php
 								if ($value->Type == 'MFI') {?>
-									
-
 									<span style="color:#FF3333;"><?=$value->Count?></span>
 								 <?php	
 								 } 
@@ -79,27 +87,14 @@ $this->title = 'record_update';
 								}
 								?>
 									
-								</td>
-
-								<td><a href="<?php 
-								 if(Yii::$app->user->identity->Role == 1){
-								 echo Url::toRoute(['site/both','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);}
-								 elseif(Yii::$app->user->identity->Type == "MFI"){
-								 echo Url::toRoute(['site/mfi','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);}
-								 elseif(Yii::$app->user->identity->Type == "MSME"){
-								 echo Url::toRoute(['site/msme','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);}
-								 else{
-								 	echo Url::toRoute(['site/both','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);
-								 }
-
-								 ?>" data-method="post"  style="float:left;color:#ff3300; margin-top:5px;">View Details</a></td>
 								
 								
 								</tr>
 							</tr>
 							<?php
+								}
 						
-						}
+						
 						?>
 							
 						</tbody>
