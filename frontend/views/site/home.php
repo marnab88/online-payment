@@ -49,12 +49,20 @@ input[type=number] {
 									<td><b>Penalty Amount :</b></td>
 									<td><?= number_format($recorddetail->LatePenalty, 2); ?></td>
 								</tr>
-								<tr>
+                 <tr>
 									<td><b>Mobile No. :</b></td>
 									<td><?= $recorddetail->MobileNo; ?></td>
-									<td><b>Emi Balance :</b></td>
-									<td><?=$recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount ?></td>
+									<td><b>Last month Due :</b></td>
+									<td><?=$recorddetail->LastMonthDue ?></td>
 								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td>&nbsp;</td>
+									<td><b>Emi Balance :</b></td>
+									<td><?=$recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount ?></td>
+								</tr>
+               
+                
 							</table>
 							</div>
 							<!-- <div class="col-md-6">
@@ -157,31 +165,31 @@ input[type=number] {
 								EMI Amount:</label>
 							<div class="col-sm-7">
 							
-								Rs.<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty,2); ?>
-								<input type="hidden" value="<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount, 2); ?>">
+								Rs.<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue ,2); ?>
+								<input type="hidden" value="<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount, 2); ?>">
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="col-sm-5" for="email">EMI Balance :</label>
 							<div class="col-sm-7">
-								<?php if(($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount) != 0 ){?>
-									Rs.<?=$recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount ?>
+								<?php if(($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount) != 0 ){?>
+									Rs.<?=$recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount ?>
 								<?php }else{?>
-									<?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty ?>
+									<?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue ?>
 								<?php } ?>
-								<input type="hidden" value="<?php if(($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount) != 0 ){?><?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount ?><?php }else{?><?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty ?><?php } ?>" id="emi" name="emi">
+								<input type="hidden" value="<?php if(($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount) != 0 ){?><?= $recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty-$amount ?><?php }else{?><?= $recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty ?><?php } ?>" id="emi" name="emi">
 							</div>
 						</div>
 						<div class="form-group">
 							<div class="col-sm-5">
-								<input type="radio" id="stmtblnc" name="payment" value="<?php if(($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount) != 0 ){?><?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount ?><?php }else{?><?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty ?><?php } ?>" checked>
+								<input type="radio" id="stmtblnc" name="payment" value="<?php if(($recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty-$amount) != 0 ){?><?= $recorddetail->CurrentMonthDue +$recorddetail->LastMonthDue+  $recorddetail->LatePenalty-$amount ?><?php }else{?><?= $recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty ?><?php } ?>" checked>
 								<label for="stmtblnc">Last Statement Balance :</label>
 							</div>
 							<div class="col-sm-7">
-								<?php if(($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount) != 0 ){?>
-									Rs.<?=number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount,2); ?>
+								<?php if(($recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty-$amount) != 0 ){?>
+									Rs.<?=number_format($recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty-$amount,2); ?>
 								<?php }else{?>
-									Rs.<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty,2); ?>
+									Rs.<?= number_format($recorddetail->CurrentMonthDue +$recorddetail->LastMonthDue+  $recorddetail->LatePenalty,2); ?>
 								<?php } ?>
 							</div>
 						</div>
@@ -192,10 +200,10 @@ input[type=number] {
 							<label for="payment">Other Amount :</label>
 							</div>
 							<div class="col-sm-7">
-								<input type="number" required class="form-control" id="amount" pattern="[0-9]" autocomplete="off" value="<?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount ?>" readonly placeholder="Enter Amount" name="payment_amount">
+								<input type="number" required class="form-control" id="amount" pattern="[0-9]" autocomplete="off" value="<?= $recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty-$amount ?>" readonly placeholder="Enter Amount" name="payment_amount">
 								<br>
 								<div class="text-danger">
-									<p id="errormessage" style="text-align: left;color: #ff0000;line-height: 0;font-size: 14px;"></p>
+									<p id="errormessage" style="text-align: left;color: #ff0000;font-size: 14px;"></p>
 
 									<?php //Yii::$app->session->getFlash('message'); ?>
 								</div>
@@ -354,7 +362,11 @@ $("#amount").keyup(function() {
 		$("#amount").val('');
 	}else if(payment < 1){
 		$("#errormessage").html("Your Amount Should not be less than 1");
-	}else{
+	}
+	else if(payment < emipayment){
+		$("#errormessage").html("You have entered an amount which is less than your current due amount. Paying less than your due amount will affect your credit bureau score. If you want to proceed anyway then click Submit.");
+	}
+	else{
 		$("#errormessage").html("");
 	}
 });

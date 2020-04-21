@@ -94,10 +94,23 @@ AppAsset::register($this);
           ?>
           <li class="nav-item">
             <a class="nav-link"   href="<?= Url::to(['site/index']) ?>" >
-              <span class="menu-title">Upload Records</span>
+              <span class="menu-title">Monthly Data Upload</span>
 
 
               <i class="mdi mdi-contacts menu-icon"></i>
+            </a>
+
+          </li>
+          <?php
+          }
+          ?>
+		  <?php
+         if (Yii::$app->user->identity->Role == 1) {
+          ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?= Url::to(['site/report']) ?>" >
+              <span class="menu-title">Monthly Data Download</span>
+              <i class="mdi mdi-plus menu-icon"></i>
             </a>
 
           </li>
@@ -109,22 +122,14 @@ AppAsset::register($this);
           ?>
           <li class="nav-item">
             <a class="nav-link"   href="<?= Url::to(['site/adminprev']) ?>" >
-              <span class="menu-title"> Admin Data</span>
+              <span class="menu-title"> Admin Uploaded Records</span>
 
 
               <i class="mdi mdi-plus menu-icon"></i>
             </a>
 
           </li>
-          <li class="nav-item">
-            <a class="nav-link"   href="<?= Url::to(['site/branch']) ?>" >
-              <span class="menu-title">Branch Master</span>
-
-
-              <i class="mdi mdi-plus menu-icon"></i>
-            </a>
-
-          </li>
+          
           <?php
           }
           ?>
@@ -132,7 +137,7 @@ AppAsset::register($this);
           if (Yii::$app->user->identity->Role == 1) { ?>
              <li class="nav-item">
             <a class="nav-link"  href="<?= Url::to(['site/adminview']) ?>" >
-              <span class="menu-title">Subadmin Data</span>
+              <span class="menu-title">Subadmin Uploaded Records</span>
 
 
               <i class="mdi mdi-format-list-bulleted menu-icon"></i>
@@ -155,24 +160,12 @@ AppAsset::register($this);
           <?php
         }
         ?>
-        <?php
-         if (Yii::$app->user->identity->Role == 1) {
-          ?>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= Url::to(['site/report']) ?>" >
-              <span class="menu-title">Report</span>
-              <i class="mdi mdi-plus menu-icon"></i>
-            </a>
-
-          </li>
-          <?php
-          }
-          ?>
+        
 
            <?php
           if (Yii::$app->user->identity->Role == 1) { ?>
              <li class="nav-item">
-            <a class="nav-link"  href="<?= Url::to(['site/paymentreport']) ?>" >
+            <a class="nav-link"  href="<?= Url::to(['site/paymentdetails']) ?>" >
               <span class="menu-title">Payment Details</span>
               <i class="mdi mdi-format-list-bulleted menu-icon"></i>
             </a>
@@ -185,6 +178,15 @@ AppAsset::register($this);
           <?php
          if (Yii::$app->user->identity->Role == 1) {
           ?>
+		  <li class="nav-item">
+            <a class="nav-link"   href="<?= Url::to(['site/branch']) ?>" >
+              <span class="menu-title">Branch Master</span>
+
+
+              <i class="mdi mdi-plus menu-icon"></i>
+            </a>
+
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="<?= Url::to(['site/resetpassword']) ?>" >
               <span class="menu-title">Reset Password</span>

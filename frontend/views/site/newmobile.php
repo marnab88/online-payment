@@ -39,14 +39,14 @@ input[type=number] {
 						<div class="form-group">
 							
 							<div class="col-sm-12">
-								<input type="number" name="mob" id="mob" class="form-control" placeholder="New Mobile Number">
+								<input type="number" onkeypress="return isNumber(event)"  name="mob" id="mob" class="form-control" placeholder="New Mobile Number">
 							</div>
 						</div>
 
 						<div class="form-group otpsuccess" style="margin-top:15px !important;display: none;">
 							
 							<div class="col-sm-12">
-								<input type="text" name="otp" id="otp" class="form-control" placeholder="OTP">
+								<input type="text" name="otp" id="otp" onkeypress="return isNumber(event)" class="form-control onlynumber" placeholder="OTP">
 							</div>
 							<div class="form-group">
 							<div class="col-sm-offset-4 col-sm-7" style="margin-top:30px;">
@@ -79,7 +79,18 @@ input[type=number] {
 </div>
 </div>
 
+  
+
 <script type="text/javascript">
+  
+  function isNumber(evt) {
+    evt = (evt) ? evt : window.event;
+    var charCode = (evt.which) ? evt.which : evt.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        return false;
+    }
+    return true;
+}
 	function gotp() {
 		var mobileno = $('#mob').val();
 		// alert(mobileno);
@@ -95,5 +106,6 @@ input[type=number] {
 				}
 			}
 		});
+    
 	}
 </script>

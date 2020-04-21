@@ -12,7 +12,7 @@ $this->title = 'Previous Payment History';
                 <div class="col-md-5 page" style=" padding-top:50px;margin-top: 0px;margin-bottom: 0px;" >
 					<p><img src="<?= Yii::getAlias('@backendUrl')?>/images/logo.png" height="70"/></p>
 					<h3>Previous Payment</h3>
-					<p>Your payment has been processed! Details of transactions are included below.</p>
+					<p>&nbsp;</p>
 					<div class="box" >
 						<div class="row">
 							<div class="table-responsive">

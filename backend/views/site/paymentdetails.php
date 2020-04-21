@@ -14,9 +14,12 @@ $this->title = 'Payment Details';
 		<div class="col-lg-12 grid-margin stretch-card">
 			<div class="card">
 				<div class="card-body">
-					<h4 class="card-title">Payment Details</h4>
+					<h4 class="card-title col-sm-6">Payment Details</h4>
 					 <div class="col-sm-6">
-		                <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;">
+					 	<?php if ($getallreport) {?>
+					 		<input type="button" value="Export" class="btn btn-success exportToExcel" style="float:right;">
+					 	<?php }else{'';}?>
+		                
 		            </div>
 					<div class="table-responsive">
 					<table class="table table-striped table-bordered" id="table_emp">
@@ -43,15 +46,14 @@ $this->title = 'Payment Details';
 							?>
 							<tr>
 								<td><?= $key+1 ?></td>
-								<td><?= $value['type'] ?></td>
+								<td><?= $value['TYPE'] ?></td>
 								<td><?= $value['BranchName'] ?></td>
-								<td><?= $value['MID'] ?></td>
+								<td><?= $value['mid'] ?></td>
 								<td><?= $value['ClientName'] ?></td>
-								
 								<td><?= $value['MobileNo'] ?></td>
 								<td><?= $value['LoanAccountNo'] ?></td>
 								<td><?= $value['TXN_DATE'] ?></td>
-								<td><?= $value['WALLET_BANK_REF'] ?></td>
+								<td><?= ($value['WALLET_BANK_REF']!='')?$value['WALLET_BANK_REF']:'<b style="color:red">Failed</b>' ?></td>
 								<td><?= $value['DEMAND_DATE'] ?></td>
 								<td><?= $value['DEMAND_AMT']  ?></td>
 								<td><?= $value['RECPT_AMT'] ?></td>
@@ -84,8 +86,8 @@ $this->title = 'Payment Details';
             var preserveColors = (table.hasClass("table2excel_with_colors") ? true : false);
             $("#table_emp").table2excel({
               exclude: ".noExl",
-              name: "Report",
-              filename: "Report" + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
+              name: "payment",
+              filename: "paymentreceipt" + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
               fileext: ".xls",
               exclude_img: true,
               exclude_links: true,

@@ -29,20 +29,24 @@ AppAsset::register($this);
 <?php $this->beginBody() ?>
 
 <div class="wrap">
-<!--  <div style="width:100%; height:60px; padding:10px; float:left; margin-bottom:50px; background:rgba(0,0,0, 0.6) url(../images/border.jpg) no-repeat; background-repeat: repeat-x; background-position:bottom;">
-	<h1>Annapurna Finance
-	<span style="float:right;margin-top:-5px;">
-	<a class="nav-link" style="color:#fff; font-size:14px; " href="<?= Url::to(['site/logout']) ?>" data-method="post" data-confirm="you are succesfully log out">
-				<i class="fa fa-sign-out"></i> Log Out</a></span>
-	</h1>
- </div> -->
+    <?php
+    $session = Yii::$app->session;
+    //$session->open();
+    // echo $session->get('RecordId');
+     if($session->has('RecordId'))
+// if ( !Yii::$app->user->isGuest)
+{
+         ?>
 <a class="logout" style="position: absolute; right: 0; top: 0;position: absolute;
     right: 4px;
     top: 3px;
     background: #FF9800;
     color: #fff;
     padding: 10px;
-    border-radius: 6px;" href="<?= Url::to(['site/logout']) ?>"> <i class="fa fa-sign-out"></i> Log Out</a> </a>
+    border-radius: 6px;" href="<?= Url::to(['site/logouts']) ?>"> <i class="fa fa-sign-out"></i> Log Out</a>
+<?php
+ }
+ ?>
     <div class="container">
 	
         <?= Breadcrumbs::widget([

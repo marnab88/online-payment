@@ -22,7 +22,7 @@ class LoanPaymentForm extends Model
     public function rules()
     {
         return [
-            [['loanaccno', 'otp'], 'required'],
+            [['loanaccno', 'otp','mobileno'], 'required'],
             // verifyCode needs to be entered correctly
             ['verifyCode', 'captcha'],
         ];
@@ -34,6 +34,7 @@ class LoanPaymentForm extends Model
     public function attributeLabels()
     {
         return [
+            'mobileno'=>'Mobile Number',
             'loanaccno'  => 'Loan Acc. Number',
             'verifyCode' => 'Verification Code',
         ];

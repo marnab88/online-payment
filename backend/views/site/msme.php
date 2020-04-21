@@ -24,8 +24,16 @@ $this->title = 'Home';
       <div class="card">
         <div class="card-body">
           <h4 class="card-title">File Management</h4>
+          <?php
+          if($error)
+          {?>
+          <input type="button" value="Export" class="btn btn-success exportToExcel" style="float:right;">
+          <a href="<?=Url::toRoute(['site/deleterecord','recordid' => $details[0]->RecordId,'type'=>$type,'dlt'=>'only'])?>"><input type="button" value="delete" class="btn btn-danger" style="float:right;"></a>
+          <?php
+          }
+          ?>
           <div class="table-responsive">
-          <table class="table table-striped table-bordered">
+          <table class="table table-striped table-bordered" id="table_emp">
             <tr>
               <th>Branch Name</th>
               <th>Cluster</th>
@@ -46,14 +54,15 @@ $this->title = 'Home';
               <?php if($sms == ''){?>
                  
               <?php }else{?> 
-                  <th>Sms Status</th>
+                  <!--<th>Sms Status</th>
                <th>TinyUrl Link</th>
                <th>Payment Status</th>
-               <th>Payment Amount</th>
+               <th>Payment Amount</th>-->
               <?php }?>
              <?php if ( $approve == 0) {?>
               <th>Action</th>
-            <?php  }?> 
+            <?php  }?>
+            <th>ErrorMsg</th>
             </tr>
           <?php
          
@@ -62,14 +71,14 @@ $this->title = 'Home';
 
             
             ?>
-              <tr style="<?php if ($value->BranchName == '' || $value->Cluster == '' || $value->State == '' || $value->ClientId == '' || $value->ClientName == '' || $value->EmiSrNo =='' || $value->LoanAccountNo == '' || $value->MobileNo =='' || $value->DemandDate =='' || $value->LastMonthDue =='' || $value->CurrentMonthDue == '' || $value->LatePenalty=='' || $value->NextInstallmentDate =='' || $value->UploadMonth == '' || $value->ProductVertical == '' ) {?>background-color: #ff000045;<?php }else{echo "";} ?>">
+              <tr style="<?php if ($value->errorMsg!='' || $value->BranchName == '' || $value->Cluster == '' || $value->State == '' || $value->ClientId == '' || $value->ClientName == '' || $value->EmiSrNo =='' || $value->LoanAccountNo == '' || $value->MobileNo =='' || $value->DemandDate =='' || $value->LastMonthDue =='' || $value->CurrentMonthDue == '' || $value->LatePenalty=='' || $value->NextInstallmentDate =='' || $value->UploadMonth == '' || $value->ProductVertical == '' ) {?>background-color: #ff000045;<?php }else{echo "";} ?>">
                 <td><?= $value->BranchName ?></td>
                 <td><?= $value->Cluster ?></td>
                 <td><?= $value->State ?></td>
                 <td><?= $value->ClientId ?></td>
-                 <td style="<?php if (in_array("$value->Mid", $getid)){echo "color:#F7330A";}else{echo "";} ?>"><?= $value->LoanAccountNo ?></td>
+                 <td> <?= $value->LoanAccountNo ?></td>
                 <td><?= $value->ClientName ?></td>
-                <td style="<?php if (strlen($value->MobileNo) !=10 ) {echo "color:#F7330A";}else{echo "";} ?>"><?= $value->MobileNo ?></td>
+                <td ><?= $value->MobileNo ?></td>
                 <td><?= $value->EmiSrNo ?></td>
                 <td><?= date('d-m-Y',strtotime($value->DemandDate)) ?></td>
                 <td><?= $value->LastMonthDue ?></td>
@@ -79,7 +88,7 @@ $this->title = 'Home';
                 <td><?= $value->UploadMonth ?></td>
                 <td><?= $value->ProductVertical ?></td>
 
-              <?php if($sms == '') {?>
+              <?php /* if($sms == '') {?>
 
                 
                  <?php }elseif($value->SmsStatus == 1){?>
@@ -108,22 +117,22 @@ $this->title = 'Home';
                 <td><label class="badge badge-danger">Not Paid</label></td>
                 
                 <td><a href="#" class="badge badge-danger">N/A</a></td>
-                 <?php }?>
+                 <?php }*/?>
                 <?php if ($approve == 0) { ?>
                 <?php if ($type == 34) {?>
-                   <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>34]);  ?>"   style="float:left;">EDIT</a></td>
+                   <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>34,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
                <?php  } ?>
                 <?php if ($type == 35) {?>
-                   <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>35]);  ?>"   style="float:left;">EDIT</a></td>
+                   <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>35,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
                <?php  } ?>
                 <?php if ($type == 36) {?>
-                   <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>36]);  ?>"   style="float:left;">EDIT</a></td>
+                   <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>36,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
                <?php  } ?>
                <?php if ($type == 37) {?>
-                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>37]);  ?>"   style="float:left;">EDIT</a></td>
+                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>37,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
               <?php } ?>
                 <?php if ($type == 39) {?>
-                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>39]);  ?>"   style="float:left;">EDIT</a></td>
+                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>39,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
               <?php } ?>
                  
                   <?php
@@ -131,7 +140,7 @@ $this->title = 'Home';
               }
                  ?>
                 
-
+          <td><?= $value->errorMsg ?></td>
               </tr>
               
               <?php
@@ -165,19 +174,19 @@ $this->title = 'Home';
            <?php }else{ ?>
            <?php if($approve==0){?>
             <?php if ($type == 34) {?>
-               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>34,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning are you sure to approve this file because file once can't be editable "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>34,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning: Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a>
           <?php  } ?>
           <?php if ($type == 35) {?>
-               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>35,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning are you sure to approve this file because file once can't be editable "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>35,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back. "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
           <?php  } ?>
           <?php if ($type == 36) {?>
-               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>36,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning are you sure to approve this file because file once can't be editable "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>36,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a>
           <?php  } ?>
           <?php if ($type == 37) {?>
-              <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>37,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning are you sure to approve this file because file once can't be editable "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+              <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>37,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a>
           <?php } ?>
            <?php if ($type == 39) {?>
-              <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>39,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning are you sure to approve this file because file once can't be editable "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+              <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>39,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back. "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
           <?php } ?>
            
             <?php }else{ echo "";}}?>
@@ -197,6 +206,27 @@ $this->title = 'Home';
   </div>
  
  
- 
+ <?php
+$js = <<<JS
+$(".exportToExcel").click(function(e){
+          var table = $("#table_emp");
+          if(table && table.length){
+            var preserveColors = (table.hasClass("table2excel_with_colors") ? true : false);
+            $("#table_emp").table2excel({
+              exclude: ".noExl",
+              name: "payment",
+              filename: "failedUpload" + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
+              fileext: ".xls",
+              exclude_img: true,
+              exclude_links: true,
+              exclude_inputs: true,
+              preserveColors: preserveColors
+            });
+          }
+          
+        });
+JS;
+$this->registerJs($js);
+?>
   
 

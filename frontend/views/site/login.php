@@ -39,7 +39,8 @@ p.tl {
     width: 50%; border: 0px;text-align: center; margin-bottom: 0px;
 }
 .nav-tabs > li > a.active {
-
+    background: #e45f11;
+    color: #fff;
     border-radius: 0px;
     border: #e45f11;
    padding: 10px 15px;
@@ -73,17 +74,15 @@ p.tl {
 				<div class="col-md-6 mx-auto page" style=" padding-top:50px;margin-top: 0px;margin-bottom: 0px;background-size: contain;" >
 					<p class="llg"><img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/logo.png" height="70" /></p>
 					<p class="tl"> Welcome to Our Online Payment Facility </p>
-<p class="nrm">You Can Pay Overdue EMI Using Internet Banking/Debit Card/UPI Facility Offered By Your Bank To Pay Outstanding Payments On Loans From
-
-Annapurna Finance </p>
+<p class="nrm">You Can Pay your Annapurna Finance Loan   EMI/Overdue Using UPI / Debit Card/ Internet Banking/Wallet Facility Offered By your bank .</p>
 
 <ul class="nav nav-tabs" role="tablist">
   <li class="nav-item">
     <a class="nav-link active" href="#profile" role="tab" data-toggle="tab"> <i class="fa fa-money" aria-hidden="true"></i> Loan Account No</a>
   </li>
-  <li class="nav-item">
+<!--   <li class="nav-item">
     <a class="nav-link" href="#buzz" role="tab" data-toggle="tab"> <i class="fa fa-mobile" aria-hidden="true"></i> Mobile No</a>
-  </li>
+  </li> -->
   
 </ul>
 
@@ -96,10 +95,14 @@ Annapurna Finance </p>
 						<div class="form-group">
 							
 							<div class="col-sm-12">
-								<?php if(isset($recordDetail->LoanAccountNo)){?>
-									<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number','readonly'=>'readonly'])->label(false) ?>
+								<?php
+								$hide='none';
+								 if(isset($recordDetail->LoanAccountNo)){
+									$hide='block';
+									?>
+									<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number ','readonly'=>'readonly'])->label(false) ?>
 								<?php }else{?>
-								<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number', 'autocomplete'=>'off', 'onblur'=>'fetchmob()'])->label(false) ?>
+								<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number or provide last 6 digits of your loan account number', 'autocomplete'=>'off', 'onblur'=>'fetchmob()'])->label(false) ?>
 								<?php }?>
 								<p id="display_info" style="color:red;text-align:left;"></p>
 							</div>
@@ -107,7 +110,7 @@ Annapurna Finance </p>
 						<div class="form-group">
 							
 							<div class="col-sm-12">
-								<?= $form->field($model, 'mobileno')->textInput(['id'=>'mobilenum','name'=>'mobilenum','value'=>isset($recordDetail->MobileNo)? str_repeat("X", strlen($recordDetail->MobileNo)-4) . substr($recordDetail->MobileNo, -4):'','type' => 'tel','placeholder'=>'Mobile No', 'readonly'=>isset($recordDetail->MobileNo)?'readonly':''])->label(false) ?>
+								<?= $form->field($model, 'maskmobileno')->textInput(['id'=>'mobilenum','style'=>"display:$hide",'name'=>'mobilenum','value'=>isset($recordDetail->MobileNo)? str_repeat("X", strlen($recordDetail->MobileNo)-4) . substr($recordDetail->MobileNo, -4):'','type' => 'tel','placeholder'=>'Mobile No', 'readonly'=>isset($recordDetail->MobileNo)?'readonly':''])->label(false) ?>
 								<?= $form->field($model, 'mobileno')->textInput(['value'=>isset($recordDetail->MobileNo)? $recordDetail->MobileNo:'','type' => 'hidden'])->label(false) ?>
 								<p id="mob_info" style="color:red;text-align:left;"></p>
 							</div>
@@ -115,13 +118,13 @@ Annapurna Finance </p>
 						<?php if(isset($recordDetail->MobileNo)){?>
 							<div class="form-group" id="generatebttn">
 								<div class="col-sm-offset-6 col-sm-6">
-									<button type="button" class="btn btn-primary" onclick="generateotp();">Generate OTP</button>
+									<button type="button" class="btn btn-primary" onclick="generateotp(); $(this).html('Resend OTP')">Generate OTP</button>
 								</div>
 							</div>
 						<?php }else{?>
 							<div class="form-group" id="generatebttn" style="display:none;">
 								<div class="col-sm-offset-6 col-sm-6">
-									<button type="button" class="btn btn-primary" onclick="generateotp();">Generate OTP</button>
+									<button type="button" class="btn btn-primary" onclick="generateotp();  $(this).html('Resend OTP')">Generate OTP</button>
 								</div>
 							</div>
 						<?php } ?>
@@ -129,16 +132,16 @@ Annapurna Finance </p>
 						<div class="form-group otpsuccess" style="margin-top:15px !important;display: none;">
 							<label class="control-label col-sm-4 col-xs-12" for="pwd">OTP:</label>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" class="form-control inputs" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" class="form-control inputs" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" class="form-control inputs" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" class="form-control inputs" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 						</div>
 						
@@ -181,6 +184,7 @@ $(".inputs").keyup(function () {
           $(this).parent().next().find('.inputs').focus();
         }
       });
+
 });
 
  $("#fox").click(function(event){
@@ -191,6 +195,15 @@ JS;
 $this->registerJs($js);
 ?>
 <script type="text/javascript">
+	function isNumber(evt) {
+    evt = (evt) ? evt : window.event;
+    var charCode = (evt.which) ? evt.which : evt.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+        return false;
+    }
+    return true;
+}
+
 	function generateotp() {
 		var mobileno = $('#loanpaymentform-mobileno').val();
 		$.ajax({
@@ -217,9 +230,10 @@ $this->registerJs($js);
 						if (results) {
 							var res=JSON.parse(results);
 							console.log(res);
-			               
+			               $('#mobilenum').show();
 			                    $('#mobilenum').val(res.maskMobileNo);
 													$('#loanpaymentform-loanaccno').val(res.LoanAccountNo);
+													
 								$('#loanpaymentform-mobileno').val(res.MobileNo);
 								$('#generatebttn').show();
 								$('#display_info').html('');

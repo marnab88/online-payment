@@ -18,13 +18,12 @@ use common\models\BranchMaster;
 use common\models\BranchUpload;
 use yii\web\Session;
 use yii\helpers\ArrayHelper;
-use common\models\TXNRESPDETAILS;
 // use backend\controllers\SiteController;
 // use common\components\GoogleURLShortner ;
 /**
  * Site controller
  */
-class SiteController extends Controller
+class Site1Controller extends Controller
 {
     /**
      * {@inheritdoc}
@@ -36,7 +35,7 @@ class SiteController extends Controller
       'class' => AccessControl::className(),
       'rules' => [
       [
-      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord'],
+      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentreport'],
       'allow' => true,
       ],
       [
@@ -74,6 +73,7 @@ class SiteController extends Controller
      */
    
 
+
       public function actionSendsms($id,$type,$mon)
       { 
        $excel = MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
@@ -88,22 +88,16 @@ class SiteController extends Controller
         $rec=$value->RecordId;
         $Type=$value->Type;
         $loan=$value->LoanAccountNo;
-        $amt=$value->CurrentMonthDue +  $value->LatePenalty+$value->LastMonthDue;
         $request ="";
         $shorturl = $this->getUrl($rec,$Type,$loan);
-        $acctNo=$value->LoanAccountNo;
-        $due=$value->DemandDate;
         //  var_dump(strlen($Mobile));die();
         if ($Mobile != '') {
 
            if ( strlen($Mobile) == 10 ) {
              
             $param['send_to'] = $value->MobileNo;
-            $param['method']= "sendMessage";
-            
-            //$param['msg'] = "Dear Mr./Mrs/Ms " .$value->ClientName." Your EMI Installment is due on date ".$date. " for Annapurna Loan account no ".$value->LoanAccountNo." .Please visit ".$shorturl." to pay on line or at the nearest service branch to improve your Credit Bureau Score. ";
-            
-            $param['msg']="Dear Customer, EMI of Rs. $amt for Annapurna loan a/c no. $acctNo is due on $due. Pls make online payment at $shorturl or at the nearest service branch to avoid the extra charges.";
+            $param['method']= "sendMessage"; 
+            $param['msg'] = "Dear Mr./Mrs/Ms " .$value->ClientName." Your EMI Installment is due on date ".$date. " for Annapurna Loan account no ".$value->LoanAccountNo." .Please visit ".$shorturl." to pay on line or at the nearest service branch to improve your Credit Bureau Score. ";
             $param['userid'] = "2000183786"; $param['password'] ="Afpl@786"; $param['v'] = "1.1"; $param['msg_type'] = "TEXT"; 
             // var_dump($param['msg']);die();
             foreach($param as $key=>$val) { $request.= $key."=".urlencode($val); 
@@ -171,14 +165,12 @@ return $this->redirect(['msme','id'=>$rec,'type'=>$type,'mon'=>$mon]);
      $rec=$value->RecordId;
      $loan=$value->LoanAccountNo;
     $request ="";
-    $amt=$value->CurrentMonthDue +  $value->LatePenalty+$value->LastMonthDue;
     $shorturl = $this->getMfiUrl($rec,$Type,$loan);
     $param['send_to'] = $Mobile;
     if ($Mobile != '') {
      if (strlen($Mobile) == 10) {
        $param['method']= "sendMessage"; 
-    //$param['msg'] = "Dear Mr./Mrs/Ms "  .$value->ClientName." Your Installment is due on date ".$date. " for Annapurna Loan acocunt no ".$value->LoanAccountNo." Please visit ".$shorturl." to pay on line or at the nearest service branch to improve your Credit Bureau Score.";
-    $param['msg']="Dear Customer, EMI of Rs. $amt for Annapurna loan a/c no. $loan is due on $date. Pls make online payment at $shorturl or at the nearest service branch to avoid the extra charges.";
+    $param['msg'] = "Dear Mr./Mrs/Ms "  .$value->ClientName." Your Installment is due on date ".$date. " for Annapurna Loan acocunt no ".$value->LoanAccountNo." Please visit ".$shorturl." to pay on line or at the nearest service branch to improve your Credit Bureau Score.";
     $param['userid'] = "2000183786"; $param['password'] ="Afpl@786"; $param['v'] = "1.1"; $param['msg_type'] = "TEXT"; 
 
     foreach($param as $key=>$val) { $request.= $key."=".urlencode($val); 
@@ -512,13 +504,12 @@ public function actionIndex()
                   $errorEmiSrNo=(is_numeric($EmiSrNo) && $EmiSrNo<240)?0:1;
                   $LastMonthDueError=(is_numeric($LastMonthDue) && strlen($LastMonthDue)<8)?0:1;
                   $CurrentMonthDueError=(is_numeric($CurrentMonthDue) && strlen($CurrentMonthDue)<8)?0:1;
-                  $LoanAccountNoError=(strlen($LoanAccountNo)==20)?0:1;
                   $ClusterError =(trim($Cluster)=='')? 1:0;
                   $BranchNameError =(trim($BranchName)=='')? 1:0;
                   $ClientNameError =(trim($ClientName)=='' && !(strlen($ClientName)>2 && strlen($ClientName)<21))? 1:0;
                   //echo "$errorclient+$errormobile+$errorEmiSrNo+$DemandDateError+$errorLoanAccountNo+$errormoblength";
                    $toterror=$errorclient+$errormobile+$errorEmiSrNo+$DemandDateError+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClusterError+$LastMonthDueError
-                            +$CurrentMonthDueError+$LoanAccountNoError;
+                            +$CurrentMonthDueError;
                   $msme->errorCount=$toterror;
                   $errormsg=null;
                   if($errorclient>0){
@@ -527,10 +518,8 @@ public function actionIndex()
                   if($errorEmiSrNo>0){
                    $errormsg.=' duplicate emisr of this loanAc';
                   }
-                  if($LoanAccountNoError>0)
-                  $errormsg.=' not valid loan account number ';
                   if($errormobile>0){
-                   $errormsg.=' this mobile no exists in this month';
+                   $errormsg.='this mobile no exists in this month';
                   }
                   if($errormoblength>0)
                   $errormsg.=' not a valid mobile number';
@@ -638,50 +627,10 @@ $MonthYear=array_slice($MonthYear, (date('m')-1),2);
  }
  
   $details = UploadRecords::find()->where(['UploadedBy'=>$uid,'IsDelete' => 0])->andWhere(['!=','Count','0'])->orderBy(['RecordId'=>SORT_DESC])->all();
-  return $this->render('home', ['model' => $model, 'MonthYear' => $MonthYear, 'alldetails' => $details]);
+  return $this->render('/site/home1', ['model' => $model, 'MonthYear' => $MonthYear, 'alldetails' => $details]);
 
 }
 
-public function actionDeleterecord(){
- $recordid=Yii::$app->request->get('recordid');
- $type=Yii::$app->request->get('type');
- $dlt=Yii::$app->request->get('dlt');
- if($type='MSME')
- {
- $model='MsmeExcelData';
- $cntModel= new MsmeExcelData();
- }
- else
- {
- $model='ExcelData';
- $cntModel=new ExcelData();
- }
- $only='';
- if($dlt=='only')
-  $only.=" and errorCount=1";
- $count=
- $del=Yii::$app->db->createCommand()
-        ->delete($model, "RecordId = $recordid".$only)
-        ->execute();
-  
-  
- $details = UploadRecords::find()->where(['RecordId'=>$recordid])->one();
-  if($only=='')
-  {
- 
-  $details->delete();
-  }
-  else{
-   $cntModel=$cntModel->find()->where(['RecordsId'=>$recordid])->count();
-   $details->NoOfRecords=$cntModel;
-   $details->Mismatch=0;
-   $details->save();
-   
-   
-  }
-  return $this->redirect(['index']);
- 
-}
 public function actionBoth($id,$type,$mon){
 
   $uid=Yii::$app->user->identity->UserId;
@@ -775,11 +724,11 @@ $month = date("m",strtotime($month));
    foreach ($upload as $key => $value) {
    $mon=$value->MonthYear;
    }
-  
-  $getallid=MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])	
-	             ->andWhere(['!=','errorMsg','0'])	
-	             ->all();
-
+  $command = Yii::$app->db->createCommand("SELECT Mid FROM MsmeExcelData WHERE LoanAccountNo IN (SELECT LoanAccountNo  FROM MsmeExcelData WHERE RecordId='$id'AND IsDelete = 0 GROUP BY LoanAccountNo HAVING COUNT(LoanAccountNo) > 1) and RecordId = '$id'");
+  $getallid = $command->queryAll();
+  $getallid=MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])
+             ->andWhere(['!=','errorMsg','0'])
+             ->all();
   $getblank = Yii::$app->db->createCommand("SELECT ( a.a1 + a.a2 + a.a3 + a.a4 + a.a5 + a.a6 + a.a7 + a.a8 + a.a9 + a.a10 + a.a11 + a.a12 + a.a13 + a.a14 + a.a15 ) AS blankcount FROM ( SELECT SUM(CASE WHEN BranchName ='' THEN 1 ELSE 0 END )as a1,SUM(CASE WHEN Cluster ='' THEN 1 ELSE 0 END )as a2, SUM(CASE WHEN State ='' THEN 1 ELSE 0 END )as a3, SUM(CASE WHEN ClientId ='' THEN 1 ELSE 0 END )as a4, SUM(CASE WHEN LoanAccountNo ='' THEN 1 ELSE 0 END )as a5 , SUM(CASE WHEN ClientName ='' THEN 1 ELSE 0 END )as a6, SUM(CASE WHEN MobileNo ='' THEN 1 ELSE 0 END )as a7 , SUM(CASE WHEN EmiSrNo ='' THEN 1 ELSE 0 END )as a8, SUM(CASE WHEN DemandDate ='' THEN 1 ELSE 0 END )as a9, SUM(CASE WHEN LastMonthDue ='' THEN 1 ELSE 0 END )as a10, SUM(CASE WHEN CurrentMonthDue ='' THEN 1 ELSE 0 END )as a11, SUM(CASE WHEN LatePenalty ='' THEN 1 ELSE 0 END )as a12, SUM(CASE WHEN NextInstallmentDate ='' THEN 1 ELSE 0 END )as a13, SUM(CASE WHEN UploadMonth ='' THEN 1 ELSE 0 END )as a14, SUM(CASE WHEN ProductVertical ='' THEN 1 ELSE 0 END )as a15  from MsmeExcelData a WHERE RecordId= $id ) a");
   $getblankvalue = $getblank->queryScalar();
  
@@ -798,7 +747,7 @@ $month = date("m",strtotime($month));
   $paymetdetails=['TXN_AMT'=>'NA','TXN_STATUS'=>'NA'];
  }
  
- return $this->render('msme',['details'=>$details,'id'=>$id,'approve'=>$approve,'getid'=>$getid,'sms'=>$sms,'getblankvalue'=>$getblankvalue,'type'=>$type,'paymetdetails'=>$paymetdetails,'mon'=>$mon,'error'=>$error]);
+ return $this->render('/site/msme',['details'=>$details,'id'=>$id,'approve'=>$approve,'getid'=>$getid,'sms'=>$sms,'getblankvalue'=>$getblankvalue,'type'=>$type,'paymetdetails'=>$paymetdetails,'mon'=>$mon]);
 
 }
 public function actionMsmedetails($id,$type,$mon)
@@ -868,8 +817,6 @@ public function actionUpdatemsme($id,$type,$mon){
          $mon=$value->MonthYear;
         }
   $details=$model->RecordId;
-  $model->errorMsg='';
-  $model->errorCount=0;
   if ($model->load(Yii::$app->request->post()) && $model->save()) {
     $uid=Yii::$app->user->identity->UserId;
     $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();
@@ -1029,22 +976,12 @@ return $this->redirect(['index']);
       }
     }
 
-/*public function actionPaymentreport(){
+public function actionPaymentreport(){
        $this->layout = 'common';
       $getpayment=Yii::$app->db->createCommand("SELECT tb.RecordId, tb.BranchName,tb.Cluster,tb.State,tb.ClientId,tb.LoanAccountNo,tb.ClientName,tb.MobileNo,tb.EmiSrNo,tb.DemandDate,tb.LastMonthDue,tb.CurrentMonthDue,tb.LatePenalty,tb.NextInstallmentDate,tb.UploadMonth,tb.ProductVertical,txn.MONTH as txnmonth,txn.TXN_DATE as txndate,txn.TXN_AMT as txnamnt,txn.TXN_STATUS FROM MsmeExcelData tb LEFT JOIN TXN_DETAILS txn ON tb.Mid = txn.USER_ID UNION ALL SELECT tbex.RecordId, tbex.BranchName,tbex.Cluster,tbex.State,tbex.ClientId,tbex.LoanAccountNo,tbex.ClientName,tbex.MobileNo,tbex.EmiSrNo,tbex.DemandDate,tbex.LastMonthDue,tbex.CurrentMonthDue,tbex.LatePenalty,tbex.NextInstallmentDate,tbex.UploadMonth,tbex.ProductVertical,txnn.MONTH as txnmonth,txnn.TXN_DATE as txndate,txnn.TXN_AMT as txnamnt,txnn.TXN_STATUS FROM ExcelData tbex LEFT JOIN TXN_DETAILS txnn ON tbex.Eid = txnn.USER_ID");
       $getallreport =$getpayment->queryAll();
 
       return $this->render('paymentreport',['getallreport'=>$getallreport]);
-
-    }*/
-
-
-    public function actionPaymentdetails(){
-       $this->layout = 'common';
-      $getpayment=Yii::$app->db->createCommand("Select *,(DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,WALLET_BANK_REF, BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE, MID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,ms.Type as TYPE from MsmeExcelData ms inner join TXN_DETAILS t on t.USER_ID = ms.Mid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)m UNION ALL Select *, (DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,WALLET_BANK_REF,BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE,EID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,es.Type as TYPE from ExcelData es inner join TXN_DETAILS t on t.USER_ID = es.Eid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)e");
-      $getallreport =$getpayment->queryAll();
-
-      return $this->render('paymentdetails',['getallreport'=>$getallreport]);
 
     }
    
@@ -1177,31 +1114,28 @@ return $this->redirect(['index']);
        $this->layout = 'common';
        $month = date('m', strtotime($date));
        $year = date('Y', strtotime($date));
-       $txnsts=array();
        if ($type == 'MSME') {
          $details = MsmeExcelData::find()->where(['month(DemandDate)'=>$month,'year(DemandDate)' => $year,'IsDelete' => 0])->all();
          if ($details) {
           foreach ($details as $key => $val) {
-            $paymetdetails[$val->Mid] = TXNDETAILS::find()->joinWith(['transactionres','usermser'])->select('SUM(TXN_DETAILS.TXN_AMT) as TXN_AMT,TXN_DETAILS.TXN_DATE,TXN_RESP_DETAILS.WALLET_BANK_REF,TXN_RESP_DETAILS.PG_MODE' )->where(['TXN_DETAILS.USER_ID'=>$val->Mid,'month(TXN_DETAILS.TXN_DATE)'=>$month,'year(TXN_DETAILS.TXN_DATE)' => $year,'TXN_DETAILS.TXN_STATUS'=>1])->one();
-            
+            $paymetdetails[$val->Mid] = TXNDETAILS::find()->select('SUM(TXN_AMT) as TXN_AMT' )->where(['USER_ID'=>$val->Mid,'month(TXN_DATE)'=>$month,'year(TXN_DATE)' => $year,'TXN_STATUS'=>1])->one();
+            $txnsts[$val->Mid] = TXNDETAILS::find()->where(['USER_ID'=>$val->Mid,'month(TXN_DATE)'=>$month,'year(TXN_DATE)' => $year,'TXN_STATUS'=>1])->one();
           }
-         // echo "<pre>";  var_dump($paymetdetails[$val->Mid] ); echo "</pre>";die();
         }
        }else{
         $details = ExcelData::find()->where(['month(DemandDate)'=>$month,'year(DemandDate)' => $year,'IsDelete' => 0])->all();
          if ($details) {
           foreach ($details as $key => $val) {
-           
-            $paymetdetails[$val->Eid] = TXNDETAILS::find()->joinWith(['transactionres','usermfi'])->select('SUM(TXN_DETAILS.TXN_AMT) as TXN_AMT,TXN_DETAILS.TXN_DATE,TXN_RESP_DETAILS.WALLET_BANK_REF,TXN_RESP_DETAILS.PG_MODE' )->where(['TXN_DETAILS.USER_ID'=>$val->Eid,'month(TXN_DETAILS.TXN_DATE)'=>$month,'year(TXN_DETAILS.TXN_DATE)' => $year,'TXN_DETAILS.TXN_STATUS'=>1])->one();
-           
+            $paymetdetails[$val->Eid] = TXNDETAILS::find()->select('SUM(TXN_AMT) as TXN_AMT')->where(['USER_ID'=>$val->Eid,'month(TXN_DATE)'=>$month,'year(TXN_DATE)' => $year,'TXN_STATUS'=>1])->one();
+            $txnsts[$val->Eid] = TXNDETAILS::find()->where(['USER_ID'=>$val->Eid,'month(TXN_DATE)'=>$month,'year(TXN_DATE)' => $year,'TXN_STATUS'=>1])->one();
           }
-
         }
        }
+       
        /*$details = ExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])->all();
        $approve= ExcelData::find()->where(['RecordId'=>$id,'IsApproved'=>1,'IsDelete'=>0])->count(); */  
        
-       return $this->render('customerdetails',['details'=>$details,'type'=>$type,'paymetdetails'=>$paymetdetails]);
+       return $this->render('customerdetails',['details'=>$details,'type'=>$type,'paymetdetails'=>$paymetdetails,'txnsts'=>$txnsts]);
 
 
       }

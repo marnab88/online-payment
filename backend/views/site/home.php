@@ -22,6 +22,14 @@ $this->title = 'Home';
     color: #fff700;
     line-height: 14px;
 }
+
+.help-block-error{
+	color:#fff !important;
+}
+
+.control-label, .radio-inline{
+	color:#fff !important;
+}
 </style>
 	<?php if(Yii::$app->user->identity->Role == 1 || Yii::$app->user->identity->UploadRecords == 1){ ?>
 	<div class="row">
@@ -67,9 +75,16 @@ $this->title = 'Home';
 						</div>
 						<button type="submit" class="btn btn-success mr-2" >Submit</button>
 						<button class="btn btn-light">Cancel</button>
-						<button type="submit" class="btn btn-danger mr-2" >Sample MFI <span class="mdi mdi-cloud-download big"></span>  </button>
-						<button type="submit" class="btn btn-danger mr-2" >Sample MSME <span class="mdi mdi-cloud-download big"></span>  </button>
+                       
 						<?php ActiveForm::end() ?>
+						<div style="width:400px; float:left; margin-top:20px;">
+                         <a href="<?= 'http://128.199.184.65/onlineportal/backend/assets/sample/testmfi.xlsx' ?>" target="_blank">
+						<button type="submit" class="btn btn-danger mr-2" >Sample MFI <span class="mdi mdi-cloud-download big"></span>  </button>
+                        </a>
+                        <a href="<?= 'http://128.199.184.65/onlineportal/backend/assets/sample/testmsme.xlsx' ?>" target="_blank">
+						<button type="submit" class="btn btn-danger mr-2" >Sample MSME <span class="mdi mdi-cloud-download big"></span>  </button>
+                        </a>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -97,56 +112,61 @@ $this->title = 'Home';
 							<th>View Details</th>
 						</tr>
 						<?php
-						if ($details) {
+						if ($alldetails) {
 							
-
-							
-							?>
-							<tr>
-								<td><a href="<?= Yii::getAlias('@storageUrl').'/uploads/'.$details->File?>" target="_blank" style="color:#d89d51;">Download</a></td>
-								<td><?= $details->Type ?></td>
-								<td><?= date('d-m-Y',strtotime($details->OnDate)) ?></td>
-								<td><?= ($details->user)?$details->user->LoginId:''; ?></td>
-								<td><?= $details->MonthYear  ?></td>
-								<td><?php
-								if ($details->Type == 'MFI') {?>
-
-									<span style="color:#FF3333;"><?= $details->Count?></span>
-								 <?php	
-								 } 
-								 else{
-								 	?>
-
-									<span style="color:#FF3333;"><?=$details->Count?></span>
-								 <?php	
-								 }
-								  ?></td>
-								
-								<td><span style="color:#00CC00"><?=$details->Count-($details->Mismatch+$details->MobileCount) ?></span></td>
-								<td>
-									<?php
-									if ($details->Type == 'MFI') {?>
-										<span style="color:#FF3333;"><?=$details->Mismatch+$details->MobileCount?></span>
-									<?php
-									}
-									else{
-										?>
-										<span style="color:#FF3333;"><?=$details->Mismatch+$details->MobileCount?></span>
-									<?php
-									}
-									?>
-								</td>
-								<td><a href="<?php
-								if(Yii::$app->user->identity->Type == "MFI"){
-								 echo Url::toRoute(['site/mfi','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);}
-								 elseif(Yii::$app->user->identity->Type == "MSME"){
-								 echo Url::toRoute(['site/msme','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);}
-								 else{
-								 	echo Url::toRoute(['site/both','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);
-								 }							 
-								?>" data-method="post"  style="float:left;color:#ff3300; margin-top:5px;">View Details</a></td>
-							</tr>
-							<?php
+                            foreach($alldetails as $details)
+                                {
+                                ?>
+                                <tr>
+                                    <td><a href="<?= Yii::getAlias('@storageUrl').'/uploads/'.$details->File?>" target="_blank" style="color:#d89d51;">Download</a></td>
+                                    <td><?= $details->Type ?></td>
+                                    <td><?= date('d-m-Y',strtotime($details->OnDate)) ?></td>
+                                    <td><?= ($details->user)?$details->user->LoginId:''; ?></td>
+                                    <td><?= $details->MonthYear  ?></td>
+                                    <td><?php
+                                    if ($details->Type == 'MFI') {?>
+    
+                                        <span style="color:#FF3333;"><?= $details->Count?></span>
+                                     <?php	
+                                     } 
+                                     else{
+                                        ?>
+    
+                                        <span style="color:#FF3333;"><?=$details->Count?></span>
+                                     <?php	
+                                     }
+                                      ?></td>
+                                    
+                                    <td><span style="color:#00CC00"><?=$details->Count-($details->Mismatch+$details->MobileCount) ?></span></td>
+                                    <td>
+                                        <?php
+                                        if ($details->Type == 'MFI') {?>
+                                            <span style="color:#FF3333;"><?=($details->Mismatch+$details->MobileCount>0)?Html::a($details->Mismatch+$details->MobileCount, ['site/mfi','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'error'=>'true'],['target'=>'_blank']):'0'?></span>
+                                        <?php
+                                        }
+                                        else{
+                                            ?>
+                                            <span style="color:#FF3333;"><?=($details->Mismatch+$details->MobileCount>0) ? Html::a($details->Mismatch+$details->MobileCount, ['site/msme','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'error'=>'true'],['target'=>'_blank']):'0'?></span>
+                                        <?php
+                                        }
+                                        ?>
+                                    </td>
+                                    <td><a href="<?php
+                                    if(Yii::$app->user->identity->Type == "MFI"){
+                                     echo Url::toRoute(['site/mfi','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);}
+                                     elseif(Yii::$app->user->identity->Type == "MSME"){
+                                     echo Url::toRoute(['site/msme','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);}
+                                     else{
+                                        echo Url::toRoute(['site/both','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);
+                                     }							 
+                                    ?>" data-method="post"  style="float:left;color:#ff3300; margin-top:5px;">View Details</a>
+                                    &nbsp;&nbsp;
+                                    <a href="<?=Url::toRoute(['site/deleterecord','recordid' => $details->RecordId,'type'=>$details->Type])?>"> delete</a>
+                                    
+                                    </td>
+                                </tr>
+                                <?php
+                                }
 							}
 						?>		
 					</table>

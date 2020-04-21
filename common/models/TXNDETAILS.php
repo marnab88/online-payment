@@ -32,6 +32,8 @@ class TXNDETAILS extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    public $WALLET_BANK_REF;
+    public $PG_MODE;
     public static function tableName()
     {
         return 'TXN_DETAILS';
@@ -78,5 +80,17 @@ class TXNDETAILS extends \yii\db\ActiveRecord
             'NACH_PAY_TYPE' => 'Nach Pay Type',
             'NACH_PAY_SCHEDULE' => 'Nach Pay Schedule',
         ];
+    }
+     public function getTransactionres()
+    {
+        return $this->hasOne(TXNRESPDETAILS::className(), ['TXN_ID' => 'TXN_ID']);
+    }
+     public function getUsermser()
+    {
+        return $this->hasOne(MsmeExcelData::className(), ['Mid' => 'USER_ID']);
+    }
+     public function getUsermfi()
+    {
+        return $this->hasOne(ExcelData::className(), ['Eid' => 'USER_ID']);
     }
 }

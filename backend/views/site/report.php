@@ -87,7 +87,7 @@ if($allcustomer){
               <th>Type</th>
               <th>month</th>
               <th>year</th>
-              <th>Total Amount Due</th>
+              <!--<th>Total Amount Due</th>-->
               <th>Amount Collected</th>
               <th>No. of Customers</th>
               <th>Customers Paid</th>
@@ -103,7 +103,9 @@ if($allcustomer){
             	<td><?= $value['type'] ?></td>
               <td><?= DateTime::createFromFormat('!m', $value['month'])->format('F') ?></td>
               <td><?= $value['yr'] ?></td>
-            	<td><?= number_format($value['totalamountdue'],2) ?></td>
+														<?php /**
+            	<td><?=number_format($value['totalamountdue'],2) ?></td>
+            	**/?>
             	<td><?= $value['collectedamount'] ?></td>
             	<td>
                   <a href="<?= Url::toRoute(['site/customerdetails','date' => $value['ddate'],'type' =>$value['type']]);  ?>"><?= $value['customer'] ?></a>

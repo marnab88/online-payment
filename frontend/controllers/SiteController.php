@@ -144,7 +144,7 @@ class SiteController extends Controller {
                 if ($recordDetail->save()){
                     // var_dump($recordDetail->getErrors());
                     Yii::$app->session->setFlash('success', 'Your Mobile Number Successfully Updated.');
-                    return $this->render(['home']); 
+                    return $this->redirect(['home']); 
                 }else{
                     // var_dump($recordDetail->getErrors());
                     Yii::$app->session->setFlash('error', 'Somthing Went wrong!.');
@@ -164,7 +164,7 @@ class SiteController extends Controller {
     public function actionFetchmob() {
         $loannum=isset(Yii::$app->request->get()['loannum'])?Yii::$app->request->get()['loannum']:'';
         $result=array();
-        $fetchmob=Yii::$app->db->createCommand("(SELECT LoanAccountNo,MobileNo FROM ExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY LoanAccountNo DESC) UNION ALL (SELECT LoanAccountNo,MobileNo FROM MsmeExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY LoanAccountNo DESC)");
+        $fetchmob=Yii::$app->db->createCommand("(SELECT LoanAccountNo,MobileNo FROM ExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY Eid DESC) UNION ALL (SELECT LoanAccountNo,MobileNo FROM MsmeExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY Mid DESC)");
         $fetchsom =$fetchmob->queryOne();
 
         if ($fetchsom) {
@@ -181,9 +181,9 @@ class SiteController extends Controller {
     public function actionHome() {
         $session=Yii::$app->session;
         $session->open();
-        if(empty($session->get('type'))){
-            return $this->redirect(['login']);
-        }
+        //if(empty($session->get('type'))){
+        //    return $this->redirect(['login']);
+        //}
         $recordid=$session->get('datarecordid');
         $RecordId=$session->get('RecordId');
         $loan=$session->get('loan');
@@ -233,7 +233,7 @@ class SiteController extends Controller {
             $session->set('payment_amount', $payment_amount);
             // return $this->redirect(['payment']);
 
-            return $this->redirect("http://128.199.184.65:8080/PayCorpIntegration/index.jsp?txnid=$txni&txntype=$type");
+            return $this->redirect("http://128.199.184.65:8080/amplpg/index.jsp?txnid=$txni&txntype=$type");
 
         }
 
@@ -263,7 +263,7 @@ class SiteController extends Controller {
             Yii::$app->session->setFlash('error', 'Record not found');
         }
 
-        return $this->redirect(['home']);
+        return $this->redirect(['login']);
     }
 
     public function actionPayment() {
@@ -330,11 +330,11 @@ class SiteController extends Controller {
         $loanid=(Yii::$app->request->get('l')) ? Yii::$app->request->get('l'):'';
         $recordDetail=[];
         if ($type=='MSME') {
-            $recordDetail=MsmeExcelData::find()->where(['LoanAccountNo'=>$loanid,'IsApproved'=>1])->orderBy(['LoanAccountNo' => SORT_DESC])->one();
+            $recordDetail=MsmeExcelData::find()->where(['LoanAccountNo'=>$loanid,'IsApproved'=>1])->orderBy(['Mid' => SORT_DESC])->one();
         }
 
         else if($type='MFI') {
-            $recordDetail=ExcelData::find()->where(['LoanAccountNo'=>$loanid,'IsApproved'=>1])->orderBy(['LoanAccountNo' => SORT_DESC])->one();
+            $recordDetail=ExcelData::find()->where(['LoanAccountNo'=>$loanid,'IsApproved'=>1])->orderBy(['Eid' => SORT_DESC])->one();
         }
 
 
@@ -345,18 +345,19 @@ class SiteController extends Controller {
         $model=new LoanPaymentForm();
 
         if ($model->load(Yii::$app->request->post())) {
+         //echo "inn";
             $otpcode=implode('', Yii::$app->request->post()['otp']);
             $model->otp=$otpcode;
 
             if($model->validate()) {
                 $loanaccountno=$model->loanaccno;
                 $mobileno=$model->mobileno;
+                
                 $checkotp=OtpVerification::find()->where(['MobileNo'=> $mobileno, 'OtpCode'=> $otpcode, 'IsVerified'=> 0, 'IsDelete'=> 0])->orderBy(['Id'=> SORT_DESC])->one();
-
                 if (count($checkotp) > 0) {
                   $recordtl=Yii::$app->db->createCommand("SELECT Eid as id,RecordId,LoanAccountNo,MobileNo,DemandDate,Type FROM `ExcelData` WHERE `MobileNo`='$mobileno' AND `LoanAccountNo`='$loanaccountno'GROUP BY LoanAccountNo UNION ALL SELECT  Mid as id,RecordId,LoanAccountNo,MobileNo,DemandDate,Type FROM `MsmeExcelData` WHERE `MobileNo`='$mobileno' AND `LoanAccountNo`='$loanaccountno'GROUP BY LoanAccountNo");
                        $record =$recordtl->queryAll(); 
-                        //var_dump($record);
+                       // var_dump($record);die();
                     //$record = ExcelData::find()->where(['MobileNoo' => $mobileno, 'LoanAccountNo' => $loanaccountno])->one();
                     if ($record) {
                         $checkotp->IsVerified=1;
@@ -378,7 +379,7 @@ class SiteController extends Controller {
                             $session->set('type', $value['Type']);
                             $session->set('month', $value['DemandDate']);
                             $session->set('mobile',$value['MobileNo']);
-                           // $session->set('recordid', $recordid);
+                           //$session->set('recordid', $recordid);
                             }
                             return $this->redirect(['home']);
                         }
@@ -394,11 +395,11 @@ class SiteController extends Controller {
             else {
 
                 Yii::$app->session->setFlash('error', 'Please fill otp');
-                return $this->redirect([login]);
+                return $this->redirect(['login']);
             }
 
         }
-
+  //var_dump($recordDetail);
         return $this->render('login', ['model'=>$model, 'recordDetail'=>$recordDetail]);
     }
 
@@ -409,7 +410,16 @@ class SiteController extends Controller {
      *
      * @return mixed
      */
-    public function actionLogout() {
+    public function actionLogouts() {
+     
+       $session = Yii::$app->session;
+     $session->open();
+     $session->remove('RecordId');
+     unset($session['RecordId']);
+     unset($_SESSION['RecordId']);
+     $session->close();
+     $session->destroy();
+     
         Yii::$app->user->logout();
 
         return $this->goHome();

@@ -108,19 +108,19 @@ $this->title = 'Home';
                  <?php }?>
                 <?php if ($approve == 0) {?>
                   <?php if ($type == 34) {?>
-                     <td>  <a href="<?= Url::toRoute(['site/updatemfi','id' => $value->Eid,'type'=>34]);  ?>"   style="float:left;">EDIT</a></td>
+                     <td>  <a href="<?= Url::toRoute(['site/updatemfi','id' => $value->Eid,'type'=>34,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
                  <?php  } ?>
                  <?php if ($type == 35) {?>
-                     <td>  <a href="<?= Url::toRoute(['site/updatemfi','id' => $value->Eid,'type'=>35]);  ?>"   style="float:left;">EDIT</a></td>
+                     <td>  <a href="<?= Url::toRoute(['site/updatemfi','id' => $value->Eid,'type'=>35,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
                  <?php  } ?>
                  <?php if ($type == 36) {?>
-                     <td>  <a href="<?= Url::toRoute(['site/updatemfi','id' => $value->Eid,'type'=>36]);  ?>"   style="float:left;">EDIT</a></td>
+                     <td>  <a href="<?= Url::toRoute(['site/updatemfi','id' => $value->Eid,'type'=>36,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
                  <?php  } ?>
                   <?php if ($type == 37) {?>
-                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>37]);  ?>"   style="float:left;">EDIT</a></td>
+                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>37,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
               <?php } ?>
                <?php if ($type == 38) {?>
-                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>38]);  ?>"   style="float:left;">EDIT</a></td>
+                 <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>38,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
               <?php } ?>
                 
                 <?php

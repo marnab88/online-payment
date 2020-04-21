@@ -48,8 +48,11 @@ $this->title = 'Customer Details';
               <th>LatePenalty</th>
               <th>NextInstallmentDate</th>
               <th>UploadMonth</th>
-              <th>ProductVertical</th>
-              <th>Payment Amount</th>
+              <th>Transaction Date</th>
+              <th>Wallet Bank Ref. No.</th>
+              <th>Receipt Mode</th>
+              <th>Receipt Amount</th>
+              <th>Due Amount</th>
              
             </tr>
           <?php
@@ -57,6 +60,7 @@ $this->title = 'Customer Details';
             ?>
 
               <tr>
+
                 <td><?= $key+1 ?></td>
                 <td><?= $value->Type ?></td>
                 <td><?= $value->BranchName ?></td>
@@ -73,14 +77,43 @@ $this->title = 'Customer Details';
                 <?php }else{echo'';}?>
                 <td><?= $value->MobileNo ?></td>
                 <td><?= $value->EmiSrNo ?></td>
-                <td><?= $value->DemandDate ?></td>
-                <td><?= $value->LastMonthDue ?></td>
-                <td><?= $value->CurrentMonthDue ?></td>
-                <td><?= $value->LatePenalty ?></td>
-                <td><?= $value->NextInstallmentDate ?></td>
+                <td><?= date('d-m-Y',strtotime($value->DemandDate)) ?></td>
+                <td><?= number_format($value->LastMonthDue,2); ?></td>
+                <td><?= number_format($value->CurrentMonthDue,2); ?></td>
+                <td><?= number_format($value->LatePenalty,2); ?></td>
+                <td><?= date('d-m-Y',strtotime($value->NextInstallmentDate)) ?></td>
                 <td><?= $value->UploadMonth ?></td>
-                <td><?= $value->ProductVertical ?></td>
-                <td><?= $paymetdetails->TXN_AMT ?></td>
+
+                <td>
+                  <?php
+                        
+                        $txdt=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_DATE:$paymetdetails[$value->Mid]->TXN_DATE;
+                        if($txdt){
+                         echo date('d-m-Y H:i:s',strtotime($txdt));
+                        }else{
+                        echo '';
+                      }
+                ?>
+                </td>
+
+                
+                <td>
+                  <?=isset($value->Mid)?$paymetdetails[$value->Mid]->WALLET_BANK_REF:$paymetdetails[$value->Eid]->WALLET_BANK_REF;?>
+                </td>
+                <td>
+                  <?=isset($value->Mid)?$paymetdetails[$value->Mid]->PG_MODE:$paymetdetails[$value->Eid]->PG_MODE;?>
+                </td>
+                <td><?php
+                        
+                        $paid=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_AMT:$paymetdetails[$value->Mid]->TXN_AMT;
+                        if(!$paid){
+                         $paid=0;
+                        }
+                        echo number_format($paid,2);
+                ?></td>
+                <td>
+                  <?= number_format(($value->LastMonthDue + $value->CurrentMonthDue + $value->LatePenalty)-$paid,2) ?>
+                </td>
               </tr>
               
               <?php
