@@ -22,7 +22,7 @@ class GoogleURLShortner extends Widget
                     'longUrl' => $this->$url
                 );
                 
-                $curl_obj = curl_init(sprintf('%s/url?key=%s', 'http://128.199.184.65/onlineportal/site/login', $this->api_key));
+                $curl_obj = curl_init(sprintf('%s/url?key=%s', Yii::getAlias('@frontendUrl').'/site/login', $this->api_key));
                 curl_setopt($curl_obj, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($curl_obj, CURLOPT_POST, true);
                 curl_setopt($curl_obj, CURLOPT_HTTPHEADER, array('Content-type: application/json'));

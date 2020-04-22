@@ -78,10 +78,10 @@ $this->title = 'Home';
                        
 						<?php ActiveForm::end() ?>
 						<div style="width:400px; float:left; margin-top:20px;">
-                         <a href="<?= 'http://128.199.184.65/onlineportal/backend/assets/sample/testmfi.xlsx' ?>" target="_blank">
+                         <a href="<?= Yii::getAlias('@backendUrl').'/assets/sample/testmfi.xlsx' ?>" target="_blank">
 						<button type="submit" class="btn btn-danger mr-2" >Sample MFI <span class="mdi mdi-cloud-download big"></span>  </button>
                         </a>
-                        <a href="<?= 'http://128.199.184.65/onlineportal/backend/assets/sample/testmsme.xlsx' ?>" target="_blank">
+                        <a href="<?= Yii::getAlias('@backendUrl').'/assets/sample/testmsme.xlsx' ?>" target="_blank">
 						<button type="submit" class="btn btn-danger mr-2" >Sample MSME <span class="mdi mdi-cloud-download big"></span>  </button>
                         </a>
 						</div>

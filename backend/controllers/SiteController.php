@@ -256,22 +256,19 @@ public function actionIndex()
     $reader= \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputFileType);
     $spreadsheet=$reader->load($inputFileName);
     $sheetcount=$spreadsheet->getSheetCount();
-
+     
     for ($i = 0; $i < $sheetcount; $i++)
            {
                    $sheet = $spreadsheet->getSheet($i);
-                   $sheetrows = $sheet->getHighestRow();
+                 
+                   echo $sheetrows = $sheet->getHighestRow();
+                
                    for($row = 2; $row<=$sheetrows; $row++)
                    {
-                    
+                    echo $row;
                     $invalidcount=0;
                     $rownos='';
-                    $empty='';
-                    for($i=2;$i<=16;$i++){
-                     if(trim((string)$sheet->getCellByColumnAndRow($i,$row))==''){
-                      $empty.='NA'.'-row-'.$i;
-                     }
-                    }
+                    
                     $empty='';
                     if($empty=='')
                     {
@@ -348,7 +345,7 @@ public function actionIndex()
                   //echo "$errorclient+$errormobile+$errorEmiSrNo+$DemandDateError+$errorLoanAccountNo+$errormoblength";
                   $toterror=$errorclient+$errormobile+$errorEmiSrNo+$DemandDateError+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClusterError+$LastMonthDueError
                             +$CurrentMonthDueError;
-                  $msme->errorCount=$toterror;
+                  //$msme->errorCount=$toterror;
                   $errormsg=null;
                   if($errorclient>0){
                    $errormsg.=' duplicate Clientid';
@@ -389,7 +386,7 @@ public function actionIndex()
                             if ($count->save()) {
                             
                              Yii::$app->session->setFlash('success','File Uploaded successfully');
-                             return $this->redirect(['index']);
+                             //return $this->redirect(['index']);
                             }
                     
                             else{
@@ -411,10 +408,10 @@ public function actionIndex()
            }  //echo "<pre>";
                     //  var_dump($models);echo "</pre>";
                    // die();
-    $mismatch=ExcelData::find()->where(['RecordId'=>$model->RecordId,'IsDelete'=>0])->one();
-    $connection = \Yii::$app->db;
+                   $mismatch=UploadRecords::find()->where(['RecordId'=>$model->RecordId,'IsDelete'=>0,'Type'=>'MFI'])->one();
+    
 
-   $otherError=MsmeExcelData::find()->where(['RecordId'=>$model->RecordId,'IsDelete' => 0])->andWhere(['!=','errorCount','0'])->count();
+   $otherError=ExcelData::find()->where(['RecordId'=>$model->RecordId,'IsDelete' => 0])->andWhere(['!=','errorCount','0'])->count();
    
       $mismatch->Mismatch =$otherError ;
     
@@ -582,7 +579,7 @@ public function actionIndex()
         }
         //die();
  }
- $mismatch=UploadRecords::find()->where(['RecordId'=>$model->RecordId,'IsDelete'=>0])->one();
+ $mismatch=UploadRecords::find()->where(['RecordId'=>$model->RecordId,'IsDelete'=>0,'Type'=>'MSME'])->one();
  $connection = \Yii::$app->db;
 
  
@@ -659,11 +656,12 @@ public function actionDeleterecord(){
  $only='';
  if($dlt=='only')
   $only.=" and errorCount=1";
- $count=
+ $count='0';
+ echo $model;
  $del=Yii::$app->db->createCommand()
         ->delete($model, "RecordId = $recordid".$only)
         ->execute();
-  
+  //$query->createCommand()->getRawSql();
   
  $details = UploadRecords::find()->where(['RecordId'=>$recordid])->one();
   if($only=='')
@@ -831,6 +829,8 @@ public function actionUpdatemfi($id,$type,$mon){
          $mon=$value->MonthYear;
         }
   $details = $model->RecordId;
+  $model->errorMsg=null;
+  $model->errorCount=0;
   if ($model->load(Yii::$app->request->post()) && $model->save()) {
    $uid=Yii::$app->user->identity->UserId;
    $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();
@@ -840,11 +840,13 @@ public function actionUpdatemfi($id,$type,$mon){
    $result = $command->queryAll(); 
           
    if ($result) {
-     $types->Mismatch=$result[0]['cnt']; 
+     //$types->Mismatch=$result[0]['cnt'];
+     $types->Mismatch=0;
    }
    else{
     $types->Mismatch=0 ;
   }
+  
   if ($types->save()) {
     $connection = \Yii::$app->db;
     $mismatchmobile=$connection->createCommand("SELECT COUNT(*) as cnt from ExcelData WHERE `RecordId`='$types->RecordId' and  `IsDelete`=0 and length(`MobileNo`) != 10");
@@ -903,7 +905,7 @@ public function actionUploaded()
 }
 private function getUrl($RecordId,$Type,$loan){
       //$excel = MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
-  $link = urlencode('http://128.199.184.65/onlineportal/site/login?id='.$RecordId.'&typ='.$Type.'&l='.$loan);
+  $link = urlencode(Yii::getAlias('@frontendUrl').'/site/login?id='.$RecordId.'&typ='.$Type.'&l='.$loan);
   $key='91a58dbc5e02d2897e9c6eb5d9466f3d2ca17';
   $url='https://cutt.ly/api/api.php';
   $json = file_get_contents($url."?key=$key&short=$link"); 
@@ -915,7 +917,7 @@ private function getMfiUrl($RecordId,$Type,$loan){
  // $excel = ExcelData::find()->where(['RecordId'=>$id,'IsDelete'=>0])->one();
 
 
- $link = urlencode('http://128.199.184.65/onlineportal/site/login?id='.$RecordId.'&typ='.$Type.'&l='.$loan);
+ $link = urlencode(Yii::getAlias('@frontendUrl').'/site/login?id='.$RecordId.'&typ='.$Type.'&l='.$loan);
  $key='91a58dbc5e02d2897e9c6eb5d9466f3d2ca17';
  $url='https://cutt.ly/api/api.php';
  $json = file_get_contents($url."?key=$key&short=$link"); 
@@ -1041,7 +1043,7 @@ return $this->redirect(['index']);
 
     public function actionPaymentdetails(){
        $this->layout = 'common';
-      $getpayment=Yii::$app->db->createCommand("Select *,(DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,WALLET_BANK_REF, BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE, MID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,ms.Type as TYPE from MsmeExcelData ms inner join TXN_DETAILS t on t.USER_ID = ms.Mid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)m UNION ALL Select *, (DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,WALLET_BANK_REF,BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE,EID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,es.Type as TYPE from ExcelData es inner join TXN_DETAILS t on t.USER_ID = es.Eid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)e");
+      $getpayment=Yii::$app->db->createCommand("Select *,(DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF, BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE, MID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,ms.Type as TYPE from MsmeExcelData ms inner join TXN_DETAILS t on t.USER_ID = ms.Mid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)m UNION ALL Select *, (DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF,BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE,EID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,es.Type as TYPE from ExcelData es inner join TXN_DETAILS t on t.USER_ID = es.Eid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)e");
       $getallreport =$getpayment->queryAll();
 
       return $this->render('paymentdetails',['getallreport'=>$getallreport]);

@@ -243,16 +243,16 @@ input[type=number] {
 							<label class="control-label col-sm-4" for="email">EMI Amount:</label>
 							<div class="col-sm-8">
 							
-								Rs.<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty,2); ?>
-								<input type="hidden" value="<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount, 2); ?>">
+								Rs.<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue,2); ?>
+								<input type="hidden" value="<?= number_format($recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount, 2); ?>">
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="control-label col-sm-4" for="email">EMI Balance:</label>
 							<div class="col-sm-8">
 							
-								Rs.<?=$recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount ?>
-								<input type="hidden" value="<?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty-$amount ?>" name="emi">
+								Rs.<?=$recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount ?>
+								<input type="hidden" value="<?= $recorddetail->CurrentMonthDue +  $recorddetail->LatePenalty+$recorddetail->LastMonthDue-$amount ?>" name="emi">
 							</div>
 						</div>
 						

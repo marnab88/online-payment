@@ -14,12 +14,6 @@ $this->title = 'Home';
 ?>
 <div class="site-login">
 
-
-  
- <!--  -->
-    
-
-    
     <div class="col-lg-12 grid-margin stretch-card" style="padding-left:0px;" >
       <div class="card">
         <div class="card-body">
@@ -49,14 +43,15 @@ $this->title = 'Home';
              <?php if($sms == ''){?>
                  
               <?php }else{?> 
-                  <th>Sms Status</th>
-               <th>TinyUrl Link</th>
+                
+              
                <th>Payment Status</th>
                <th>Payment Amount</th>
               <?php }?>
                
               <?php if ($approve == 0 ) {?>
               <th>Action</th>
+              <th>ErrorMsg</th>
             <?php  }?> 
             </tr>
           <?php
@@ -127,7 +122,7 @@ $this->title = 'Home';
               }
                 ?>
                
-
+            <td><?= $value->errorMsg ?></td>
               </tr>
               
               <?php
