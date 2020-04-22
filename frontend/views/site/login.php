@@ -59,6 +59,10 @@ p.tl {
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus{ border: 0px solid #ddd; border-bottom-color: 0px solid #ddd;background-color: #f27024; color: #fff;    padding: 10px 15px;}
 .nav-tabs {
     border-bottom: 1px solid #f27024;}
+input {
+    border: none !important;
+    background: transparent !important;
+}
 </style>
 <div class="site-login">
 	<div class="container-fluid">
@@ -73,8 +77,8 @@ p.tl {
 			<div class="row align-items-center">
 				<div class="col-md-6 mx-auto page" style=" padding-top:50px;margin-top: 0px;margin-bottom: 0px;background-size: contain;" >
 					<p class="llg"><img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/logo.png" height="70" /></p>
-					<p class="tl"> Welcome to Our Online Payment Facility </p>
-<p class="nrm">You Can Pay your Annapurna Finance Loan   EMI/Overdue Using UPI / Debit Card/ Internet Banking/Wallet Facility Offered By your bank .</p>
+					<p class="tl"> Welcome to Loan Repayment Portal </p>
+<p class="nrm" style="margin-top:12px; margin-bottom:20px;">You Can Pay your Annapurna Finance Loan   EMI/Overdue Using UPI / Debit Card/ Internet Banking/Wallet Facility Offered By your bank .</p>
 
 <ul class="nav nav-tabs" role="tablist">
   <li class="nav-item">
@@ -94,7 +98,8 @@ p.tl {
 						<?php $form = ActiveForm::begin(['id' => 'login-form', 'options' => ['class' => 'form-horizontal']]); ?>
 						<div class="form-group">
 							
-							<div class="col-sm-12">
+							<div class="col-sm-12" style="border:1px solid #ccc; background:#fff;">
+								<div style="width:92%; float:left;">
 								<?php
 								$hide='none';
 								 if(isset($recordDetail->LoanAccountNo)){
@@ -104,6 +109,8 @@ p.tl {
 								<?php }else{?>
 								<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number or provide last 6 digits of your loan account number', 'autocomplete'=>'off', 'onblur'=>'fetchmob()'])->label(false) ?>
 								<?php }?>
+								</div>
+								<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png" height="40" style="float:left; margin-top:10px;" />
 								<p id="display_info" style="color:red;text-align:left;"></p>
 							</div>
 						</div>

@@ -61,8 +61,13 @@ $this->title = 'Home';
               <?php }?>
              <?php if ( $approve == 0) {?>
               <th>Action</th>
-            <?php  }?>
-            <th>ErrorMsg</th>
+            <?php  }
+            else{
+            ?>
+            <th>TinyUrl</th>
+            <?php }
+            ?>
+            <th><?=( $approve == 0)?'ErrorMsg':''?></th>
             </tr>
           <?php
          
@@ -138,9 +143,13 @@ $this->title = 'Home';
                   <?php
                 
               }
+              else{
                  ?>
-                
-          <td><?= $value->errorMsg ?></td>
+                 <td><?=$value->TinnyUrl?></td>
+                <?php
+              }
+              ?>
+          <td><?= ( $approve == 0)?$value->errorMsg:'' ?></td>
               </tr>
               
               <?php
@@ -169,10 +178,12 @@ $this->title = 'Home';
 
         
           <?php
-         if ($getblankvalue >= 1) {?>
+          
+         if ($getblankvalue>= 1 ) {?>
               <?php echo "";?>
-           <?php }else{ ?>
-           <?php if($approve==0){?>
+           <?php }else{
+            ?>
+           <?php if($approve==0 ){?>
             <?php if ($type == 34) {?>
                <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>34,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning: Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a>
           <?php  } ?>
@@ -189,7 +200,30 @@ $this->title = 'Home';
               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>39,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back. "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
           <?php } ?>
            
-            <?php }else{ echo "";}}?>
+            <?php }
+            elseif($approve==1){
+             ?>
+             <?php if ($type==34) {?>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/sendsms','id'=>$id,'type'=>34,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+       <?php  } ?>
+       <?php if ($type==35) {?>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/sendsms','id'=>$id,'type'=>35,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+       <?php  } ?>
+       <?php if ($type==36) {?>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/sendsms','id'=>$id,'type'=>36,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+       <?php  } ?>
+       <?php if ($type==37) {?>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/sendsms','id'=>$id,'type'=>37,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+       <?php  } ?>
+        <?php if ($type==39) {?>
+           <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/sendsms','id'=>$id,'type'=>39,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
+       <?php  } ?>
+             
+             <?php
+             
+            }
+            
+            }?>
 
       </td>
       </tr>

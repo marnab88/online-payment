@@ -24,6 +24,12 @@ $this->title = 'Customer Details';
           <?php } ?>
          
           <div class="table-responsive">
+           <select onchange="show_pay(this.value);" style="color:#000;">
+            <option value="all">All</option>
+            <option value="Partial">Partial</option>
+            <option value="Complete">Complete</option>
+            <option value="Pending">Pending</option>
+           </select>
           <table class="table table-striped table-bordered" id="table_emp">
             <tr>
               <th>Sl. No.</th>
@@ -33,12 +39,6 @@ $this->title = 'Customer Details';
               <th>Client Id</th>
               <th>LoanAccountNo </th>
               <th>Client Name</th>
-              <?php if ($type == 'MFI') {?>
-              <th>Spouse Name</th>
-              <th>Village Name</th>
-              <th>Center</th>
-              <th>Group Name</th>
-             <?php }else{echo'';}?>
               <th>MobileNo</th>
               <th>EmiSrNo</th>
               <th>DemandDate</th>
@@ -47,18 +47,30 @@ $this->title = 'Customer Details';
               <th>LatePenalty</th>
               <th>NextInstallmentDate</th>
               <th>UploadMonth</th>
-              <th>Transaction Date</th>
-              <th>Wallet Bank Ref. No.</th>
-              <th>Receipt Mode</th>
+              <th>Total EMI Amount</th>
               <th>Receipt Amount</th>
               <th>Due Amount</th>
-             <!--<th>Type</th>-->
+              <th>Type</th>
+              <th>Status</th>
             </tr>
           <?php
             foreach ($details as $key => $value) {
+             $totalamt=$value->LastMonthDue+$value->CurrentMonthDue+$value->LatePenalty;
+              $paid=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_AMT:$paymetdetails[$value->Mid]->TXN_AMT;
+              if(!$paid){
+               $paid=0;
+              }
+              $due=$totalamt-$paid;
+             if($due>0)
+              $pay_status='Partial';
+             elseif($due<=0)
+             $pay_status='Complete';
+             if($paid==0)
+             $pay_status='Pending';
+             
             ?>
 
-              <tr>
+              <tr class="<?=$pay_status?> all">
 
                 <td><?= $key+1 ?></td>
                 <td><?= $value->BranchName ?></td>
@@ -67,12 +79,6 @@ $this->title = 'Customer Details';
                 <td><?= $value->ClientId ?></td>
                 <td><?= $value->LoanAccountNo ?></td>
                 <td><?= $value->ClientName ?></td>
-                <?php if ($type == 'MFI') {?>
-                <td><?= $value->SpouseName ?></td>
-                <td><?= $value->VillageName ?></td>
-                <td><?= $value->Center ?></td>
-                <td><?= $value->GroupName ?></td>
-                <?php }else{echo'';}?>
                 <td><?= $value->MobileNo ?></td>
                 <td><?= $value->EmiSrNo ?></td>
                 <td><?= date('d-m-Y',strtotime($value->DemandDate)) ?></td>
@@ -81,38 +87,13 @@ $this->title = 'Customer Details';
                 <td><?= number_format($value->LatePenalty,2); ?></td>
                 <td><?= date('d-m-Y',strtotime($value->NextInstallmentDate)) ?></td>
                 <td><?= $value->UploadMonth ?></td>
-
-                <td>
-                  <?php
-                        
-                        $txdt=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_DATE:$paymetdetails[$value->Mid]->TXN_DATE;
-                        if($txdt){
-                         echo date('d-m-Y H:i:s',strtotime($txdt));
-                        }else{
-                        echo '';
-                      }
-                ?>
-                </td>
-
-                
-                <td>
-                  <?=isset($value->Mid)?$paymetdetails[$value->Mid]->WALLET_BANK_REF:$paymetdetails[$value->Eid]->WALLET_BANK_REF;?>
-                </td>
-                <td>
-                  <?=isset($value->Mid)?$paymetdetails[$value->Mid]->PG_MODE:$paymetdetails[$value->Eid]->PG_MODE;?>
-                </td>
-                <td><?php
-                        
-                        $paid=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_AMT:$paymetdetails[$value->Mid]->TXN_AMT;
-                        if(!$paid){
-                         $paid=0;
-                        }
-                        echo number_format($paid,2);
-                ?></td>
-                <td>
-                  <?= number_format(($value->LastMonthDue + $value->CurrentMonthDue + $value->LatePenalty)-$paid,2) ?>
-                </td>
+                <td><?= number_format($totalamt,2)?></td>
+                <td><?= number_format($paid,2)?></td>
+                <td><?= number_format($due,2)?></td>
                 <td><?= $value->Type ?></td>
+                <td><?=$pay_status ?></td>
+                
+                
               </tr>
               
               <?php
@@ -133,7 +114,7 @@ $this->title = 'Customer Details';
           if(table && table.length){
             var preserveColors = (table.hasClass("table2excel_with_colors") ? true : false);
             $("#table_emp").table2excel({
-              exclude: ".noExl",
+              exclude: ".dln",
               name: "Report",
               filename: "Report" + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
               fileext: ".xls",
@@ -146,7 +127,14 @@ $this->title = 'Customer Details';
         });
 ');
   ?>
-
+<script type="text/javascript">
+ function show_pay(val){
+  $('.all').addClass('dln');
+  $('.all').hide();
+  $('.'+val).show();
+  $('.'+val).removeClass('dln');
+    }
+</script>
 
 
 
