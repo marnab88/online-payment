@@ -114,6 +114,13 @@ AppAsset::register($this);
             </a>
 
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<?= Url::to(['site/report2']) ?>" >
+              <span class="menu-title">Monthly Download report</span>
+              <i class="mdi mdi-plus menu-icon"></i>
+            </a>
+
+          </li>
           <?php
           }
           ?>

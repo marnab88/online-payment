@@ -336,7 +336,9 @@ class SiteController extends Controller {
         else if($type='MFI') {
             $recordDetail=ExcelData::find()->where(['LoanAccountNo'=>$loanid,'IsApproved'=>1])->orderBy(['Eid' => SORT_DESC])->one();
         }
-
+       if($loanid==''){
+        $recordDetail=[];
+       }
 
         if ( !Yii::$app->user->isGuest) {
             return $this->goHome();
@@ -470,7 +472,9 @@ class SiteController extends Controller {
         $date = Yii::$app->request->post('date');
         $userid = Yii::$app->request->post('userid');
         $loanid = Yii::$app->request->post('loanid');
-        $pre=TXNDETAILS::find()->where(['LOAN_ID'=>$loanid,'USER_ID'=>$userid,'TXN_DATE'=>$date])->one();
+        $txnid=Yii::$app->request->post('id');
+        $pre=TXNDETAILS::find()->where(['id'=>$txnid])->one();
+        $pre_pre=TXNDETAILS::find()->select('sum(TXN_AMT) as TXN_AMT')->where(['TXN_STATUS'=>1,'LOAN_ID'=>$loanid])->andWhere("DATE_FORMAT(TXN_DATE,'%Y-%m') =DATE_FORMAT(NOW(),'%Y-%m')")->andWhere(['<','id',$txnid])->one();
         if ($pre->TYPE == "MSME") {
             $details=MsmeExcelData::find()->where(['LoanAccountNo'=>$loanid,'Mid'=>$userid,'IsDelete'=>0])->one();
         }
@@ -479,7 +483,7 @@ class SiteController extends Controller {
             $details=ExcelData::find()->where(['LoanAccountNo'=>$loanid,'Eid'=>$userid,'IsDelete'=>0])->one();
         }
         
-        return $this->render('print',['pre'=>$pre,'details'=>$details,'date'=>$date]);
+        return $this->render('print',['pre'=>$pre,'details'=>$details,'date'=>$date,'pre_pre'=>$pre_pre]);
 
     }
 

@@ -51,7 +51,18 @@ $this->title = 'Previous Payment History';
 											<input type="hidden" id="loanid" value="<?=$value->LOAN_ID?>">
 											<input type="hidden" id="userid" value="<?=$value->USER_ID?>">
 											<input type="hidden" id="txndate" value="<?=$value->TXN_DATE?>">
-											<button type="button" class="btn btn-success pdfdownload" style="margin-bottom: 0px;padding: 1px 8px;"><i class="fa fa-download"></i></button>
+											<?php 
+											if ($value->TXN_STATUS==1)
+												{
+											?>
+											<button type="button" class="btn btn-success pdfdownload" data="<?=$value->id?>" style="margin-bottom: 0px;padding: 1px 8px;"><i class="fa fa-download"></i></button>
+											<?php
+												}
+											else 
+												{
+												echo "N/A";
+												}
+											 ?>
 										</td>
 										 
 										</tr>
@@ -102,7 +113,8 @@ $('.pdfdownload').click(function() {
         var txndate=$('#txndate').val();
         var loanid=$('#loanid').val();
         var userid=$('#userid').val();
-        $('#userInfo').load("$printUrl", {date: txndate, loanid: loanid, userid: userid},function(){
+								var txnid=$(this).attr('data');
+        $('#userInfo').load("$printUrl", {date: txndate, loanid: loanid, userid: userid,id:txnid},function(){
         	var divToPrint=document.getElementById('userInfo');
 		  var newWin=window.open('','Print-Window');
 		  newWin.document.open();

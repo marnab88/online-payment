@@ -36,7 +36,7 @@ class SiteController extends Controller
       'class' => AccessControl::className(),
       'rules' => [
       [
-      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord'],
+      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord','cust-payment','report2'],
       'allow' => true,
       ],
       [
@@ -775,11 +775,11 @@ $month = date("m",strtotime($month));
    }
   
   $getallid=MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])	
-	             ->andWhere(['!=','errorMsg','0'])	
+	             ->andWhere(['!=','errorCount','0'])	
 	             ->all();
 
-  $getblank = Yii::$app->db->createCommand("SELECT ( a.a1 + a.a2 + a.a3 + a.a4 + a.a5 + a.a6 + a.a7 + a.a8 + a.a9 + a.a10 + a.a11 + a.a12 + a.a13 + a.a14 + a.a15 ) AS blankcount FROM ( SELECT SUM(CASE WHEN BranchName ='' THEN 1 ELSE 0 END )as a1,SUM(CASE WHEN Cluster ='' THEN 1 ELSE 0 END )as a2, SUM(CASE WHEN State ='' THEN 1 ELSE 0 END )as a3, SUM(CASE WHEN ClientId ='' THEN 1 ELSE 0 END )as a4, SUM(CASE WHEN LoanAccountNo ='' THEN 1 ELSE 0 END )as a5 , SUM(CASE WHEN ClientName ='' THEN 1 ELSE 0 END )as a6, SUM(CASE WHEN MobileNo ='' THEN 1 ELSE 0 END )as a7 , SUM(CASE WHEN EmiSrNo ='' THEN 1 ELSE 0 END )as a8, SUM(CASE WHEN DemandDate ='' THEN 1 ELSE 0 END )as a9, SUM(CASE WHEN LastMonthDue ='' THEN 1 ELSE 0 END )as a10, SUM(CASE WHEN CurrentMonthDue ='' THEN 1 ELSE 0 END )as a11, SUM(CASE WHEN LatePenalty ='' THEN 1 ELSE 0 END )as a12, SUM(CASE WHEN NextInstallmentDate ='' THEN 1 ELSE 0 END )as a13, SUM(CASE WHEN UploadMonth ='' THEN 1 ELSE 0 END )as a14, SUM(CASE WHEN ProductVertical ='' THEN 1 ELSE 0 END )as a15  from MsmeExcelData a WHERE RecordId= $id ) a");
-  $getblankvalue = $getblank->queryScalar();
+
+  $getblankvalue = count($getallid);
  
   foreach ($getallid as $key => $value) {
     //var_dump($value);
@@ -1168,6 +1168,123 @@ return $this->redirect(['index']);
           ]);
       }
 
+    public function actionReport2()        { 
+          $model= new MsmeExcelData();
+          $this->layout = 'common';
+          $zonename=$branchname=$product=$type='';
+          $fromdate=date('Y-m-01');
+          $todate=date('Y-m-d', strtotime(date('Y-m-d'). ' +1 day'));
+          $allcustomer=$alldetails=array();
+          $branchnnm=ArrayHelper::map(BranchMaster::find()->where(['IsDelete'=>0])->all(),'BranchName','BranchName');
+          /*$brnchnm=Yii::$app->db->createCommand("SELECT distinct tmp.BranchName FROM ( (select Distinct BranchName as BranchName from MsmeExcelData WHERE BranchName !='') UNION (select Distinct BranchName as BranchName from ExcelData WHERE BranchName !='') ) as tmp");
+            $branchnnm =$brnchnm->queryAll();*/
+
+            $getcustom=Yii::$app->db->createCommand("
+               SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(es.DemandDate)
+            ");
+           
+            $allcustomer =$getcustom->queryAll();
+          
+          //$branchnnm=MsmeExcelData::find()->select('BranchName')->distinct()->where(['IsDelete'=>0])->all();
+          if (isset(Yii::$app->request->post()['report_search'])) {
+            $type=Yii::$app->request->post()['type']?Yii::$app->request->post()['type']:'';
+            $branchname=Yii::$app->request->post()['MsmeExcelData']['BranchName']?Yii::$app->request->post()['MsmeExcelData']['BranchName']:'';
+            $fromdt=Yii::$app->request->post()['fromdate']?Yii::$app->request->post()['fromdate']:'';
+            $todt=Yii::$app->request->post()['todate']?Yii::$app->request->post()['todate']:'';
+            $fromdate=date('Y-m-d', strtotime($fromdt));
+            $todate=date('Y-m-d', strtotime($todt. ' +1 day'));
+
+           if ($type !='' && $branchname =='' && $fromdate == '' && $todate =='') {
+                /*if ($type == 'MSME') {
+                  $where= 'ms.ProductVertical LIKE '. $type;
+
+                }else{
+                   $where= 'es.ProductVertical LIKE '.$type;
+                }*/
+             echo 1;
+                 $getcustom=Yii::$app->db->createCommand("SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.ProductVertical LIKE '$type' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.ProductVertical LIKE '$type' GROUP BY month(es.DemandDate)");
+                
+                
+           } else if ($type =='' && $branchname !='' && $fromdate == '' && $todate =='') {
+            echo 2;
+             $getcustom=Yii::$app->db->createCommand("
+                SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.BranchName LIKE '$branchname' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.BranchName LIKE '$branchname' GROUP BY month(es.DemandDate)");
+           }else if ($type =='' && $branchname =='' && $fromdate != '' && $todate !='') {
+            echo 3;
+             $getcustom=Yii::$app->db->createCommand("
+                SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID  AND es.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(es.DemandDate)");
+
+           }else if ($type !='' && $branchname !='' && $fromdate == '' && $todate =='') {
+            echo 4;
+             $getcustom=Yii::$app->db->createCommand("
+                SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.ProductVertical LIKE '$type' AND  ms.BranchName LIKE '$branchname' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.ProductVertical LIKE '$type' AND  es.BranchName LIKE '$branchname' GROUP BY month(es.DemandDate)");
+           }else if ($type !='' && $branchname =='' && $fromdate != '' && $todate !='') {
+            
+             $getcustom=Yii::$app->db->createCommand("
+                SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.ProductVertical LIKE '$type' AND ms.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and  TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.ProductVertical LIKE '$type' AND es.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(es.DemandDate)");
+           }else if ($type =='' && $branchname !='' && $fromdate != '' && $todate !='') {
+            echo 6;
+             $getcustom=Yii::$app->db->createCommand("
+                SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.BranchName LIKE '$branchname'  AND ms.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.BranchName LIKE '$branchname' AND es.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(es.DemandDate)");
+           }else if ($type !='' && $branchname !='' && $fromdate != '' && $todate !=''){
+            echo 7;
+            $getcustom=Yii::$app->db->createCommand("
+                SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.BranchName LIKE '$branchname' AND ms.ProductVertical LIKE '$type' AND ms.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE TXN_STATUS=1 and TXN_DATE BETWEEN '$fromdate' AND '$todate') as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.BranchName LIKE '$branchname' AND es.ProductVertical LIKE '$type' AND es.OnDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(es.DemandDate)");
+           }else{
+            
+            echo 'here';
+            $getcustom=Yii::$app->db->createCommand("
+               SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID GROUP BY month(es.DemandDate)
+              
+              ");
+           }
+            /*if ($type == 'MSME') {
+              $getcustom=Yii::$app->db->createCommand("SELECT txn.*, ms.State as state,ms.DemandDate,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.BranchName LIKE '$branchname'  AND ms.ProductVertical LIKE '$type' AND ms.DemandDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(ms.DemandDate)");
+             
+            }
+            else if ($type == 'MFI') {
+              $getcustom=Yii::$app->db->createCommand("SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.BranchName LIKE '$branchname' AND es.ProductVertical LIKE '$type' AND es.DemandDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(es.DemandDate)");
+            }else{
+              $getcustom=Yii::$app->db->createCommand("
+                SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.BranchName LIKE '$branchname' AND ms.ProductVertical LIKE '$type' AND ms.DemandDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.BranchName LIKE '$branchname' AND es.ProductVertical LIKE '$type' AND es.DemandDate BETWEEN '$fromdate' AND '$todate' GROUP BY month(es.DemandDate)");
+            }*/
+           
+           /* $getcustom=Yii::$app->db->createCommand("
+            SELECT txn.*, ms.State as state,ms.Cluster as cluster,ms.BranchName as branchname,ms.type as type,ms.DemandDate as ddate,month(ms.DemandDate) as month,year(ms.DemandDate) as yr,ms.CurrentMonthDue,ms.LatePenalty,(ms.CurrentMonthDue+ms.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as collectedamount,(SELECT COUNT(Mid) from MsmeExcelData ) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as paidcustomer FROM MsmeExcelData ms,TXN_DETAILS txn WHERE ms.Mid = txn.USER_ID AND ms.BranchName LIKE '$branchname' AND ms.ProductVertical LIKE '$type' AND ms.DemandDatee BETWEEN $fromdate AND $todate GROUP BY month(ms.DemandDate)
+            UNION ALL
+            SELECT txn.*, es.State as state,es.Cluster as cluster,es.BranchName as branchname,es.type as type,es.DemandDate as ddate,month(es.DemandDate) as month,year(es.DemandDate) as yr,es.CurrentMonthDue,es.LatePenalty,(es.CurrentMonthDue+es.LatePenalty) as totalamountdue,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as collectedamount,(SELECT COUNT(Eid) from ExcelData) as customer,(SELECT COUNT(DISTINCT USER_ID) FROM TXN_DETAILS WHERE txn.TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as paidcustomer FROM ExcelData es,TXN_DETAILS txn WHERE es.Eid = txn.USER_ID AND es.BranchName LIKE '$branchname' AND es.ProductVertical LIKE '$type' AND es.DemandDate BETWEEN $fromdate AND $todate GROUP BY month(es.DemandDate)
+              ");*/
+            $allcustomer =$getcustom->queryAll();
+        }
+        
+        //echo "<pre>";
+        //var_dump($allcustomer);
+         return $this->render('report2', [
+          'model'=>$model,'allcustomer' => $allcustomer,'branchnnm'=>$branchnnm,'branchname'=>$branchname,'type'=>$type,'fromdate'=>$fromdate,'todate'=>$todate
+          ]);
+      }
+
+
     /**
      * Logout action.
      *
@@ -1207,7 +1324,41 @@ return $this->redirect(['index']);
 
 
       }
+    
+    public function actionCustPayment($date,$type)      {   
+       $this->layout = 'common';
+       $month = date('m', strtotime($date));
+       $year = date('Y', strtotime($date));
+       $txnsts=array();
+       if ($type == 'MSME') {
+         $details = MsmeExcelData::find()->where(['month(DemandDate)'=>$month,'year(DemandDate)' => $year,'IsDelete' => 0])->all();
+         if ($details) {
+          foreach ($details as $key => $val) {
+            $paymetdetails[$val->Mid] = TXNDETAILS::find()->joinWith(['transactionres','usermser'])->select('SUM(TXN_DETAILS.TXN_AMT) as TXN_AMT,TXN_DETAILS.TXN_DATE,TXN_RESP_DETAILS.WALLET_BANK_REF,TXN_RESP_DETAILS.PG_MODE' )->where(['TXN_DETAILS.USER_ID'=>$val->Mid,'month(TXN_DETAILS.TXN_DATE)'=>$month,'year(TXN_DETAILS.TXN_DATE)' => $year,'TXN_DETAILS.TXN_STATUS'=>1])->one();
+            
+          }
+         // echo "<pre>";  var_dump($paymetdetails[$val->Mid] ); echo "</pre>";die();
+        }
+       }else{
+        $details = ExcelData::find()->where(['month(DemandDate)'=>$month,'year(DemandDate)' => $year,'IsDelete' => 0])->all();
+         if ($details) {
+          foreach ($details as $key => $val) {
+           
+            $paymetdetails[$val->Eid] = TXNDETAILS::find()->joinWith(['transactionres','usermfi'])->select('SUM(TXN_DETAILS.TXN_AMT) as TXN_AMT,TXN_DETAILS.TXN_DATE,TXN_RESP_DETAILS.WALLET_BANK_REF,TXN_RESP_DETAILS.PG_MODE' )->where(['TXN_DETAILS.USER_ID'=>$val->Eid,'month(TXN_DETAILS.TXN_DATE)'=>$month,'year(TXN_DETAILS.TXN_DATE)' => $year,'TXN_DETAILS.TXN_STATUS'=>1])->one();
+           
+          }
+
+        }
+       }
+       /*$details = ExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])->all();
+       $approve= ExcelData::find()->where(['RecordId'=>$id,'IsApproved'=>1,'IsDelete'=>0])->count(); */  
+       
+       return $this->render('customerpayment',['details'=>$details,'type'=>$type,'paymetdetails'=>$paymetdetails]);
+
+
+      }
       
+
     public function actionSubaddresetpassword(){
       $this->layout = 'common';
       $subadmin= User::find()->where(['Role'=> 2])->all();
