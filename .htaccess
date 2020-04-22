@@ -12,17 +12,17 @@ RewriteEngine On
 RewriteBase /
 
 # Backend redirect
-RewriteCond %{REQUEST_URI} ^/onlineportal/backend
-RewriteRule ^backend/(.*)$ onlineportal/backend/web/$1 [L]
+RewriteCond %{REQUEST_URI} ^/backend
+RewriteRule ^backend/(.*)$ backend/web/$1 [L]
 
 # Storage redirect
-RewriteCond %{REQUEST_URI} ^/onlineportal/store
-RewriteRule ^storage/(.*)$ onlineportal/storage/upload/$1 [L]
+RewriteCond %{REQUEST_URI} ^/store
+RewriteRule ^storage/(.*)$ storage/upload/$1 [L]
 
 # Frontend redirect
-RewriteCond %{REQUEST_URI} ^/onlineportal/(.*)$
-RewriteRule ^(.*)$ onlineportal/frontend/web/$1
+RewriteCond %{REQUEST_URI} ^/(.*)$
+RewriteRule ^(.*)$ frontend/web/$1
 
 # Api redirect
-RewriteCond %{REQUEST_URI} ^/onlineportal/api(.*)$
-RewriteRule ^(.*)$ onlineportal/api/web/$1
+RewriteCond %{REQUEST_URI} ^/api(.*)$
+RewriteRule ^(.*)$ api/web/$1

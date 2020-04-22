@@ -233,7 +233,7 @@ class SiteController extends Controller {
             $session->set('payment_amount', $payment_amount);
             // return $this->redirect(['payment']);
 
-            return $this->redirect("http://128.199.184.65:8080/amplpg/index.jsp?txnid=$txni&txntype=$type");
+            return $this->redirect("https://afpl.pay2annapurnafinance.in/amplpg/index.jsp?txnid=$txni&txntype=$type");
 
         }
 

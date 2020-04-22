@@ -5,6 +5,6 @@ Yii::setAlias('@backend', dirname(dirname(__DIR__)) . '/backend');
 Yii::setAlias('@console', dirname(dirname(__DIR__)) . '/console');
 Yii::setAlias('@storage', dirname(dirname(__DIR__)) . '/storage');
 
-Yii::setAlias('@frontendUrl', "http://128.199.184.65/onlineportal");
-Yii::setAlias('@backendUrl',"http://128.199.184.65/onlineportal/backend");
-Yii::setAlias('@storageUrl', "http://128.199.184.65/onlineportal/storage");
+Yii::setAlias('@frontendUrl', "http://pay2annapurnafinance.in/");
+Yii::setAlias('@backendUrl',"http://pay2annapurnafinance.in/backend");
+Yii::setAlias('@storageUrl', "http://pay2annapurnafinance.in/storage");

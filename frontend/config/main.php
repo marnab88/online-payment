@@ -15,7 +15,7 @@ return [
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',
-            'baseUrl' => '/onlineportal',
+            'baseUrl' => '',
         ],
         'user' => [
             'identityClass' => 'common\models\User',
