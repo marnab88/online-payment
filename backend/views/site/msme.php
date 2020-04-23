@@ -72,10 +72,10 @@ $this->title = 'Home';
             
             </tr>
           <?php
-         
+         $smsStatus=0;
             foreach ($details as $key => $value) {
             //var_dump($value); 
-
+             $smsStatus=$value->SmsStatus;
             
             ?>
               <tr style="<?php if ($value->errorMsg!='' || $value->BranchName == '' || $value->Cluster == '' || $value->State == '' || $value->ClientId == '' || $value->ClientName == '' || $value->EmiSrNo =='' || $value->LoanAccountNo == '' || $value->MobileNo =='' || $value->DemandDate =='' || $value->LastMonthDue =='' || $value->CurrentMonthDue == '' || $value->LatePenalty=='' || $value->NextInstallmentDate =='' || $value->UploadMonth == '' || $value->ProductVertical == '' ) {?>background-color: #ff000045;<?php }else{echo "";} ?>">
@@ -151,7 +151,7 @@ $this->title = 'Home';
                 <?php
               }
               ?>
-              <td>Processing</td>
+              <td><?=($smsStatus==1)?'Initiated':'Not Initiated'?></td>
           <td><?= ( $approve == 0)?$value->errorMsg:'' ?></td>
 
               </tr>
@@ -162,50 +162,52 @@ $this->title = 'Home';
         
       <tr>
         <?php if ($type==34) {?>
-          <td colspan="19" style="text-align:left;"><button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/adminprev']);  ?>" data-method="post"  style="float:left;color:#fff; ">Back</a></button>
+          <td colspan="1" style="text-align:left;"><button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/adminprev']);  ?>" data-method="post"  style="float:left;color:#fff; ">Back</a></button></td>
         
       <?php  }  ?>
        <?php if ($type==35) {?>
-          <td colspan="19" style="text-align:left;"><a href="<?= Url::to(['site/index']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a>
+          <td colspan="1" style="text-align:left;"><a href="<?= Url::to(['site/index']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a></td>
         
       <?php  }  ?>
       <?php if ($type==36) {?>
-          <td colspan="19" style="text-align:left;"><a href="<?= Url::to(['site/adminview']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a>
+          <td colspan="1" style="text-align:left;"><a href="<?= Url::to(['site/adminview']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a></td>
         
       <?php  }  ?>
       <?php if ($type == 37) {?>
-         <td colspan="19" style="text-align:left;"><a href="<?= Url::to(['site/previous']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a>
+         <td colspan="1" style="text-align:left;"><a href="<?= Url::to(['site/previous']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a></td>
       <?php } ?>
       <?php if ($type == 39) {?>
-         <td colspan="19" style="text-align:left;"><a href="<?= Url::to(['site/previous']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a>
+         <td colspan="1" style="text-align:left;"><a href="<?= Url::to(['site/previous']);  ?>" data-method="post"  style="float:left;color:#fff; "><button class="btn btn-danger" type="button">Back</button></a></td>
       <?php } ?>
 
         
           <?php
           
          if ($getblankvalue>= 1 ) {?>
-              <?php echo "";?>
+              <?php echo "sss";?>
            <?php }else{
             ?>
-           <?php if($approve==0 ){?>
+           <?php 
+           if($approve==0 ){?>
             <?php if ($type == 34) {?>
-               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>34,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning: Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+               <td><a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>34,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning: Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a></td>
           <?php  } ?>
           <?php if ($type == 35) {?>
-               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>35,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back. "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+               <td><a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>35,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back. "><button class="btn btn-success" type="button" name="approve">Approve</button></a></td>
           <?php  } ?>
           <?php if ($type == 36) {?>
-               <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>36,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+               <td><a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>36,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a></td>
           <?php  } ?>
           <?php if ($type == 37) {?>
-              <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>37,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+              <td><a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>37,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back."><button class="btn btn-success" type="button" name="approve">Approve</button></a></td>
           <?php } ?>
            <?php if ($type == 39) {?>
-              <a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>39,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back. "><button class="btn btn-success" type="button" name="approve">Approve</button></a>
+              <td><a href="<?= Url::toRoute(['site/msmedetails','id' => $id,'type'=>39,'mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;"  data-confirm="Warning. Once confirmed approval, this step cannot be reverted back. "><button class="btn btn-success" type="button" name="approve">Approve</button></a></td>
           <?php } ?>
            
             <?php }
-            elseif($approve==1){
+            elseif($approve>=1 && $smsStatus!=1){
+             
              ?>
              <?php if ($type==34) {?>
            <td colspan="19" style="text-align:left;"> <a href="<?= Url::toRoute(['site/sendsms','id'=>$id,'type'=>34,'mon'=>$mon]); ?>"><button class="btn btn-success" type="button" > Send SMS to All</button></a>
@@ -226,10 +228,13 @@ $this->title = 'Home';
              <?php
              
             }
-            
+            else
+            {
+            echo "<td colspan='19' style='text-align:left;'>SMS already sent</td>";
+            }
             }?>
 
-      </td>
+      
       </tr>
 
           </table>

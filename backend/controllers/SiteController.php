@@ -72,15 +72,25 @@ class SiteController extends Controller
      *
      * @return string
      */
-   
-
-      public function actionSendsms($id,$type,$mon)
+    
+    public function actionSendsms($id,$type,$mon)
+      {
+       //if($type=='MSME')
+       //  $model=new MsmeExcelData();
+       //else
+       //  $model= new ExcelData();
+       $model=new MsmeExcelData();
+       $excel= $model->updateAll(['SmsStatus'=>2],['RecordId'=>$id,'IsDelete'=>0,'SmsStatus'=>0]);
+       
+        return $this->redirect(['msme','id'=>$id,'type'=>$type,'mon'=>$mon]);
+      
+      }
+      public function actionSendsms2($id,$type,$mon)
       { 
        $excel = MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
-        $upload=UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
-        foreach ($upload as $key => $value) {
-         $mon=$value->MonthYear;
-        }
+        $upload=UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->one();
+        
+        $mon=$upload->MonthYear;
        foreach ($excel as $key => $value) {
         $date=date ('d-m-Y',strtotime($value->DemandDate));
         $Mobile=$value->MobileNo;
@@ -227,8 +237,10 @@ public function actionIndex()
  $model = new UploadRecords();
 
  if ($model->load(Yii::$app->request->post())) {
-
+  
   $imagep = UploadedFile::getInstance($model, 'File');
+  if ($imagep->extension=='xlsx'){
+ 
   if($imagep)
   {
    $imageID=$model->imageUpload($imagep);
@@ -261,11 +273,11 @@ public function actionIndex()
            {
                    $sheet = $spreadsheet->getSheet($i);
                  
-                   echo $sheetrows = $sheet->getHighestRow();
+                   $sheetrows = $sheet->getHighestRow();
                 
                    for($row = 2; $row<=$sheetrows; $row++)
                    {
-                    echo $row;
+                    
                     $invalidcount=0;
                     $rownos='';
                     
@@ -359,7 +371,7 @@ public function actionIndex()
                   if($errormoblength>0)
                   $errormsg.=' not a valid mobile number';
                   if($errorLoanAccountNo>0)
-                  echo $errormsg.=' this loanAcct already exist for this month';
+                   $errormsg.=' this loanAcct already exist for this month';
                   if($DemandDateError>0)
                    $errormsg.='Demand date cannot be empty';
                   if($BranchNameError>0)
@@ -433,7 +445,7 @@ public function actionIndex()
     for ($i = 0; $i < $sheetcount; $i++)
     {
      $sheet = $spreadsheet->getSheet($i);
-     echo $sheetrows = $sheet->getHighestRow();
+     $sheetrows = $sheet->getHighestRow();
      for($row = 2; $row<=$sheetrows; $row++)
           {
            $invalidcount=0;
@@ -513,7 +525,7 @@ public function actionIndex()
                   $ClusterError =(trim($Cluster)=='')? 1:0;
                   $BranchNameError =(trim($BranchName)=='')? 1:0;
                   $ClientNameError =(trim($ClientName)=='' && !(strlen($ClientName)>2 && strlen($ClientName)<21))? 1:0;
-                  //echo "$errorclient+$errormobile+$errorEmiSrNo+$DemandDateError+$errorLoanAccountNo+$errormoblength";
+                  
                    $toterror=$errorclient+$errormobile+$errorEmiSrNo+$DemandDateError+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClusterError+$LastMonthDueError
                             +$CurrentMonthDueError+$LoanAccountNoError;
                   $msme->errorCount=$toterror;
@@ -532,7 +544,7 @@ public function actionIndex()
                   if($errormoblength>0)
                   $errormsg.=' not a valid mobile number';
                   if($errorLoanAccountNo>0)
-                  echo $errormsg.=' this loanAcct already exist for this month';
+                   $errormsg.=' this loanAcct already exist for this month';
                   if($DemandDateError>0)
                    $errormsg.='Demand date cannot be empty';
                   if($BranchNameError>0)
@@ -603,7 +615,11 @@ else{
 }
 
 
-
+ }
+ else
+ {
+  Yii::$app->session->setFlash('error','Please only upload .xlsx extention file');
+ }
 }
 $month=UploadRecords::find()->where(['UploadedBy'=>Yii::$app->user->identity->UserId,'IsApproved'=>1,'IsDelete'=>0])->all();
 $currentYear=date('Y');

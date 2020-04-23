@@ -120,6 +120,7 @@ $('.pdfdownload').click(function() {
 		  newWin.document.open();
 		  newWin.document.write('<html><body onload="window.print()">'+divToPrint.innerHTML+'</body></html>');
 		  newWin.document.close();
+		  setTimeout(function(){newWin.close();},0.2);
 		  
 		  
 		  

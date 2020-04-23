@@ -108,7 +108,7 @@ input {
 									?>
 									<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number ','readonly'=>'readonly'])->label(false) ?>
 								<?php }else{?>
-								<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number or provide last 6 digits of your loan account number', 'autocomplete'=>'off', 'onblur'=>'fetchmob()'])->label(false) ?>
+								<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number / last 6 digits of your loan a/c number', 'autocomplete'=>'off', 'onblur'=>'fetchmob()'])->label(false) ?>
 								<?php }?>
 								 </div>
 								 <div class="col-md-2 col-xs-2">
