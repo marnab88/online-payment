@@ -14,13 +14,23 @@ $this->title = 'Payment Details';
 		<div class="col-lg-12 grid-margin stretch-card">
 			<div class="card">
 				<div class="card-body">
-					<h4 class="card-title col-sm-6">Payment Details</h4>
-					 <div class="col-sm-6">
+					<h4 class="card-title col-sm-4">Payment Details</h4>
+					
+					<?php $form = ActiveForm::begin(['action'=>['site/paymentdetails'],'options'=>['class' => 'form-horizontal']]); ?>
+					<div class="col-sm-4">
+					 		<input type="text" class="form-control" value="<?= $lnacno ?>" name="loanacno" placeholder="Enter LoanAccountNo"> 
+					</div>
+					<div class="col-sm-2"> 
+					 		<input class="btn btn-success" type="submit" value="Search" name="search" class="btn btn-success exportToExcel">
+		            </div>
+		            <?php ActiveForm::end(); ?>
+					 <div class="col-sm-2">
 					 	<?php if ($getallreport) {?>
 					 		<input type="button" value="Export" class="btn btn-success exportToExcel" style="float:right;">
 					 	<?php }else{'';}?>
 		                
 		            </div>
+		            
 					<div class="table-responsive">
 					<table class="table table-striped table-bordered" id="table_emp">
 						<thead>
@@ -40,9 +50,13 @@ $this->title = 'Payment Details';
 								<th>Receipt Mode</th>
 								<th>Next Installment Date</th>
 								<th>Due Amount</th>
+								<th>Status</th>
 						</tr>
 						<?php
+						if ($getallreport) {
+							
 						foreach ($getallreport as $key => $value) {
+
 							?>
 							<tr>
 								<td><?= $key+1 ?></td>
@@ -53,17 +67,21 @@ $this->title = 'Payment Details';
 								<td><?= $value['MobileNo'] ?></td>
 								<td><?= $value['LoanAccountNo'] ?></td>
 								<td><?= $value['TXN_DATE'] ?></td>
-								<td><?= ($value['WALLET_BANK_REF']!='')?$value['WALLET_BANK_REF']:'<b style="color:red">Failed</b>' ?></td>
+								<td><?= ($value['WALLET_BANK_REF']!='')?$value['WALLET_BANK_REF']:'' ?></td>
 								<td><?= $value['DEMAND_DATE'] ?></td>
 								<td><?= $value['DEMAND_AMT']  ?></td>
 								<td><?= $value['RECPT_AMT'] ?></td>
 								<td><?= $value['RCPT_MODE'] ?></td>
 								<td><?= $value['NXT_INST_DATE'] ?></td>
 								<td><?= $value['DUE_AMT']  ?></td>
+								<td><?= ($value['WALLET_BANK_REF']!='')?'<b>Success</b>':'<b style="color:red">Failed</b>' ?></td>
 								
 							</tr>
 							<?php
-								}
+								}}else{?>
+									<tr><td colspan="16">Record Not Found</td></tr>
+
+							<?php	}
 								?>
 						</tbody>
 					</table>

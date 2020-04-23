@@ -154,16 +154,16 @@ input {
 							<div class="row">
 							<label class="control-label col-sm-4 col-xs-12" for="pwd">OTP:</label>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 						</div>
 						</div>

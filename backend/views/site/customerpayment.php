@@ -12,24 +12,32 @@ use yii\helpers\Url;
 $this->title = 'Customer Details';
 
 ?>
+<style type="text/css">
+  select.form-control {
+    height: 34px !important;
+}
+</style>
 <div class="site-login">
     <div class="col-lg-12 grid-margin stretch-card" style="padding-left:0px;" >
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title col-sm-6">Customer Details</h4>
-          <?php if ($details) {?>
-             <div class="col-sm-6">
-                <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;">
-            </div>
-          <?php } ?>
-         
-          <div class="table-responsive">
-           <select onchange="show_pay(this.value);" style="color:#000;">
+          <h4 class="card-title col-sm-8">Transaction History Report</h4>
+          <div class="col-sm-2">
+            <select class="form-control" onchange="show_pay(this.value);" style="color:#000;">
             <option value="all">All</option>
             <option value="Partial">Partial</option>
             <option value="Complete">Complete</option>
             <option value="Pending">Pending</option>
            </select>
+          </div>
+          <?php if ($details) {?>
+             <div class="col-sm-2">
+                <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;">
+            </div>
+          <?php } ?>
+         
+          <div class="table-responsive">
+           
           <table class="table table-striped table-bordered" id="table_emp">
             <tr>
               <th>Sl. No.</th>

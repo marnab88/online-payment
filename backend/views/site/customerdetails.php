@@ -12,18 +12,35 @@ use yii\helpers\Url;
 $this->title = 'Customer Details';
 
 ?>
+<style type="text/css">
+  select.form-control {
+    height: 34px !important;
+}
+</style>
 <div class="site-login">
     <div class="col-lg-12 grid-margin stretch-card" style="padding-left:0px;" >
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title col-sm-6">Customer Details</h4>
+          <h4 class="card-title col-sm-8">
+          Loan Wise Payment Report
+        </h4>
+        <div class="col-sm-2">
+           <select class="form-control" onchange="show_pay(this.value);" style="color:#000;">
+            <option value="all">All</option>
+            <option value="Partial">Partial</option>
+            <option value="Complete">Complete</option>
+            <option value="Pending">Pending</option>
+           </select>
+        </div>
+
           <?php if ($details) {?>
-             <div class="col-sm-6">
+             <div class="col-sm-2">
                 <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;">
             </div>
           <?php } ?>
          
           <div class="table-responsive">
+           
           <table class="table table-striped table-bordered" id="table_emp">
             <tr>
               <th>Sl. No.</th>
@@ -48,17 +65,30 @@ $this->title = 'Customer Details';
               <th>NextInstallmentDate</th>
               <th>UploadMonth</th>
               <th>Transaction Date</th>
-              <th>Wallet Bank Ref. No.</th>
+              <th>Bank Ref. No.</th>
               <th>Receipt Mode</th>
               <th>Receipt Amount</th>
               <th>Due Amount</th>
-             <!--<th>Type</th>-->
+              <th>Type</th>
+              <th>Status</th>
             </tr>
           <?php
             foreach ($details as $key => $value) {
+              $totalamt=$value->LastMonthDue+$value->CurrentMonthDue+$value->LatePenalty;
+              $paid=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_AMT:$paymetdetails[$value->Mid]->TXN_AMT;
+              if(!$paid){
+               $paid=0;
+              }
+              $due=$totalamt-$paid;
+             if($due>0)
+              $pay_status='Partial';
+             elseif($due<=0)
+             $pay_status='Complete';
+             if($paid==0)
+             $pay_status='Pending';
             ?>
 
-              <tr>
+              <tr class="<?=$pay_status?> all">
 
                 <td><?= $key+1 ?></td>
                 <td><?= $value->BranchName ?></td>
@@ -113,6 +143,7 @@ $this->title = 'Customer Details';
                   <?= number_format(($value->LastMonthDue + $value->CurrentMonthDue + $value->LatePenalty)-$paid,2) ?>
                 </td>
                 <td><?= $value->Type ?></td>
+                <td><?=$pay_status ?></td>
               </tr>
               
               <?php
@@ -146,6 +177,14 @@ $this->title = 'Customer Details';
         });
 ');
   ?>
+  <script type="text/javascript">
+ function show_pay(val){
+  $('.all').addClass('dln');
+  $('.all').hide();
+  $('.'+val).show();
+  $('.'+val).removeClass('dln');
+    }
+</script>
 
 
 
