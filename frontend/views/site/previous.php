@@ -122,6 +122,7 @@ $('.pdfdownload').click(function() {
 		  newWin.document.close();
 		  setTimeout(function(){newWin.close();},0.2);
 		  
+		  
             
         });
     });
