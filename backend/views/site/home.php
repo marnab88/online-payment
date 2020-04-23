@@ -77,14 +77,39 @@ $this->title = 'Home';
 						<button class="btn btn-light">Cancel</button>
                        
 						<?php ActiveForm::end() ?>
+						<?php
+						if(Yii::$app->user->identity->Type == "MFI"){
+						?>
+						
 						<div style="width:400px; float:left; margin-top:20px;">
                          <a href="<?= Yii::getAlias('@backendUrl').'/assets/sample/testmfi.xlsx' ?>" target="_blank">
 						<button type="submit" class="btn btn-danger mr-2" >Sample MFI <span class="mdi mdi-cloud-download big"></span>  </button>
                         </a>
+                        </div>
+                        <?php
+                    	}
+						elseif(Yii::$app->user->identity->Type == "MSME"){
+						?>
+						<div style="width:400px; float:left; margin-top:20px;">
                         <a href="<?= Yii::getAlias('@backendUrl').'/assets/sample/testmsme.xlsx' ?>" target="_blank">
 						<button type="submit" class="btn btn-danger mr-2" >Sample MSME <span class="mdi mdi-cloud-download big"></span>  </button>
                         </a>
-						</div>
+                        </div>
+                        <?php
+                    	}
+						else
+						{
+						?>
+						<div style="width:400px; float:left; margin-top:20px;">
+						<a href="<?= Yii::getAlias('@backendUrl').'/assets/sample/testmfi.xlsx' ?>" target="_blank">
+						<button type="submit" class="btn btn-danger mr-2" >Sample MFI <span class="mdi mdi-cloud-download big"></span>  </button>
+                        </a>
+						<a href="<?= Yii::getAlias('@backendUrl').'/assets/sample/testmsme.xlsx' ?>" target="_blank">
+						<button type="submit" class="btn btn-danger mr-2" >Sample MSME <span class="mdi mdi-cloud-download big"></span>  </button>
+                        </a>
+                    	</div>
+					<?php } ?>
+						
 					</div>
 				</div>
 			</div>

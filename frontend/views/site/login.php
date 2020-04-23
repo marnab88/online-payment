@@ -136,18 +136,19 @@ input {
 						<?php if(isset($recordDetail->MobileNo)){?>
 							<div class="form-group" id="generatebttn">
 								<div class="col-sm-offset-6 col-sm-6">
-									<button type="button" class="btn btn-primary" onclick="generateotp(); $(this).html('Resend OTP')">Generate OTP</button>
+									<button type="button" class="btn btn-primary" id="otpgen" onclick="generateotp(); $(this).html('Resend OTP')">Generate OTP</button>
 								</div>
 							</div>
 						<?php }else{?>
 							<div class="form-group" id="generatebttn" style="display:none;">
 								<div  class="row">
 								<div class="col-sm-offset-6 col-sm-6">
-									<button type="button" class="btn btn-primary" onclick="generateotp();  $(this).html('Resend OTP')">Generate OTP</button>
+									<button type="button" class="btn btn-primary" id="otpgen" onclick="generateotp();  $(this).html('Resend OTP')">Generate OTP</button>
 								</div>
 							</div>
 							</div>
 						<?php } ?>
+						<p id="displaymsg" style="display:none;">OTP Sent !</p>
 						
 						<div class="form-group otpsuccess" style="margin-top:15px !important;display: none;">
 							<div class="row">
@@ -215,6 +216,10 @@ $(".inputs").keyup(function () {
     event.preventDefault();
     $("img[id$='-verifycode-image']").click();
   })
+
+$('#otpgen').click(function(){
+	$("#displaymsg").show().delay(1000).fadeOut();
+});
 JS;
 $this->registerJs($js);
 ?>

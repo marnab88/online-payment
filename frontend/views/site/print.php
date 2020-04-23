@@ -7,6 +7,14 @@ $this->title = 'PAYMENTINVOICE'.$today;
 <style>
      .table td:first-child{font-weight:bold;font-size: 11px;}
      .table td:nth-child(2){color:#0A62BA;font-size: 11px;}
+     .page{box-shadow: 0 .5rem 1rem rgba(0,0,0,.0)!important;}
+     .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    padding: 2px;
+    line-height: normal;
+    vertical-align: top;
+    border: 0px;
+}
+
      @media print{
         .logout{
             display: none;
@@ -21,12 +29,12 @@ $this->title = 'PAYMENTINVOICE'.$today;
             <div class="row align-items-center">
                 <div class="col-md-4 col-md-offset-4 page" style=" padding-top:0px; margin-top:25px; padding-top:20px;">
                     <?php if ($pre->TYPE == 'MSME') {?>
-                        <p style="text-align:left;"><img src="<?= Yii::getAlias('@frontendUrl')?>/images/logo1.jpg" height="70"/></p>
+                        <p style="text-align:left;"><img src="<?= Yii::getAlias('@frontendUrl')?>/images/logo1.jpg" height="40"/></p>
                    <?php } else{?>
                    <p><img src="<?= Yii::getAlias('@frontendUrl')?>/images/logo2.jpg" height="50"/></p>
                    <?php }?>
                     
-                    <table class="table table-striped" style="border:1px solid #dedede;" align="center">
+                    <table class="table" style="width:300px;">
                         <tr>
                             <td>Date:</td>
                             <td style="text-align:right;"><?= $date ?></td>
@@ -110,10 +118,10 @@ $this->title = 'PAYMENTINVOICE'.$today;
                             <td style="text-align:right;"><?=DATE('d-m-Y',strtotime($details->NextInstallmentDate))?></td>
                         </tr>
                         <tr>
-                            <td colspan="2" style="font-size:11px;">Please quote your  Receipt no  for any queries relating to this transaction .   The receipt is electronically generated and no signature is required.</td>
+                            <td colspan="2" style="font-size:11px; text-align: justify;">Please quote your  Receipt no  for any queries relating to this transaction .   The receipt is electronically generated and no signature is required.</td>
                         </tr>
                         <tr>
-                            <td colspan="2" style="font-size:15px;">CLIENT GRIEVANCE REDRESSAL TOLLFREE NUMBER: <span style="color:#0A62BA;">18008437200</span>  </td>
+                            <td colspan="2" style="font-size:12px; text-align: left;">CLIENT GRIEVANCE REDRESSAL TOLLFREE NUMBER: <span style="color:#0A62BA;">18008437200</span>  </td>
                             
                         </tr>
                     </table>
