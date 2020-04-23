@@ -5,8 +5,8 @@ $today=date('dmYHis');
 $this->title = 'PAYMENTINVOICE'.$today;
 ?>
 <style>
-     .table td:first-child{font-weight:bold;}
-     .table td:nth-child(2){color:#0A62BA;}
+     .table td:first-child{font-weight:bold;font-size: 11px;}
+     .table td:nth-child(2){color:#0A62BA;font-size: 11px;}
      @media print{
         .logout{
             display: none;
@@ -16,17 +16,17 @@ $this->title = 'PAYMENTINVOICE'.$today;
 
 
 <body>
-    <div class="container-fluid" style="background-color:#fff;">
-        <div class="container">
+    <div class="container" style="background-color:#fff;">
+       
             <div class="row align-items-center">
-                <div class="col-md-11 page" style=" padding-top:0px; margin-top:25px; padding-top:20px;">
+                <div class="col-md-4 col-md-offset-4 page" style=" padding-top:0px; margin-top:25px; padding-top:20px;">
                     <?php if ($pre->TYPE == 'MSME') {?>
-                        <p style="text-align:left; margin-left:5%;"><img src="<?= Yii::getAlias('@frontendUrl')?>/images/logo1.jpg" height="70"/></p>
+                        <p style="text-align:left;"><img src="<?= Yii::getAlias('@frontendUrl')?>/images/logo1.jpg" height="70"/></p>
                    <?php } else{?>
-                   <p><img src="<?= Yii::getAlias('@frontendUrl')?>/images/logo2.jpg" height="70"/></p>
+                   <p><img src="<?= Yii::getAlias('@frontendUrl')?>/images/logo2.jpg" height="50"/></p>
                    <?php }?>
                     
-                    <table class="table table-striped" style="width:90%;border:1px solid #dedede;" align="center">
+                    <table class="table table-striped" style="border:1px solid #dedede;" align="center">
                         <tr>
                             <td>Date:</td>
                             <td style="text-align:right;"><?= $date ?></td>
@@ -119,6 +119,6 @@ $this->title = 'PAYMENTINVOICE'.$today;
                     </table>
                 </div>
             </div>
-        </div>
+      
     </div>
 </body>

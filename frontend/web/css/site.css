@@ -118,3 +118,25 @@ a.desc:after {
 .nav > li > form > button.logout:focus {
     outline: none;
 }
+.arow img {
+    width: 100%;max-width: 40px;
+}
+.arow {
+    width: 100%;
+    float: right;
+    line-height: 65px;
+}
+p.help-block{ text-align: left; }
+
+
+
+
+
+
+
+
+@media(max-width:767px) {
+    .nav-tabs > li {
+    width: 100% !important;
+}
+}

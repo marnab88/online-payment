@@ -66,7 +66,7 @@ input {
 </style>
 <div class="site-login">
 	<div class="container-fluid">
-		<div class="container">
+	 
 
 
 
@@ -97,9 +97,10 @@ input {
   	<div class="formbox">
 						<?php $form = ActiveForm::begin(['id' => 'login-form', 'options' => ['class' => 'form-horizontal']]); ?>
 						<div class="form-group">
-							
-							<div class="col-sm-12" style="border:1px solid #ccc; background:#fff;">
-								<div style="width:92%; float:left;">
+
+							<div  class="row">
+							<div class="col-md-10 col-xs-10">
+								 
 								<?php
 								$hide='none';
 								 if(isset($recordDetail->LoanAccountNo)){
@@ -109,18 +110,28 @@ input {
 								<?php }else{?>
 								<?= $form->field($model, 'loanaccno')->textInput(['value'=>isset($recordDetail->LoanAccountNo)?$recordDetail->LoanAccountNo:'','placeholder'=>'Loan a/c Number or provide last 6 digits of your loan account number', 'autocomplete'=>'off', 'onblur'=>'fetchmob()'])->label(false) ?>
 								<?php }?>
-								</div>
-								<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png" height="40" style="float:left; margin-top:10px;" />
+								 </div>
+								 <div class="col-md-2 col-xs-2">
+								 	<div class="arow">
+
+								<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png"  />
 								<p id="display_info" style="color:red;text-align:left;"></p>
+								
+							</div>
+							</div>
+							<div class="col-md-12">
+
+</div>
 							</div>
 						</div>
 						<div class="form-group">
-							
+							<div  class="row">
 							<div class="col-sm-12">
 								<?= $form->field($model, 'maskmobileno')->textInput(['id'=>'mobilenum','style'=>"display:$hide",'name'=>'mobilenum','value'=>isset($recordDetail->MobileNo)? str_repeat("X", strlen($recordDetail->MobileNo)-4) . substr($recordDetail->MobileNo, -4):'','type' => 'tel','placeholder'=>'Mobile No', 'readonly'=>isset($recordDetail->MobileNo)?'readonly':''])->label(false) ?>
 								<?= $form->field($model, 'mobileno')->textInput(['value'=>isset($recordDetail->MobileNo)? $recordDetail->MobileNo:'','type' => 'hidden'])->label(false) ?>
 								<p id="mob_info" style="color:red;text-align:left;"></p>
 							</div>
+						</div>
 						</div>
 						<?php if(isset($recordDetail->MobileNo)){?>
 							<div class="form-group" id="generatebttn">
@@ -130,13 +141,16 @@ input {
 							</div>
 						<?php }else{?>
 							<div class="form-group" id="generatebttn" style="display:none;">
+								<div  class="row">
 								<div class="col-sm-offset-6 col-sm-6">
 									<button type="button" class="btn btn-primary" onclick="generateotp();  $(this).html('Resend OTP')">Generate OTP</button>
 								</div>
 							</div>
+							</div>
 						<?php } ?>
 						
 						<div class="form-group otpsuccess" style="margin-top:15px !important;display: none;">
+							<div class="row">
 							<label class="control-label col-sm-4 col-xs-12" for="pwd">OTP:</label>
 							<div class="col-sm-2 col-xs-3">
 								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
@@ -151,16 +165,19 @@ input {
 								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 						</div>
-						
+						</div>
 						<div class="form-group otpsuccess" style="margin-bottom:30px;display: none;">
 							<?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
 								'template' => '<div class="row"><div class="col-sm-4">{image}<a href="#" id="fox" title="refresh capcha"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
 							]) ?>
 						</div>
 						<div class="form-group otpsuccess" style="display: none;">
+							<div class="row">
+
 							<div class="col-sm-offset-5 col-sm-7">
 								<button type="submit" name="authenticate" class="btn btn-success">Authenticate/Submit</button>
 							</div>
+						</div>
 						</div>
 						<?php ActiveForm::end(); ?>
 					</div>
@@ -179,7 +196,7 @@ input {
 					
 				</div>
 			</div>
-		</div>
+		 
 	</div>
 
 </div>

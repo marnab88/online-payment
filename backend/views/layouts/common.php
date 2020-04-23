@@ -105,18 +105,18 @@ AppAsset::register($this);
           }
           ?>
 		  <?php
-         if (Yii::$app->user->identity->Role == 1) {
+         if (Yii::$app->user->identity->Role == 1 || Yii::$app->user->identity->ViewReports == 1) {
           ?>
           <li class="nav-item">
             <a class="nav-link" href="<?= Url::to(['site/report']) ?>" >
-              <span class="menu-title">Monthly Data Download</span>
+              <span class="menu-title">Loan wise Payment Report</span>
               <i class="mdi mdi-plus menu-icon"></i>
             </a>
 
           </li>
           <li class="nav-item">
             <a class="nav-link" href="<?= Url::to(['site/report2']) ?>" >
-              <span class="menu-title">Monthly Download report</span>
+              <span class="menu-title">Transaction history Report</span>
               <i class="mdi mdi-plus menu-icon"></i>
             </a>
 
@@ -125,7 +125,7 @@ AppAsset::register($this);
           }
           ?>
            <?php
-          if (Yii::$app->user->identity->Role == 1) {
+          if (Yii::$app->user->identity->Role == 1 || Yii::$app->user->identity->ViewReports == 1) {
           ?>
           <li class="nav-item">
             <a class="nav-link"   href="<?= Url::to(['site/adminprev']) ?>" >
@@ -141,7 +141,7 @@ AppAsset::register($this);
           }
           ?>
            <?php
-          if (Yii::$app->user->identity->Role == 1) { ?>
+          if (Yii::$app->user->identity->Role == 1 || Yii::$app->user->identity->ViewReports == 1) { ?>
              <li class="nav-item">
             <a class="nav-link"  href="<?= Url::to(['site/adminview']) ?>" >
               <span class="menu-title">Subadmin Uploaded Records</span>
@@ -170,7 +170,7 @@ AppAsset::register($this);
         
 
            <?php
-          if (Yii::$app->user->identity->Role == 1) { ?>
+          if (Yii::$app->user->identity->Role == 1 || Yii::$app->user->identity->ViewReports == 1) { ?>
              <li class="nav-item">
             <a class="nav-link"  href="<?= Url::to(['site/paymentdetails']) ?>" >
               <span class="menu-title">Payment Details</span>
