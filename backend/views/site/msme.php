@@ -67,7 +67,9 @@ $this->title = 'Home';
             <th>TinyUrl</th>
             <?php }
             ?>
+            <th>SMS Status</th>
             <th><?=( $approve == 0)?'ErrorMsg':''?></th>
+            
             </tr>
           <?php
          
@@ -149,7 +151,9 @@ $this->title = 'Home';
                 <?php
               }
               ?>
+              <td>Processing</td>
           <td><?= ( $approve == 0)?$value->errorMsg:'' ?></td>
+
               </tr>
               
               <?php

@@ -22,7 +22,7 @@ input[type=number] {
 </style>
 <div class="site-index">
 	<div class="container-fluid">
-		<div class="container">
+ 
 			<div class="row align-items-center">
 				<div class="col-md-6 page" style=" padding-top:50px;margin-top: 0px;margin-bottom: 0px;     background-size: contain;" >
 					<p><img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/logo.png" height="70" /></p>
@@ -99,7 +99,7 @@ input[type=number] {
 					</div>
 				</div>
 			</div>
-		</div>
+		 
 	</div>
 	<!-- Mobile change Modal start -->
 		<div class="modal fade" id="mobModal" role="dialog">

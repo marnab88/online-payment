@@ -28,7 +28,7 @@ $this->title = 'Report';
     <div class="col-lg-12 grid-margin stretch-card report" style="padding-left:0px;" >
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title">Report</h4>
+          <h4 class="card-title">Loan wise Payment Report</h4>
           <?php $form = ActiveForm::begin(['id' => 'report_form']); ?>
           <div class="row">
            <div class="col-sm-3">
