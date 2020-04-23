@@ -66,7 +66,7 @@ class OtpVerification extends \yii\db\ActiveRecord
         $request = "";
         $param['send_to'] = $contactno;
         $param['method'] = "sendMessage";
-        $param['msg'] = "Dear Customer, OTP to visit the payment portal of Annapurna Finance Private Limited is :  $otpcode This OTP is valid for 05 minutes.";
+        $param['msg'] = "Dear Customer, OTP to update your number at the payment portal of Annapurna Finance Private Limited is :  $otpcode This OTP is valid for 05 minutes.";
         $param['userid'] = "2000183786";
         $param['password'] = "Afpl@786";
         $param['v'] = "1.1";

@@ -213,7 +213,14 @@ input[type=number] {
 
 						<div class="form-group">
 							<div class="col-sm-offset-4 col-sm-6">
-								<button type="submit" name="payment" id="payment" class="btn btn-primary" style="width:150px;">Submit</button>
+                <?php if(($recorddetail->CurrentMonthDue+$recorddetail->LastMonthDue +  $recorddetail->LatePenalty-$amount) != 0 )
+                {
+                  ?>
+                  <button type="submit" name="payment" id="payment" class="btn btn-primary" style="width:150px;">Submit</button>
+                  <?php
+                }
+                ?>
+								
 							</div>
 						</div>
 					<?php ActiveForm::end(); ?>

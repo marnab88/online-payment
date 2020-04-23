@@ -40,7 +40,7 @@ $this->title = 'Home';
 				<div class="card-body">
 					<h4 class="card-title">Upload Monthly Data</h4>
 					
-					<?php $form = ActiveForm::begin(['options' => ['class' => 'forms-sample','enctype' => 'multipart/form-data']]) ?>
+					<?php $form = ActiveForm::begin(['options' => ['class' => 'forms-sample','enctype' => 'multipart/form-data' ,'accept'=>".xls,.xlsx"]]) ?>
 					
 					<div class="form-group">
 
