@@ -80,7 +80,7 @@ class SiteController extends Controller
        //else
        //  $model= new ExcelData();
        $model=new MsmeExcelData();
-       $excel= $model->updateAll(['SmsStatus'=>2],['RecordId'=>$id,'IsDelete'=>0,'SmsStatus'=>0]);
+       $excel= $model->updateAll(['SmsStatus'=>2],['RecordId'=>$id,'IsDelete'=>0,'SmsStatus'=>null]);
        
         return $this->redirect(['msme','id'=>$id,'type'=>$type,'mon'=>$mon]);
       
