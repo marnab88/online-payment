@@ -884,18 +884,18 @@ public function actionUpdatemsme($id,$type,$mon){
     else{
       $types->Mismatch=0;
     }
-    if ($types->save()) {
+    /*if ($types->save()) {
       $connection = \Yii::$app->db;
       $mismatchmobile=$connection->createCommand("SELECT COUNT(*) as cnt from `MsmeExcelData` WHERE `RecordId`='$types->RecordId' and  `IsDelete`=0 and length(`MobileNo`) != 10");
       $result =$mismatchmobile->queryAll();
       $types->MobileCount=$result[0]['cnt'];
-    }
+    } */
     if ($types->save()) {
      Yii::$app->session->setFlash('success', "Account Updated successfully");
      return $this->redirect(['msme', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon]);
    }
  }
- return $this->render('msme_edit',['model'=>$model,'details'=>$details,'type'=>$type,'mon'=>$mon]);
+ return $this->render('msme_edit',['model'=>$model,'type'=>$type,'mon'=>$mon]);
 }
 
 public function actionUploaded()

@@ -52,21 +52,20 @@ $this->title = 'Subadmin';
                     </div>
                    
                    <?= Html::submitButton('Submit',['class'=>'btn btn-success']) ?>
-                   <?php if ($type == 34) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '34','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
+                   <?php /*if ($type == 34) {?>
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '34','mon'=>$mon]) ?>"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
                    <?php if ($type == 35) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '35','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '35','mon'=>$mon]) ?>"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
                    <?php if ($type == 36) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '36','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '36','mon'=>$mon]) ?>"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
                     <?php if ($type == 37) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '37','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
-                  <? } ?>
-               
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '37','mon'=>$mon]) ?>"  style="float:left;color:#fff;">Back</a></button>
+                  <? } */?>
 
-                    <?php ActiveForm::end() ?>
+                    <?php ActiveForm::end(); ?>
                 </div>
             </div>
         </div>
