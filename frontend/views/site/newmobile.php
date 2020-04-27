@@ -20,6 +20,13 @@ $this->title = 'Home';
   margin: 0;
 }
 
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
@@ -39,14 +46,15 @@ input[type=number] {
 						<div class="form-group">
 							
 							<div class="col-sm-12">
-								<input type="number" onkeypress="return isNumber(event)"  name="mob" id="mob" class="form-control" placeholder="New Mobile Number">
+								<input type="number" onkeypress="return isNumber(event)"  name="mob" id="mob" class="form-control" placeholder="New Mobile Number" onblur="checkmobile(this.value)" style="float:left; width:86%;">
+								<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png" style="margin-top:0px; float:left;" width="40" />
 							</div>
 						</div>
 
 						<div class="form-group otpsuccess" style="margin-top:15px !important;display: none;">
 							
 							<div class="col-sm-12">
-								<input type="text" name="otp" id="otp" onkeypress="return isNumber(event)" class="form-control onlynumber" placeholder="OTP">
+								<input type="number" name="otp" id="otp" onkeypress="return isNumber(event)" class="form-control onlynumber" placeholder="OTP">
 							</div>
 							<div class="form-group">
 							<div class="col-sm-offset-4 col-sm-7" style="margin-top:30px;">
@@ -57,7 +65,7 @@ input[type=number] {
 						</div>
 						<div class="form-group">
 						<div class="col-sm-offset-4 col-sm-7" style="margin-top:30px;">
-						<button type="button" class="btn btn-primary" id="newotp"  onclick="gotp();">Generate OTP</button>
+						<button type="button" class="btn btn-primary" id="newotp" style="display: none;"  onclick="gotp();">Generate OTP</button>
 						</div>
 					</div>					
 					<?php ActiveForm::end(); ?>
@@ -95,7 +103,7 @@ input[type=number] {
 		var mobileno = $('#mob').val();
 		// alert(mobileno);
 		$.ajax({
-			url: "<?= Url::toRoute(['site/generateotp']); ?>?mobileno=" + mobileno,
+			url: "<?= Url::toRoute(['site/mobchangeotp']); ?>?mobileno=" + mobileno,
 			success: function(results) {
 				if (results == 0) {
 					alert("Wrong mobile no");
@@ -103,6 +111,27 @@ input[type=number] {
 					$('.otpsuccess').show();
 					$('#newotp').hide();
 					$('#newmob').show();
+				}
+			}
+		});
+    
+	}
+	function checkmobile(value) {
+		// alert(mobileno);
+		$.ajax({
+			url: "<?= Url::toRoute(['site/checkmobile']); ?>?mobileno=" + value,
+			success: function(results) {
+				if (results ==0) {
+					alert("mobile number already exist!");
+					$('.otpsuccess').hide();
+					$('#newotp').hide();
+					$('#newmob').hide();
+					
+				} else {
+					$('.otpsuccess').hide();
+					$('#newotp').show();
+					// $('#newmob').hide();
+					
 				}
 			}
 		});

@@ -32,6 +32,10 @@ $this->title = 'Home';
           <?php
           }
           ?>
+          <div class="col-sm-2">
+                
+                <a href="<?= Url::toRoute(['site/msme','id'=>$id,'type'=>$type,'mon'=>$mon,'export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
+            </div>
           <div class="table-responsive">
           <table class="table table-striped table-bordered" id="table_emp">
             <tr>
@@ -241,6 +245,16 @@ $this->title = 'Home';
           
         </div>
         </div>
+        <?php if (!is_numeric($pages))
+        {
+         ?>
+          <div class="row">
+            <div class="col-sm-6 text-left"></div>
+            <div class="col-sm-6 text-right"><?= yii\widgets\LinkPager::widget(['pagination' => $pages]);?></div>
+          </div>
+       <?php
+        }
+        ?>
       </div>
     </div>
     

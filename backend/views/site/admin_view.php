@@ -83,13 +83,13 @@ $this->title = 'record_update';
 
 								<td><a href="<?php 
 								 if(Yii::$app->user->identity->Role == 1){
-								 echo Url::toRoute(['site/both','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);}
+								 echo Url::toRoute(['site/both','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear,'pagination'=>'yes']);}
 								 elseif(Yii::$app->user->identity->Type == "MFI"){
-								 echo Url::toRoute(['site/mfi','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);}
+								 echo Url::toRoute(['site/mfi','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear,'pagination'=>'yes']);}
 								 elseif(Yii::$app->user->identity->Type == "MSME"){
-								 echo Url::toRoute(['site/msme','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);}
+								 echo Url::toRoute(['site/msme','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear,'pagination'=>'yes']);}
 								 else{
-								 	echo Url::toRoute(['site/both','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear]);
+								 	echo Url::toRoute(['site/both','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear,'pagination'=>'yes']);
 								 }
 
 								 ?>" data-method="post"  style="float:left;color:#ff3300; margin-top:5px;">View Details</a></td>

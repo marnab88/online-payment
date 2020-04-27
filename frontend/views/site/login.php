@@ -13,7 +13,7 @@ $this->title = 'Login';
 
 ?>
 <style>
-	.form-horizontal .form-group{ margin: 5px 0px 0px 0px !important;}
+	.form-horizontal .form-group{ margin: 5px 0px 0px 0px !important; margin-top:0px !important;margin-bottom: 8px !important;}
 	input#mobilenum {
     background: #fff;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
 }
@@ -63,13 +63,21 @@ input {
     border: none !important;
     background: transparent !important;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+label{font-weight:normal; opacity:0.6; color:#000;}
 </style>
 <div class="site-login">
 	<div class="container-fluid">
 	 
-
-
-
 
 
 
@@ -94,13 +102,21 @@ input {
 <div class="tab-content">
 	<!-- for Loan Account login start -->
   <div role="tabpanel" class="tab-pane fade in active" id="profile"> 
-  	<div class="formbox">
+  	<div class="formbox" style="margin-top:20px;">
+		<?php
+if(isset($recordDetail->ClientName)){
+	?>
+<p style="padding:0px; font-weight:bold; color:#000; text-align:left;">Welcome <?=$recordDetail->ClientName?></p>
+
+
+<?php }
+?>
 						<?php $form = ActiveForm::begin(['id' => 'login-form', 'options' => ['class' => 'form-horizontal']]); ?>
 						<div class="form-group">
 
 							<div  class="row">
 							<div class="col-md-10 col-xs-10">
-								 
+								 <label>Loan Account No</label>
 								<?php
 								$hide='none';
 								 if(isset($recordDetail->LoanAccountNo)){
@@ -114,7 +130,7 @@ input {
 								 <div class="col-md-2 col-xs-2">
 								 	<div class="arow">
 
-								<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png"  />
+								<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png" style="margin-top:30px;" />
 								<p id="display_info" style="color:red;text-align:left;"></p>
 								
 							</div>
@@ -127,8 +143,10 @@ input {
 						<div class="form-group">
 							<div  class="row">
 							<div class="col-sm-12">
+							<label id="mobl" style="display: none" >Mobile No</label>
 								<?= $form->field($model, 'maskmobileno')->textInput(['id'=>'mobilenum','style'=>"display:$hide",'name'=>'mobilenum','value'=>isset($recordDetail->MobileNo)? str_repeat("X", strlen($recordDetail->MobileNo)-4) . substr($recordDetail->MobileNo, -4):'','type' => 'tel','placeholder'=>'Mobile No', 'readonly'=>isset($recordDetail->MobileNo)?'readonly':''])->label(false) ?>
-								<?= $form->field($model, 'mobileno')->textInput(['value'=>isset($recordDetail->MobileNo)? $recordDetail->MobileNo:'','type' => 'hidden'])->label(false) ?>
+								
+								
 								<p id="mob_info" style="color:red;text-align:left;"></p>
 							</div>
 						</div>
@@ -154,16 +172,16 @@ input {
 							<div class="row">
 							<label class="control-label col-sm-4 col-xs-12" for="pwd">OTP:</label>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="number" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="number" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="number" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 							<div class="col-sm-2 col-xs-3">
-								<input type="text" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
+								<input type="number" maxlength="1" onkeypress="return isNumber(event)" class="form-control inputs onlynumber" autocomplete="off" id="pwd" placeholder="" name="otp[]" required="required">
 							</div>
 						</div>
 						</div>
@@ -234,9 +252,9 @@ $this->registerJs($js);
 }
 
 	function generateotp() {
-		var mobileno = $('#loanpaymentform-mobileno').val();
+		var loanno = $('#loanpaymentform-loanaccno').val();
 		$.ajax({
-			url: "<?= Url::toRoute(['site/generateotp']); ?>?mobileno=" + mobileno,
+			url: "<?= Url::toRoute(['site/generateotp']); ?>?loanno=" + loanno,
 			success: function(results) {
 				if (results == 0) {
 					alert("Wrong mobile no");
@@ -263,7 +281,8 @@ $this->registerJs($js);
 			                    $('#mobilenum').val(res.maskMobileNo);
 													$('#loanpaymentform-loanaccno').val(res.LoanAccountNo);
 													
-								$('#loanpaymentform-mobileno').val(res.MobileNo);
+								// $('#loanpaymentform-mobileno').val(res.MobileNo);
+								$("#mobl").show();
 								$('#generatebttn').show();
 								$('#display_info').html('');
 								$('#mob_info').html('');
@@ -284,12 +303,14 @@ $this->registerJs($js);
 				$('#mobilenum').val('');
 				$('#loanpaymentform-mobileno').val('');
 				$('#generatebttn').hide();
+				$("#mobl").hide();
 				$('#mob_info').html('');
 			}
 		 }else{
 			$('#mobilenum').val('');
 			$('#loanpaymentform-mobileno').val('');
 			$('#generatebttn').hide();
+			$("#mobl").hide();
 			$('#display_info').html('');
 			$('#mob_info').html('');
 		 }

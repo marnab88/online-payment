@@ -66,7 +66,7 @@ class OtpVerification extends \yii\db\ActiveRecord
         $request = "";
         $param['send_to'] = $contactno;
         $param['method'] = "sendMessage";
-        $param['msg'] = "Dear Customer, OTP to update your number at the payment portal of Annapurna Finance Private Limited is :  $otpcode This OTP is valid for 05 minutes.";
+        $param['msg'] = "OTP to visit the payment portal of Annapurna Finance Private Limited is $otpcode. This OTP is valid for 05 minutes. ";
         $param['userid'] = "2000183786";
         $param['password'] = "Afpl@786";
         $param['v'] = "1.1";
@@ -109,6 +109,264 @@ class OtpVerification extends \yii\db\ActiveRecord
 		return $response;
 		
 	}
+
+    public function loginsuccessotp($contactno,$loanaccountno)
+    {
+        $maskMobileNo=str_repeat("X", strlen($contactno)-4) . substr($contactno, -4);
+        $maskloanaccountno=str_repeat("X", strlen($loanaccountno)-6) . substr($loanaccountno, -6);
+        $otpcode = mt_rand(1000, 9999);
+        $request = "";
+        $param['send_to'] = $contactno;
+        $param['method'] = "sendMessage";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno is successfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['userid'] = "2000183786";
+        $param['password'] = "Afpl@786";
+        $param['v'] = "1.1";
+        $param['msg_type'] = "TEXT";
+
+        foreach ($param as $key => $val) {
+            $request .= $key . "=" . urlencode($val);
+            $request .= "&";
+
+            // var_dump($request) ;die();
+        }
+        $request = substr($request, 0, strlen($request) - 1);
+        $url = "http://enterprise.smsgupshup.com/GatewayAPI/rest?" . $request;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $finalresult = explode("|",$result);
+        $finalresult = trim($finalresult[0]);
+        // if($finalresult === 'success')
+        // {
+        //     $otpnew = new OtpVerification();
+        //     $otpnew->OtpCode = strval($otpcode);
+        //     $otpnew->MobileNo = $contactno;
+        //     $otpnew->OtpResponse = strval($result);
+        //     $otpnew->Ondate = date('Y-m-d H:i:s');
+        //     if($otpnew->save())
+        //     {
+        //         $response = 1;
+        //     }
+        //     else
+        //     {
+        //         $response = 0;
+        //     }
+        // }
+        // else
+        // {
+        //    $response = 0;
+        // }       
+        //return $response;
+        
+    }
+
+    public function loginfailedotp($contactno,$loanaccountno)
+    {
+        $maskMobileNo=str_repeat("X", strlen($contactno)-4) . substr($contactno, -4);
+        $maskloanaccountno=str_repeat("X", strlen($loanaccountno)-6) . substr($loanaccountno, -6);
+        $otpcode = mt_rand(1000, 9999);
+        $request = "";
+        $param['send_to'] = $contactno;
+        $param['method'] = "sendMessage";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno is unsuccessfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['userid'] = "2000183786";
+        $param['password'] = "Afpl@786";
+        $param['v'] = "1.1";
+        $param['msg_type'] = "TEXT";
+
+        foreach ($param as $key => $val) {
+            $request .= $key . "=" . urlencode($val);
+            $request .= "&";
+
+            // var_dump($request) ;die();
+        }
+        $request = substr($request, 0, strlen($request) - 1);
+        $url = "http://enterprise.smsgupshup.com/GatewayAPI/rest?" . $request;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $finalresult = explode("|",$result);
+        $finalresult = trim($finalresult[0]);
+        // if($finalresult === 'success')
+        // {
+        //     $otpnew = new OtpVerification();
+        //     $otpnew->OtpCode = strval($otpcode);
+        //     $otpnew->MobileNo = $contactno;
+        //     $otpnew->OtpResponse = strval($result);
+        //     $otpnew->Ondate = date('Y-m-d H:i:s');
+        //     if($otpnew->save())
+        //     {
+        //         $response = 1;
+        //     }
+        //     else
+        //     {
+        //         $response = 0;
+        //     }
+        // }
+        // else
+        // {
+        //    $response = 0;
+        // }       
+        // return $response;
+        
+    }
+
+    public function mobchangeOtp($contactno)
+    {
+        $otpcode = mt_rand(1000, 9999);
+        $request = "";
+        $param['send_to'] = $contactno;
+        $param['method'] = "sendMessage";
+        $param['msg'] = "Dear Customer, OTP to change your Mobile number at the payment portal of Annapurna Finance Private Limited is :  $otpcode This OTP is valid for 05 minutes.";
+        $param['userid'] = "2000183786";
+        $param['password'] = "Afpl@786";
+        $param['v'] = "1.1";
+        $param['msg_type'] = "TEXT";
+
+        foreach ($param as $key => $val) {
+            $request .= $key . "=" . urlencode($val);
+            $request .= "&";
+
+            // var_dump($request) ;die();
+        }
+        $request = substr($request, 0, strlen($request) - 1);
+        $url = "http://enterprise.smsgupshup.com/GatewayAPI/rest?" . $request;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $finalresult = explode("|",$result);
+        $finalresult = trim($finalresult[0]);
+        if($finalresult === 'success')
+        {
+            $otpnew = new OtpVerification();
+            $otpnew->OtpCode = strval($otpcode);
+            $otpnew->MobileNo = $contactno;
+            $otpnew->OtpResponse = strval($result);
+            $otpnew->Ondate = date('Y-m-d H:i:s');
+            if($otpnew->save())
+            {
+                $response = 1;
+            }
+            else
+            {
+                $response = 0;
+            }
+        }
+        else
+        {
+           $response = 0;
+        }       
+        return $response;
+        
+    }
+
+    public function mobchangesuccessotp($mob,$loan)
+    {
+        $maskMobileNo=str_repeat("X", strlen($mob)-4) . substr($mob, -4);
+        $maskloanaccountno=str_repeat("X", strlen($loan)-6) . substr($loan, -6);
+        $otpcode = mt_rand(1000, 9999);
+        $request = "";
+        $param['send_to'] = $mob;
+        $param['method'] = "sendMessage";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno for change mobile number is successfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['userid'] = "2000183786";
+        $param['password'] = "Afpl@786";
+        $param['v'] = "1.1";
+        $param['msg_type'] = "TEXT";
+
+        foreach ($param as $key => $val) {
+            $request .= $key . "=" . urlencode($val);
+            $request .= "&";
+
+            // var_dump($request) ;die();
+        }
+        $request = substr($request, 0, strlen($request) - 1);
+        $url = "http://enterprise.smsgupshup.com/GatewayAPI/rest?" . $request;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $finalresult = explode("|",$result);
+        $finalresult = trim($finalresult[0]);
+        // if($finalresult === 'success')
+        // {
+        //     $otpnew = new OtpVerification();
+        //     $otpnew->OtpCode = strval($otpcode);
+        //     $otpnew->MobileNo = $contactno;
+        //     $otpnew->OtpResponse = strval($result);
+        //     $otpnew->Ondate = date('Y-m-d H:i:s');
+        //     if($otpnew->save())
+        //     {
+        //         $response = 1;
+        //     }
+        //     else
+        //     {
+        //         $response = 0;
+        //     }
+        // }
+        // else
+        // {
+        //    $response = 0;
+        // }       
+        // return $response;
+        
+    }
+
+    public function mobchangefailedotp($mob,$loan)
+    {
+        $maskMobileNo=str_repeat("X", strlen($mob)-4) . substr($mob, -4);
+        $maskloanaccountno=str_repeat("X", strlen($loan)-6) . substr($loan, -6);
+        $otpcode = mt_rand(1000, 9999);
+        $request = "";
+        $param['send_to'] = $mob;
+        $param['method'] = "sendMessage";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno for change mobile number is unsuccessfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['userid'] = "2000183786";
+        $param['password'] = "Afpl@786";
+        $param['v'] = "1.1";
+        $param['msg_type'] = "TEXT";
+
+        foreach ($param as $key => $val) {
+            $request .= $key . "=" . urlencode($val);
+            $request .= "&";
+
+            // var_dump($request) ;die();
+        }
+        $request = substr($request, 0, strlen($request) - 1);
+        $url = "http://enterprise.smsgupshup.com/GatewayAPI/rest?" . $request;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $finalresult = explode("|",$result);
+        $finalresult = trim($finalresult[0]);
+        // if($finalresult === 'success')
+        // {
+        //     $otpnew = new OtpVerification();
+        //     $otpnew->OtpCode = strval($otpcode);
+        //     $otpnew->MobileNo = $contactno;
+        //     $otpnew->OtpResponse = strval($result);
+        //     $otpnew->Ondate = date('Y-m-d H:i:s');
+        //     if($otpnew->save())
+        //     {
+        //         $response = 1;
+        //     }
+        //     else
+        //     {
+        //         $response = 0;
+        //     }
+        // }
+        // else
+        // {
+        //    $response = 0;
+        // }       
+        // return $response;
+        
+    }
     
     public function getUser()
     {

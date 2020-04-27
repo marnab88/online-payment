@@ -33,6 +33,9 @@ class MsmeExcelData extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    public $totalcustomer;
+    public $customerpaid;
+    public $amountcollected;
     public static function tableName()
     {
         return 'MsmeExcelData';
@@ -92,4 +95,20 @@ class MsmeExcelData extends \yii\db\ActiveRecord
     {
         return $this->hasOne(TXNDETAILS::className(), ['USER_ID' => 'Mid']);
     }
+    /*public function getPaymentdetails()
+    {
+        return $this->hasOne(TXNDETAILS::className(), ['USER_ID' => 'Mid' ])->select('sum(TXN_AMT) as TXNAMT')->andWhere(TXN_STATUS=>1);
+    }*/
+    public function branchpayment($RecordId,$BranchName,$fromdate,$todate)
+    {
+       $cnt=$this->find()->joinWith('paymentstatus')
+            ->andWhere(['MsmeExcelData.RecordId'=>$RecordId,'BranchName'=>$BranchName])
+            ->select('sum(TXN_DETAILS.TXN_AMT) as amountcollected, count(distinct(TXN_DETAILS.USER_ID)) as customerpaid')
+            ->andWhere(['between','TXN_DATE',$fromdate,$todate])
+            ->andWhere(['TXN_STATUS'=>1])
+            ->one();
+       
+       return $cnt;
+    }
+    
 }

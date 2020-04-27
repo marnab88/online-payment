@@ -27,12 +27,13 @@ $this->title = 'Customer Details';
             <option value="all">All</option>
             <option value="Partial">Partial</option>
             <option value="Complete">Complete</option>
-            <option value="Pending">Pending</option>
+            <option value="Nill">Nill</option>
            </select>
           </div>
           <?php if ($details) {?>
              <div class="col-sm-2">
-                <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;">
+                <!-- <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;"> -->
+                <a href="<?= Url::toRoute(['site/cust-payment','branch' => $branch,'fromdt' =>$fromdt,'todt' =>$todt,'export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
             </div>
           <?php } ?>
          
@@ -74,7 +75,7 @@ $this->title = 'Customer Details';
              elseif($due<=0)
              $pay_status='Complete';
              if($paid==0)
-             $pay_status='Pending';
+             $pay_status='Nill';
              
             ?>
 
@@ -110,6 +111,10 @@ $this->title = 'Customer Details';
           </table>
         </div>
         </div>
+         <div class="row">
+            <div class="col-sm-6 text-left"></div>
+            <div class="col-sm-6 text-right"><?= yii\widgets\LinkPager::widget(['pagination' => $pages]);?></div>
+          </div>
       </div>
     </div>
   </div>

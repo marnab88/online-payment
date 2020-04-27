@@ -16,6 +16,9 @@ $this->title = 'Customer Details';
   select.form-control {
     height: 34px !important;
 }
+.pagination {
+    float: right;
+}
 </style>
 <div class="site-login">
     <div class="col-lg-12 grid-margin stretch-card" style="padding-left:0px;" >
@@ -29,16 +32,17 @@ $this->title = 'Customer Details';
             <option value="all">All</option>
             <option value="Partial">Partial</option>
             <option value="Complete">Complete</option>
-            <option value="Pending">Pending</option>
+            <option value="Nil">Nil</option>
            </select>
         </div>
 
           <?php if ($details) {?>
              <div class="col-sm-2">
-                <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;">
+              <a href="<?= Url::toRoute(['site/customerdetails','branch' => $branch,'fromdt' =>$fromdt,'todt' =>$todt,'export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
+                
             </div>
           <?php } ?>
-         
+         <!-- <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;"> -->
           <div class="table-responsive">
            
           <table class="table table-striped table-bordered" id="table_emp">
@@ -50,12 +54,6 @@ $this->title = 'Customer Details';
               <th>Client Id</th>
               <th>LoanAccountNo </th>
               <th>Client Name</th>
-              <?php if ($type == 'MFI') {?>
-              <th>Spouse Name</th>
-              <th>Village Name</th>
-              <th>Center</th>
-              <th>Group Name</th>
-             <?php }else{echo'';}?>
               <th>MobileNo</th>
               <th>EmiSrNo</th>
               <th>DemandDate</th>
@@ -85,7 +83,7 @@ $this->title = 'Customer Details';
              elseif($due<=0)
              $pay_status='Complete';
              if($paid==0)
-             $pay_status='Pending';
+             $pay_status='Nill';
             ?>
 
               <tr class="<?=$pay_status?> all">
@@ -97,12 +95,6 @@ $this->title = 'Customer Details';
                 <td><?= $value->ClientId ?></td>
                 <td><?= $value->LoanAccountNo ?></td>
                 <td><?= $value->ClientName ?></td>
-                <?php if ($type == 'MFI') {?>
-                <td><?= $value->SpouseName ?></td>
-                <td><?= $value->VillageName ?></td>
-                <td><?= $value->Center ?></td>
-                <td><?= $value->GroupName ?></td>
-                <?php }else{echo'';}?>
                 <td><?= $value->MobileNo ?></td>
                 <td><?= $value->EmiSrNo ?></td>
                 <td><?= date('d-m-Y',strtotime($value->DemandDate)) ?></td>
@@ -114,31 +106,21 @@ $this->title = 'Customer Details';
 
                 <td>
                   <?php
-                        
-                        $txdt=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_DATE:$paymetdetails[$value->Mid]->TXN_DATE;
-                        if($txdt){
-                         echo date('d-m-Y H:i:s',strtotime($txdt));
-                        }else{
-                        echo '';
-                      }
-                ?>
+                  if ($paymetdetails[$value->Mid]->TXN_DATE) {?>
+                    <?= date('d-m-Y H:i:s',strtotime($paymetdetails[$value->Mid]->TXN_DATE)) ?>
+                 <?php }else{echo "";}?>
+                  
+                 
                 </td>
 
                 
                 <td>
-                  <?=isset($value->Mid)?$paymetdetails[$value->Mid]->WALLET_BANK_REF:$paymetdetails[$value->Eid]->WALLET_BANK_REF;?>
+                  <?= $paymetdetails[$value->Mid]->WALLET_BANK_REF ?>
                 </td>
                 <td>
-                  <?=isset($value->Mid)?$paymetdetails[$value->Mid]->PG_MODE:$paymetdetails[$value->Eid]->PG_MODE;?>
+                  <?= $paymetdetails[$value->Mid]->PG_MODE ?>
                 </td>
-                <td><?php
-                        
-                        $paid=isset($value->Eid) ? $paymetdetails[$value->Eid]->TXN_AMT:$paymetdetails[$value->Mid]->TXN_AMT;
-                        if(!$paid){
-                         $paid=0;
-                        }
-                        echo number_format($paid,2);
-                ?></td>
+                <td><?php echo number_format($paymetdetails[$value->Mid]->TXN_AMT,2);?></td>
                 <td>
                   <?= number_format(($value->LastMonthDue + $value->CurrentMonthDue + $value->LatePenalty)-$paid,2) ?>
                 </td>
@@ -152,6 +134,16 @@ $this->title = 'Customer Details';
           </table>
         </div>
         </div>
+        <?php if (!is_numeric($pages))
+        {
+         ?>
+          <div class="col-sm-12">
+            <div class="col-sm-6 text-left"></div>
+            <div class="col-sm-6"><?= yii\widgets\LinkPager::widget(['pagination' => $pages]);?></div>
+          </div>
+       <?php
+        }
+        ?>
       </div>
     </div>
   </div>
@@ -159,7 +151,7 @@ $this->title = 'Customer Details';
 
  <?php
     $this->registerJs('
-    $(".exportToExcel").click(function(e){
+$(".exportToExcel").click(function(e){
           var table = $("#table_emp");
           if(table && table.length){
             var preserveColors = (table.hasClass("table2excel_with_colors") ? true : false);
@@ -175,6 +167,7 @@ $this->title = 'Customer Details';
             });
           }
         });
+   
 ');
   ?>
   <script type="text/javascript">
@@ -185,6 +178,25 @@ $this->title = 'Customer Details';
   $('.'+val).removeClass('dln');
     }
 </script>
+
+
+
+ <!-- $(".exportToExcel").click(function(e){
+          var table = $("#table_emp");
+          if(table && table.length){
+            var preserveColors = (table.hasClass("table2excel_with_colors") ? true : false);
+            $("#table_emp").table2excel({
+              exclude: ".noExl",
+              name: "Report",
+              filename: "Report" + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
+              fileext: ".xls",
+              exclude_img: true,
+              exclude_links: true,
+              exclude_inputs: true,
+              preserveColors: preserveColors
+            });
+          }
+        }); -->
 
 
 

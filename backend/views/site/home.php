@@ -178,15 +178,20 @@ $this->title = 'Home';
                                     </td>
                                     <td><a href="<?php
                                     if(Yii::$app->user->identity->Type == "MFI"){
-                                     echo Url::toRoute(['site/mfi','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);}
+                                     echo Url::toRoute(['site/mfi','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'pagination'=>'show']);}
                                      elseif(Yii::$app->user->identity->Type == "MSME"){
-                                     echo Url::toRoute(['site/msme','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);}
+                                     echo Url::toRoute(['site/msme','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'pagination'=>'show']);}
                                      else{
-                                        echo Url::toRoute(['site/both','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35]);
+                                        echo Url::toRoute(['site/both','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'pagination'=>'show']);
                                      }							 
                                     ?>" data-method="post"  style="float:left;color:#ff3300; margin-top:5px;">View Details</a>
                                     &nbsp;&nbsp;
-                                    <a href="<?=Url::toRoute(['site/deleterecord','recordid' => $details->RecordId,'type'=>$details->Type])?>"> delete</a>
+                                    <?php 
+                                    if ($details->IsApproved == '0') { ?>
+                                    	<a href="<?=Url::toRoute(['site/deleterecord','recordid' => $details->RecordId,'type'=>$details->Type])?>"> delete</a>
+                                   <?php }
+                                    ?>
+                                    
                                     
                                     </td>
                                 </tr>
