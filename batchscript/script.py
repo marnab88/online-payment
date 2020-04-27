@@ -8,15 +8,15 @@ import sys
 key='dda89bd7de98c135306a92146667cd1a3e943'
 def mycus():
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        passwd="colourfade",
-        database="onlineportal"
+        host="10.16.3.196",
+        user="admin",
+        passwd="xSQPJKXRT2nq",
+        database="amplweb_db"
     )
     return mydb
 def sms_integration(Mid,RecordId,Type,LoanAccountNo,MobileNo,Amount,ClientName):
     if(len(MobileNo)==10):
-        longurl="http://128.199.184.65/onlineportal/site/login?id="+str(RecordId)+"&typ="+str(Type)+"&l="+str(LoanAccountNo)
+        longurl="http://pay2annapurnafinance.in/site/login?id="+str(RecordId)+"&typ="+str(Type)+"&l="+str(LoanAccountNo)
         longurl=urllib.parse.quote_plus(longurl)
         url = ("https://cutt.ly/api/api.php?key=%s&short=%s"%(key,longurl))
         response = requests.post(url=url)
