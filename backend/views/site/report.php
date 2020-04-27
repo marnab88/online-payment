@@ -13,7 +13,7 @@ $this->title = 'Report';
 ?>
 <style>
 .report label{
-	display: block;
+  display: block;
   font-weight: 100;
 }
 .report .col-sm-3 {
@@ -22,8 +22,14 @@ $this->title = 'Report';
 .has-success .help-block, .has-success .control-label, .has-success .radio, .has-success .checkbox, .has-success .radio-inline, .has-success .checkbox-inline, .has-success.radio label, .has-success.checkbox label, .has-success.radio-inline label, .has-success.checkbox-inline label {
     color: #fff;
 }
+.pagination {
+    float: right;
+}
 
 </style>
+<?php 
+$model->BranchName=$branchname;
+ ?>
 <div class="site-login">
     <div class="col-lg-12 grid-margin stretch-card report" style="padding-left:0px;" >
       <div class="card">
@@ -40,7 +46,7 @@ $this->title = 'Report';
             </select>
            </div>
            <div class="col-sm-3" style="padding-top:10px;">
-            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['label'=>'Branch Name','prompt'=>'---Select Branch---']
+            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['label'=>'Branch Name','prompt'=>'All']
           ) ?>
            
            </div>
@@ -57,7 +63,7 @@ $this->title = 'Report';
 
 
              <div class="col-sm-3" style="padding-top: 34px;">
-             	<button type="submit" class="btn btn-success" name="report_search">Search</button>
+              <button type="submit" class="btn btn-success" name="report_search">Search</button>
              </div>
            </div>
            
@@ -74,8 +80,10 @@ if($allcustomer){
       <div class="card">
         <div class="card-body">
           <h4 class="card-title col-sm-6">Report Details</h4>
-          <div class="col-sm-6">
-                <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;">
+          <div class="col-sm-6 text-right">
+             <a href="<?= Url::toRoute(['site/customerdetails','branch' => '','fromdt' =>$fromdate,'todt' =>$todate,'export' => 'yes']);  ?>" class="btn btn-success">Export All</a>
+            <a href="<?= Url::toRoute(['site/report','export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
+                <!-- <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;"> -->
             </div>
           <div class="table-responsive">
           <table class="table table-striped table-bordered" id="table_emp">
@@ -85,40 +93,43 @@ if($allcustomer){
               <th>Cluster</th>
               <th>Branch</th>
               <th>Type</th>
-              <th>month</th>
-              <th>year</th>
-              <!--<th>Total Amount Due</th>-->
+              <th>Month</th>
               <th>Amount Collected</th>
               <th>No. of Customers</th>
               <th>Customers Paid</th>
             </tr>
             <tbody>
-            	<?php foreach ($allcustomer as $key => $value) {?>
-            	<tr>
+              <?php foreach ($allcustomer as $key => $value) {?>
+              <tr>
 
-            	<td><?= $key+1 ?></td>
-              <td><?= $value['state'] ?></td>
-              <td><?= $value['cluster'] ?></td>
-              <td><?= $value['branchname'] ?></td>
-            	<td><?= $value['type'] ?></td>
-              <td><?= DateTime::createFromFormat('!m', $value['month'])->format('F') ?></td>
-              <td><?= $value['yr'] ?></td>
-														<?php /**
-            	<td><?=number_format($value['totalamountdue'],2) ?></td>
-            	**/?>
-            	<td><?= $value['collectedamount'] ?></td>
-            	<td>
-                  <a href="<?= Url::toRoute(['site/customerdetails','date' => $value['ddate'],'type' =>$value['type']]);  ?>"><?= $value['customer'] ?></a>
-              
+              <td><?= $key+1 ?></td>
+              <td><?= $value->State ?></td>
+              <td><?= $value->Cluster ?></td>
+              <td><?= $value->BranchName ?></td>
+              <td><?= $value->ProductVertical ?></td>
+              <td><?= date('M-Y', strtotime($value->DemandDate)) ?></td>  
+              <td><?=$branchpayment[$value->BranchName]->amountcollected?></td>
+              <td>
+                <a href="<?= Url::toRoute(['site/customerdetails','branch' => $value->BranchName,'fromdt' =>$fromdate,'todt' =>$todate,'pagination'=>'true']);  ?>"><?= $value->totalcustomer ?></a>
               </td>
-            	<td><?= $value['paidcustomer'] ?></td>
-            	<tr>
-            	<?php }?>
+              <td><?=$branchpayment[$value->BranchName]->customerpaid?></td>
+              <tr>
+              <?php }?>
             </tbody>
           </table>
           
         </div>
         </div>
+         <?php if (!is_numeric($pages))
+        {
+         ?>
+          <div class="col-sm-12">
+            <div class="col-sm-6 text-left"></div>
+            <div class="col-sm-6"><?= yii\widgets\LinkPager::widget(['pagination' => $pages]);?></div>
+          </div>
+       <?php
+        }
+        ?>
       </div>
     </div>
     

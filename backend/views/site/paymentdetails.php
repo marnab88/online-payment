@@ -43,7 +43,7 @@ $this->title = 'Payment Details';
 								<th>Mobile No</th>
 								<th>Loan Account No.</th>
 								<th>Transaction Date</th>
-								<th>Wallet Bank Ref. No.</th>
+								<th>Bank Ref. No.</th>
 								<th>Demand Date</th>
 								<th>Demand Amount</th>
 								<th>Receipt Amount</th>
@@ -87,6 +87,7 @@ $this->title = 'Payment Details';
 					</table>
 					</div>
 				</div>
+				
 			</div>
 		</div>
 		

@@ -114,9 +114,39 @@ class SiteController extends Controller {
     }
 
     public function actionGenerateotp() {
-        $mobileno=Yii::$app->request->get()['mobileno'];
+        $loanno=Yii::$app->request->get()['loanno'];
+         $msme=MsmeExcelData::find()->where(['LoanAccountNo'=> $loanno,'IsDelete'=>0])->orderBy(['Mid'=> SORT_DESC])->one();
+         $mobileno= $msme->MobileNo;
         $otp=new OtpVerification();
         $result=$otp->generateOtp($mobileno);
+        echo json_encode($result);
+    }
+     public function actionMobchangeotp() {
+        $mobileno=Yii::$app->request->get()['mobileno'];
+        $otp=new OtpVerification();
+        $result=$otp->mobchangeOtp($mobileno);
+        echo json_encode($result);
+    }
+    public function actionCheckmobile($mobileno) {
+            $session=Yii::$app->session;
+            $session->open();
+            $loan=$session->get('loan');
+            $type=$session->get('type');
+
+            //echo $type;die();
+            if ($type =='MFI') {
+                $recordDetail=ExcelData::find()->where(['LoanAccountNo'=> $loan,'MobileNo'=>$mobileno,'month(OnDate)'=>date('m')])->count();
+            }
+
+            else {
+                $recordDetail=MsmeExcelData::find()->where(['LoanAccountNo'=> $loan,'MobileNo'=>$mobileno,'month(OnDate)'=>date('m')])->count();
+            }
+             if($recordDetail > 0){
+                     $result=0;
+                    }else{
+                        $result=1;
+                    }
+           
         echo json_encode($result);
     }
 
@@ -127,33 +157,48 @@ class SiteController extends Controller {
             $type=$session->get('type');
             
             if ($type =='MFI') {
-                $recordDetail=ExcelData::find()->where(['LoanAccountNo'=> $loan])->orderBy(['Eid'=> SORT_DESC])->one();
+                $recordDetail=ExcelData::find()->where(['LoanAccountNo'=> $loan])->orderBy(['Eid'=> SORT_DESC])->all();
             }
 
             else {
-                $recordDetail=MsmeExcelData::find()->where(['LoanAccountNo'=> $loan])->orderBy(['Mid'=> SORT_DESC])->one();
+                $recordDetail=MsmeExcelData::find()->where(['LoanAccountNo'=> $loan])->orderBy(['Mid'=> SORT_DESC])->all();
             }
+        
         if(isset(Yii::$app->request->post()['submit']))
         {
             // echo "<pre>";var_dump($recordDetail);echo "</pre>";die();
             $otp=Yii::$app->request->post('otp');
             $mob=Yii::$app->request->post('mob');
-            $checkotp=OtpVerification::find()->where(['MobileNo'=> $mob, 'OtpCode'=> $otp,'IsDelete'=> 0])->orderBy(['Id'=> SORT_DESC])->one();
+            // $checkotp=OtpVerification::find()->where(['MobileNo'=> $mob, 'OtpCode'=> $otp,'IsDelete'=> 0])->orderBy(['Id'=> SORT_DESC])->one();
+             $checkotp=OtpVerification::find()->where(['MobileNo'=> $mob, 'OtpCode'=> $otp, 'IsVerified'=> 0, 'IsDelete'=> 0])->orderBy(['Id'=> SORT_DESC])->one();
              if (count($checkotp) > 0) {
-                $recordDetail->MobileNo=$mob;
-                if ($recordDetail->save()){
+               /* if($mob == $recordDetail->MobileNo)
+                {
+                    Yii::$app->session->setFlash('error', 'Mobile Number already exist!');
+                    return $this->redirect(['home']);
+                }*/
+                $checkotp->IsVerified=1;
+                if ($checkotp->save()) {
+                foreach ($recordDetail as $key => $value) {
+                    $value->MobileNo=$mob;
+                     if ($value->save()){
+                        $otp=new OtpVerification();
+                        $otp->mobchangesuccessotp($mob,$loan);
                     // var_dump($recordDetail->getErrors());
                     Yii::$app->session->setFlash('success', 'Your Mobile Number Successfully Updated.');
                     return $this->redirect(['home']); 
-                }else{
-                    // var_dump($recordDetail->getErrors());
-                    Yii::$app->session->setFlash('error', 'Somthing Went wrong!.');
+                    }else{
+                        // var_dump($recordDetail->getErrors());
+                        Yii::$app->session->setFlash('error', 'Somthing Went wrong!.');
+                    }
+                    
                 }
-
-
+            }
              }
              else
              {
+                $otp=new OtpVerification();
+                $otp->mobchangefailedotp($mob,$loan);
                 Yii::$app->session->setFlash('error', 'Please Enter valid Otp!.');
              }
 
@@ -169,7 +214,7 @@ class SiteController extends Controller {
 
         if ($fetchsom) {
              $result['LoanAccountNo']=$fetchsom['LoanAccountNo'];
-            $result['MobileNo']=$fetchsom['MobileNo'];
+            // $result['MobileNo']=$fetchsom['MobileNo'];
             $result['maskMobileNo']=str_repeat("X", strlen($fetchsom['MobileNo'])-4) . substr($fetchsom['MobileNo'], -4);
 
         
@@ -352,12 +397,20 @@ class SiteController extends Controller {
             $model->otp=$otpcode;
 
             if($model->validate()) {
+             
                 $loanaccountno=$model->loanaccno;
-                $mobileno=$model->mobileno;
+                $findMSMECustomer=MsmeExcelData::find()->where(['LoanAccountNo'=>$loanaccountno,'IsApproved'=>1])->orderBy(['Mid' => SORT_DESC])->one();
+                $findMFICustomer=ExcelData::find()->where(['LoanAccountNo'=>$loanaccountno,'IsApproved'=>1])->orderBy(['Eid' => SORT_DESC])->one();
+                if(isset($findMSMECustomer->MobileNo))
+                     $mobileno=$findMSMECustomer->MobileNo;
+                else
+                   $mobileno=$findMFICustomer->MobileNo;
                 
                 $checkotp=OtpVerification::find()->where(['MobileNo'=> $mobileno, 'OtpCode'=> $otpcode, 'IsVerified'=> 0, 'IsDelete'=> 0])->orderBy(['Id'=> SORT_DESC])->one();
                 if (count($checkotp) > 0) {
-                  $recordtl=Yii::$app->db->createCommand("SELECT Eid as id,RecordId,LoanAccountNo,MobileNo,DemandDate,Type FROM `ExcelData` WHERE `MobileNo`='$mobileno' AND `LoanAccountNo`='$loanaccountno'GROUP BY LoanAccountNo UNION ALL SELECT  Mid as id,RecordId,LoanAccountNo,MobileNo,DemandDate,Type FROM `MsmeExcelData` WHERE `MobileNo`='$mobileno' AND `LoanAccountNo`='$loanaccountno'GROUP BY LoanAccountNo");
+                  $recordtl=Yii::$app->db->createCommand("SELECT Eid as id,RecordId,LoanAccountNo,MobileNo,DemandDate,Type FROM `ExcelData` WHERE `MobileNo`='$mobileno' AND `LoanAccountNo`='$loanaccountno'GROUP BY LoanAccountNo
+                                                         UNION ALL
+                                                         SELECT  Mid as id,RecordId,LoanAccountNo,MobileNo,DemandDate,Type FROM `MsmeExcelData` WHERE `MobileNo`='$mobileno' AND `LoanAccountNo`='$loanaccountno'GROUP BY LoanAccountNo");
                        $record =$recordtl->queryAll(); 
                        // var_dump($record);die();
                     //$record = ExcelData::find()->where(['MobileNoo' => $mobileno, 'LoanAccountNo' => $loanaccountno])->one();
@@ -365,6 +418,8 @@ class SiteController extends Controller {
                         $checkotp->IsVerified=1;
 
                         if ($checkotp->save()) {
+                            $otp=new OtpVerification();
+                            $otp->loginsuccessotp($mobileno,$loanaccountno);
                             $session=Yii::$app->session;
                             $session->open();
                             foreach ($record as $key => $value) {
@@ -385,11 +440,15 @@ class SiteController extends Controller {
                             }
                             return $this->redirect(['home']);
                         }
+                        
                     }
                 }
 
                 else {
+                    $otp=new OtpVerification();
+                        $otp->loginfailedotp($mobileno,$loanaccountno);
                   Yii::$app->session->setFlash('error', 'Invalid Otp');
+
 
                 }
             }
@@ -463,6 +522,10 @@ class SiteController extends Controller {
     }
 
     public function actionPreviouspay($lid) {
+        $session=Yii::$app->session;
+            $session->open();
+            $lid=$session->get('loan');
+            
         $pre=TXNDETAILS::find()->where(['LOAN_ID'=>$lid])->all();
         $loan=TXNDETAILS::find()->where(['LOAN_ID'=>$lid])->one();
         return $this->render('previous', ['pre'=>$pre,'loan'=>$loan]);

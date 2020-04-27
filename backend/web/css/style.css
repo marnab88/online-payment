@@ -13431,7 +13431,7 @@ input:focus {
   min-height: 100%;
   padding: 0;
   position: fixed;
-  width: 247px;
+  width: 200px;
   z-index: 11;
   transition: width 0.25s ease, background 0.25s ease;
   -webkit-transition: width 0.25s ease, background 0.25s ease;
@@ -13444,7 +13444,7 @@ input:focus {
     margin-bottom: 60px;
     margin-top: 16px; }
     .sidebar .nav .nav-item {
-      padding: 0 25px 0 25px;
+      padding: 0 10px 0 10px;
       -webkit-transition-duration: 0.45s;
       -moz-transition-duration: 0.45s;
       -o-transition-duration: 0.45s;
@@ -13490,7 +13490,7 @@ input:focus {
         .sidebar .nav .nav-item .nav-link .menu-title {
           color: inherit;
           display: inline-block;
-          font-size: 0.875rem;
+          font-size: 0.8rem;
           line-height: 1;
           vertical-align: middle;
           margin-right: auto; }
@@ -14061,11 +14061,11 @@ html {
 
 .content-wrapper {
   background: #F6F8FA;
-  margin-left: 247px;
+  margin-left: 200px;
   min-height: 100vh;
-  padding: 1.5rem 1.7rem;
+  padding: 1rem .5rem;
   transition: width 0.25s ease, margin 0.25s ease;
-  width: calc(100% - 247px); }
+  width: calc(100% - 180px); }
   @media (max-width: 991px) {
     .content-wrapper {
       margin-left: 0;
@@ -14771,12 +14771,12 @@ pre {
     height: 15px; }
   .progress.progress-xl {
     height: 18px; }
-
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td{padding:4px !important;}
 /* Cards */
 .card {
   border: 0; }
   .card .card-body {
-    padding: 1.88rem 1.81rem; }
+    padding: 1.5rem .5rem; }
     .card .card-body + .card-body {
       padding-top: 0; }
   .card.card-outline-success {
@@ -15244,7 +15244,7 @@ dl {
   .table th,
   .table td {
     vertical-align: middle;
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     line-height: 1; 
 	text-align:center;
 	color:#333;
