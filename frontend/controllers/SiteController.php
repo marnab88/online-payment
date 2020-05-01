@@ -20,7 +20,7 @@ use common\models\UploadRecords;
 use frontend\models\LoanPaymentForm;
 use common\models\TXNDETAILS;
  use kartik\mpdf\Pdf;
-
+use yii\db\Expression;
 use yii\web\Session;
 
 /**
@@ -135,11 +135,11 @@ class SiteController extends Controller {
 
             //echo $type;die();
             if ($type =='MFI') {
-                $recordDetail=ExcelData::find()->where(['LoanAccountNo'=> $loan,'MobileNo'=>$mobileno,'month(OnDate)'=>date('m')])->count();
+                $recordDetail=ExcelData::find()->where(['MobileNo'=>$mobileno])->andWhere(['>', 'OnDate', new Expression('DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH)')])->count();
             }
 
             else {
-                $recordDetail=MsmeExcelData::find()->where(['LoanAccountNo'=> $loan,'MobileNo'=>$mobileno,'month(OnDate)'=>date('m')])->count();
+                $recordDetail=MsmeExcelData::find()->where(['MobileNo'=>$mobileno])->andWhere(['>', 'OnDate', new Expression('DATE_SUB(CURRENT_DATE(), INTERVAL 2 MONTH)')])->count();
             }
              if($recordDetail > 0){
                      $result=0;
