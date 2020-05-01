@@ -118,7 +118,7 @@ class OtpVerification extends \yii\db\ActiveRecord
         $request = "";
         $param['send_to'] = $contactno;
         $param['method'] = "sendMessage";
-        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno is successfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno is successful.For any queries call at our tollfree number 18008437200 ";
         $param['userid'] = "2000183786";
         $param['password'] = "Afpl@786";
         $param['v'] = "1.1";
@@ -170,7 +170,7 @@ class OtpVerification extends \yii\db\ActiveRecord
         $request = "";
         $param['send_to'] = $contactno;
         $param['method'] = "sendMessage";
-        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno is unsuccessfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno is unsuccessful.For any queries call at our tollfree number 18008437200 ";
         $param['userid'] = "2000183786";
         $param['password'] = "Afpl@786";
         $param['v'] = "1.1";
@@ -272,7 +272,7 @@ class OtpVerification extends \yii\db\ActiveRecord
         $request = "";
         $param['send_to'] = $mob;
         $param['method'] = "sendMessage";
-        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno for change mobile number is successfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno for change mobile number is successful.For any queries call at our tollfree nuber 18008437200 ";
         $param['userid'] = "2000183786";
         $param['password'] = "Afpl@786";
         $param['v'] = "1.1";
@@ -324,7 +324,7 @@ class OtpVerification extends \yii\db\ActiveRecord
         $request = "";
         $param['send_to'] = $mob;
         $param['method'] = "sendMessage";
-        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno for change mobile number is unsuccessfull.For any queries call at our tollfree nuber 18008437200 ";
+        $param['msg'] = "Dear Customer, Your mobile number $maskMobileNo verification with loan account number $maskloanaccountno for change mobile number is unsuccessful.For any queries call at our tollfree nuber 18008437200 ";
         $param['userid'] = "2000183786";
         $param['password'] = "Afpl@786";
         $param['v'] = "1.1";

@@ -1065,6 +1065,77 @@ return $this->redirect(['index']);
     public function actionPaymentdetails(){
        $this->layout = 'common';
        $lnacno='';
+       $getpayment = TXNDETAILS::find();
+       if (isset(Yii::$app->request->post()['search'])) {
+          $lnacno = Yii::$app->request->post('loanacno');
+          $getpayment=$getpayment->where(['LOAN_ID'=>$lnacno]);
+       }
+       
+         $pages=0;
+         if (!empty(yii::$app->request->get('pagination')))
+         {
+          $countQuery = clone $getpayment;
+          $pages = new Pagination(['totalCount' => $countQuery->count()]);
+          if ($pages) {
+            $getpayment = $getpayment->offset($pages->offset)
+                               ->limit($pages->limit);
+          }
+
+         }
+      $getallreport =$getpayment->all();
+
+
+       if(yii::$app->request->get('export')){
+           $excel=new ExportExcel();
+           $sheet=[];
+            $amount=[];
+           foreach($getallreport as $key => $value){
+             $totamnt=($value->usermser->LastMonthDue+$value->usermser->LatePenalty+$value->usermser->CurrentMonthDue);
+            if($value->TXN_STATUS == 1){
+                  if (isset($amount[$value->LOAN_ID])) {
+                    $amount[$value->LOAN_ID]=$amount[$value->LOAN_ID]+$value->TXN_AMT;
+                  }else{
+                    $amount[$value->LOAN_ID]=$value->TXN_AMT;
+                  }
+                  $pervamnt=$amount[$value->LOAN_ID]-($value->TXN_AMT);
+                }else {
+                    $amount[$value->LOAN_ID] = 0;
+                    $pervamnt=0;
+                }
+
+                $dueamt=$totamnt-($amount[$value->LOAN_ID]);
+               $sheet['Type'][]=$value->TYPE;
+               $sheet['Branch Name'][]=$value->usermser->BranchName;
+               $sheet['User Id'][]=$value->USER_ID;
+               $sheet['Client Name'][]=$value->usermser->ClientName;
+               $sheet['Mobile No'][]=$value->usermser->MobileNo;
+               $sheet['Loan Account No.'][]=$value->LOAN_ID;
+               $sheet['Transaction Date'][]=date('d-m-Y H:i:s',strtotime($value->TXN_DATE));
+               $sheet['Bank Ref. No.'][]=(isset($value->transactionres->WALLET_BANK_REF))?$value->transactionres->WALLET_BANK_REF:'';
+               $sheet['Demand Date'][]=date('d-m-Y',strtotime($value->usermser->DemandDate));
+               $sheet['Demand Amount'][]=number_format($totamnt,2);
+               $sheet['Total Amount Paid'][]=number_format($amount[$value->LOAN_ID],2);
+               $sheet['Previous Receipt Amount'][]=number_format($pervamnt,2);
+               $sheet['Receipt Amount'][]=number_format($value->TXN_AMT,2);
+               $sheet['Receipt Mode'][]=(isset($value->transactionres->PG_MODE))?$value->transactionres->PG_MODE:'';
+               $sheet['Next Installment Date'][]=date('d-m-Y',strtotime($value->usermser->NextInstallmentDate));
+               $sheet['Due Amount'][]=(($value->TXN_STATUS) == 1)?number_format($dueamt,2):number_format($totamnt,2);
+               $sheet['Status'][]=(($value->TXN_STATUS) == 1)?'Success':'Failed';
+
+           }
+           $excel->Export($sheet);
+          
+         }
+
+      return $this->render('paymentdetails',['getallreport'=>$getallreport,'lnacno'=>$lnacno,'pages'=>$pages]);
+
+    }
+
+
+
+   /* public function actionPaymentdetails(){
+       $this->layout = 'common';
+       $lnacno='';
        if (isset(Yii::$app->request->post()['search'])) {
         $lnacno = Yii::$app->request->post('loanacno');
          $getpayment=Yii::$app->db->createCommand("Select *,(DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF, BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE, MID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,ms.Type as TYPE from MsmeExcelData ms inner join TXN_DETAILS t on t.USER_ID = ms.Mid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID where ms.LoanAccountNo = '$lnacno')m UNION ALL Select *, (DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF,BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE,EID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,es.Type as TYPE from ExcelData es inner join TXN_DETAILS t on t.USER_ID = es.Eid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID where es.LoanAccountNo = '$lnacno')e ");
@@ -1078,7 +1149,7 @@ return $this->redirect(['index']);
       return $this->render('paymentdetails',['getallreport'=>$getallreport,'lnacno'=>$lnacno]);
 
     }
-   
+   */
 
     public function actionReport()
         { 

@@ -29,12 +29,12 @@ $this->title = 'Reset Password';
 							</div>
 							<div class="form-group">
 								<!-- <label for="exampleInputEmail1">Login ID</label> -->
-								<label for="exampleInputEmail1">New Password</label>
-								<input type="password" name="npsw" class="form-control">
+								<label for="exampleInputEmail1">LoanId</label>
+								<input type="text" name="loan" class="form-control">
 							</div>
 							<div class="form-group">
-								<label for="exampleInputEmail1">Confirm Password</label>
-								<input type="password" name="cpsw" class="form-control">
+								<label for="exampleInputEmail1">Mobile Number</label>
+								<input type="text" name="mob" class="form-control">
 							</div>
 
 							

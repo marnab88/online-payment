@@ -54,18 +54,18 @@ input[type=number] {
 						<div class="form-group otpsuccess" style="margin-top:15px !important;display: none;">
 							
 							<div class="col-sm-12">
-								<input type="number" name="otp" id="otp" onkeypress="return isNumber(event)" class="form-control onlynumber" placeholder="OTP">
+								<input type="number" name="otp" id="otp" required="required" onkeypress="return isNumber(event)" class="form-control onlynumber" placeholder="OTP">
 							</div>
 							<div class="form-group">
 							<div class="col-sm-offset-4 col-sm-7" style="margin-top:30px;">
 								
-								<button type="submit" class="btn btn-primary" id="newmob" name="submit" style="width:150px;">Submit</button>
+								<input type="submit" class="btn btn-primary" id="newmile" value="Submit" style="width:150px;">
 							</div>
 						</div>
 						</div>
 						<div class="form-group">
 						<div class="col-sm-offset-4 col-sm-7" style="margin-top:30px;">
-						<button type="button" class="btn btn-primary" id="newotp" style="display: none;"  onclick="gotp();">Generate OTP</button>
+						<button type="submit" class="btn btn-primary" id="newotp" style="display: none;"  onclick="gotp();$(this).html('Resend OTP')">Generate OTP</button>
 						</div>
 					</div>					
 					<?php ActiveForm::end(); ?>
@@ -109,8 +109,8 @@ input[type=number] {
 					alert("Wrong mobile no");
 				} else {
 					$('.otpsuccess').show();
-					$('#newotp').hide();
-					$('#newmob').show();
+					// $('#newotp').hide();
+					$('#newmile').show();
 				}
 			}
 		});
@@ -125,12 +125,12 @@ input[type=number] {
 					alert("mobile number already exist!");
 					$('.otpsuccess').hide();
 					$('#newotp').hide();
-					$('#newmob').hide();
+					//$('#newmile').hide();
 					
 				} else {
 					$('.otpsuccess').hide();
 					$('#newotp').show();
-					// $('#newmob').hide();
+					// $('#newmile').hide();
 					
 				}
 			}

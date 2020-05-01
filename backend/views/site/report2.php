@@ -9,7 +9,7 @@ use kartik\date\DatePicker;
 
 //use yii\widgets\ActiveForm;
 $this->title = 'Report';
-
+$model->BranchName=$branchname;
 ?>
 <style>
 .report label{
@@ -27,12 +27,13 @@ $this->title = 'Report';
 }
 
 </style>
+
 <div class="site-login">
     <div class="col-lg-12 grid-margin stretch-card report" style="padding-left:0px;" >
       <div class="card">
         <div class="card-body">
           <h4 class="card-title">Transaction history Report</h4>
-          <?php $form = ActiveForm::begin(['id' => 'report_form']); ?>
+          <?php $form = ActiveForm::begin(['id' => 'report_form','method'=>'get']); ?>
           <div class="row">
            <div class="col-sm-3">
             <label>Type</label>
@@ -43,17 +44,17 @@ $this->title = 'Report';
             </select>
            </div>
            <div class="col-sm-3" style="padding-top:10px;">
-            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['label'=>'Branch Name','prompt'=>'---Select Branch---']
+            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['name'=>'branchname','label'=>'Branch Name','prompt'=>'---Select Branch---']
           ) ?>
            
            </div>
            <div class="col-sm-3">
             <label>From Date</label>
-              <input type="text" name="fromdate" id="datepicker" placeholder="dd-mm-yy" class="form-control" value="<?=date('01-m-Y')?>" autocomplete="off">
+              <input type="text" name="fromdate" id="datepicker" placeholder="dd-mm-yy" class="form-control" value="<?= $frmdate ?>" autocomplete="off">
             </div>
             <div class="col-sm-3">
               <label>To Date</label>
-              <input type="text" name="todate" id="datepicker1" placeholder="dd-mm-yy" class="form-control" value="<?=date('d-m-Y')?>" autocomplete="off">
+              <input type="text" name="todate" id="datepicker1" placeholder="dd-mm-yy" class="form-control" value="<?= $tdate ?>" autocomplete="off">
              </div>
             </div>
            <div class="row">

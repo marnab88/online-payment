@@ -21,7 +21,7 @@ $this->title = 'Payment Details';
 				<div class="card-body">
 					<h4 class="card-title col-sm-4">Payment Details</h4>
 					
-					<?php $form = ActiveForm::begin(['action'=>['site/paymentdetails'],'options'=>['class' => 'form-horizontal']]); ?>
+					<?php $form = ActiveForm::begin(['action'=>['site1/paymentdetails'],'options'=>['class' => 'form-horizontal']]); ?>
 					<div class="col-sm-4">
 					 		<input type="text" class="form-control" value="<?= $lnacno ?>" autocomplete="off" required name="loanacno" placeholder="Enter LoanAccountNo"> 
 					</div>
@@ -31,7 +31,7 @@ $this->title = 'Payment Details';
 		            <?php ActiveForm::end(); ?>
 					 <div class="col-sm-2">
 					 	 <?php if ($getallreport) {?>
-				              <a href="<?= Url::toRoute(['site/paymentdetails','export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
+				              <a href="<?= Url::toRoute(['site1/paymentdetails','export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
 				          <?php } ?>
 		            </div>
 		            
@@ -50,7 +50,8 @@ $this->title = 'Payment Details';
 								<th>Bank Ref. No.</th>
 								<th>Demand Date</th>
 								<th>Demand Amount</th>
-								<th>Previously Received Amount</th>
+								<th>Total Amount Paid</th>
+								<th>Previously Receipt Amount</th>
 								<th>Receipt Amount</th>
 								<th>Receipt Mode</th>
 								<th>Next Installment Date</th>
@@ -60,13 +61,12 @@ $this->title = 'Payment Details';
 						<?php
 						if ($getallreport) {
 				              $amount=[];
-				              $previouslypaid=[];
 				            foreach ($getallreport as $key => $value) {
 				            	// var_dump($value);
 				              $totamnt=($value->usermser->LastMonthDue+$value->usermser->LatePenalty+$value->usermser->CurrentMonthDue);
 				              //$dueamt=$totamnt-($value->TXN_AMT);
-				              /*if($value->TXN_STATUS == 1){
-				                    if (isset($amount[$value->LOAN_ID])) {
+				              if($value->TXN_STATUS == 1){
+				                  if (isset($amount[$value->LOAN_ID])) {
 				                      $amount[$value->LOAN_ID]=$amount[$value->LOAN_ID]+$value->TXN_AMT;
 				                    }else{
 				                      $amount[$value->LOAN_ID]=$value->TXN_AMT;
@@ -77,12 +77,7 @@ $this->title = 'Payment Details';
 				                      $pervamnt=0;
 				                  }
 
-				                  $dueamt=$totamnt-($amount[$value->LOAN_ID]);*/
-
-				                  if(!isset($previouslypaid[$value->LOAN_ID]) )
-					                  $previouslypaid[$value->LOAN_ID]=0;
-					               
-					                $dueamt=$totamnt-($previouslypaid[$value->LOAN_ID]);
+				                  $dueamt=$totamnt-($amount[$value->LOAN_ID]);
 
 
 				              ?>
@@ -98,15 +93,14 @@ $this->title = 'Payment Details';
 				                <td><?= (isset($value->transactionres->WALLET_BANK_REF))?$value->transactionres->WALLET_BANK_REF:'' ?></td>
 				                <td><?= date('d-m-Y',strtotime($value->usermser->DemandDate)) ?></td>
 				                <td><?= number_format($totamnt,2) ?></td>
-				                <td><?= number_format($previouslypaid[$value->LOAN_ID],2); ?></td>
+				                <td><?= number_format($amount[$value->LOAN_ID],2) ?></td>
+				                <td><?= number_format($pervamnt,2) ?></td>
 				                <td><?= number_format($value->TXN_AMT,2) ?></td>
 				                <td><?= (isset($value->transactionres->PG_MODE))?$value->transactionres->PG_MODE:'' ?></td>
 				                <td><?= date('d-m-Y',strtotime($value->usermser->NextInstallmentDate)) ?></td>
-				                <td><?= number_format($dueamt,2) ?></td>
+				                <td><?= (($value->TXN_STATUS) == 1)?number_format($dueamt,2):number_format($totamnt,2) ?></td>
 				                <td><?= ($value->TXN_STATUS == 1)?'<b>success</b>':'<b style="color:#ff0000">failed</b>' ?></td>
-				                <?php if($value->TXN_STATUS==1){
-					                $previouslypaid[$value->LOAN_ID]+=$value->TXN_AMT;
-					               }?>
+				                
 				              </tr>
 				              <?php
 				                }}else{?>

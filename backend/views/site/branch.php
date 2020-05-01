@@ -60,7 +60,7 @@ $this->title = 'Home';
                         if(!empty($details))
                         {
                         ?>
-                            <a href="<?=Url::toRoute(['site1/exportbranch']);?>"><button class="btn btn-warning" type="button"><i class="mdi mdi-file-excel"></i> Export</button></a>
+                            <a href="<?=Url::toRoute(['site/exportbranch']);?>"><button class="btn btn-warning" type="button"><i class="mdi mdi-file-excel"></i> Export</button></a>
                           
                        
                         <?php

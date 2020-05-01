@@ -115,12 +115,12 @@ $this->title = 'Customer Details';
 
                 
                 <td>
-                  <?= $paymetdetails[$value->Mid]->WALLET_BANK_REF ?>
+                  <?= isset($paymetdetails[$value->Mid]->WALLET_BANK_REF)?$paymetdetails[$value->Mid]->WALLET_BANK_REF:'' ?>
                 </td>
                 <td>
-                  <?= $paymetdetails[$value->Mid]->PG_MODE ?>
+                  <?= isset($paymetdetails[$value->Mid]->PG_MODE)?$paymetdetails[$value->Mid]->PG_MODE:'' ?>
                 </td>
-                <td><?php echo number_format($paymetdetails[$value->Mid]->TXN_AMT,2);?></td>
+                <td><?php echo number_format(isset($paymetdetails[$value->Mid]->TXN_AMT)?$paymetdetails[$value->Mid]->TXN_AMT:0,2);?></td>
                 <td>
                   <?= number_format(($value->LastMonthDue + $value->CurrentMonthDue + $value->LatePenalty)-$paid,2) ?>
                 </td>

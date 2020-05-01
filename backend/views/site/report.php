@@ -35,7 +35,7 @@ $model->BranchName=$branchname;
       <div class="card">
         <div class="card-body">
           <h4 class="card-title">Loan wise Payment Report</h4>
-          <?php $form = ActiveForm::begin(['id' => 'report_form']); ?>
+          <?php $form = ActiveForm::begin(['id' => 'report_form','method'=>'get']); ?>
           <div class="row">
            <div class="col-sm-3">
             <label>Type</label>
@@ -46,17 +46,17 @@ $model->BranchName=$branchname;
             </select>
            </div>
            <div class="col-sm-3" style="padding-top:10px;">
-            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['label'=>'Branch Name','prompt'=>'All']
+            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['name'=>'branchname','label'=>'Branch Name','prompt'=>'All']
           ) ?>
            
            </div>
            <div class="col-sm-3">
             <label>From Date</label>
-              <input type="text" name="fromdate" id="datepicker" placeholder="dd-mm-yy" class="form-control" value="<?=date('01-m-Y')?>" autocomplete="off">
+              <input type="text" name="fromdate" id="datepicker" placeholder="dd-mm-yy" class="form-control" value="<?= $frmdate ?>" autocomplete="off">
             </div>
             <div class="col-sm-3">
               <label>To Date</label>
-              <input type="text" name="todate" id="datepicker1" placeholder="dd-mm-yy" class="form-control" value="<?=date('d-m-Y')?>" autocomplete="off">
+              <input type="text" name="todate" id="datepicker1" placeholder="dd-mm-yy" class="form-control" value="<?= $tdate ?>" autocomplete="off">
              </div>
             </div>
            <div class="row">
@@ -82,7 +82,7 @@ if($allcustomer){
           <h4 class="card-title col-sm-6">Report Details</h4>
           <div class="col-sm-6 text-right">
              <a href="<?= Url::toRoute(['site/customerdetails','branch' => '','fromdt' =>$fromdate,'todt' =>$todate,'export' => 'yes']);  ?>" class="btn btn-success">Export All</a>
-            <a href="<?= Url::toRoute(['site/report','export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
+            <a href="<?= Url::toRoute(['site/report','type'=>$type,'branchname' => $branchname,'fromdate' =>$fromdate,'todate' =>$todate,'export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
                 <!-- <input type="button" value="Export Report" class="btn btn-success exportToExcel" style="float:right;"> -->
             </div>
           <div class="table-responsive">
@@ -142,25 +142,7 @@ if($allcustomer){
 
  <?php
     $this->registerJs('
-    $(".exportToExcel").click(function(e){
-          var table = $("#table_emp");
-          if(table && table.length){
-            var preserveColors = (table.hasClass("table2excel_with_colors") ? true : false);
-            $("#table_emp").table2excel({
-              exclude: ".noExl",
-              name: "Report",
-              filename: "Report" + new Date().toISOString().replace(/[\-\:\.]/g, "") + ".xls",
-              fileext: ".xls",
-              exclude_img: true,
-              exclude_links: true,
-              exclude_inputs: true,
-              preserveColors: preserveColors
-            });
-          }
-        });
-
-
-
+   
     $( document ).ready(function() {
         $("#datepicker").datepicker({
             maxDate: 0,

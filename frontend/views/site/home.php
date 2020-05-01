@@ -335,7 +335,26 @@ function check(){
 			}
 		});
 	}
+
+	 <?php
+    if($getrefresh !='')
+    {
+    ?>
+     
+	    	refreshPage();
+
+	 
+  
+    <?php
+    }
+    ?>
+    function refreshPage() {
+
+   setTimeout(function(){window.location.href ='<?= Url::to(['site/home']) ?>';},200);
+
+}
 </script>
+ 
 
   <?php
 $js = <<<JS

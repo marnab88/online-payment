@@ -15,6 +15,10 @@ RewriteBase /
 RewriteCond %{REQUEST_URI} ^/onlineportal/backend
 RewriteRule ^backend/(.*)$ onlineportal/backend/web/$1 [L]
 
+# Agent redirect
+RewriteCond %{REQUEST_URI} ^/onlineportal/agent
+RewriteRule ^backend/(.*)$ onlineportal/agent/web/$1 [L]
+
 # Storage redirect
 RewriteCond %{REQUEST_URI} ^/onlineportal/store
 RewriteRule ^storage/(.*)$ onlineportal/storage/upload/$1 [L]

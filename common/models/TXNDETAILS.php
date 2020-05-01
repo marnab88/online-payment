@@ -32,8 +32,11 @@ class TXNDETAILS extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+  
+    
     public $WALLET_BANK_REF;
     public $PG_MODE;
+    
     public static function tableName()
     {
         return 'TXN_DETAILS';
