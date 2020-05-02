@@ -1103,17 +1103,67 @@ return $this->redirect(['index']);
     public function actionPaymentdetails(){
        $this->layout = 'common';
        $lnacno='';
+       $getpayment = TXNDETAILS::find();
        if (isset(Yii::$app->request->post()['search'])) {
-        $lnacno = Yii::$app->request->post('loanacno');
-         $getpayment=Yii::$app->db->createCommand("Select *,(DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF, BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE, MID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,ms.Type as TYPE from MsmeExcelData ms inner join TXN_DETAILS t on t.USER_ID = ms.Mid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID where ms.LoanAccountNo = '$lnacno')m UNION ALL Select *, (DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF,BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE,EID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,es.Type as TYPE from ExcelData es inner join TXN_DETAILS t on t.USER_ID = es.Eid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID where es.LoanAccountNo = '$lnacno')e ");
-     
+          $lnacno = Yii::$app->request->post('loanacno');
+          $getpayment=$getpayment->where(['LOAN_ID'=>$lnacno]);
        }
-       else{
-      $getpayment=Yii::$app->db->createCommand("Select *,(DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF, BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=ms.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE, MID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,ms.Type as TYPE from MsmeExcelData ms inner join TXN_DETAILS t on t.USER_ID = ms.Mid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)m UNION ALL Select *, (DEMAND_AMT - RECPT_AMT) AS DUE_AMT FROM(Select DATE_FORMAT(ts.TXN_DATE,'%d-%m-%Y %H:%i:%s')TXN_DATE,case when TXN_STATUS=1 then WALLET_BANK_REF else '' end as WALLET_BANK_REF,BranchName,ClientName,MobileNo,LoanAccountNo,DATE_FORMAT(DemandDate,'%d-%m-%Y')DEMAND_DATE,ROUND(LastMonthDue+CurrentMonthDue+LatePenalty,2)DEMAND_AMT,(SELECT SUM(TXN_AMT) FROM TXN_DETAILS WHERE TXN_STATUS=1 and LOAN_ID=es.LoanAccountNo) as RECPT_AMT,ts.PG_MODE RCPT_MODE,EID as mid,DATE_FORMAT(NextInstallmentDate,'%d-%m-%Y')NXT_INST_DATE,es.Type as TYPE from ExcelData es inner join TXN_DETAILS t on t.USER_ID = es.Eid inner join TXN_RESP_DETAILS ts on t.TXN_ID = ts.TXN_ID)e");
-    }
-      $getallreport =$getpayment->queryAll();
+       
+         $pages=0;
+         if (!empty(yii::$app->request->get('pagination')))
+         {
+          $countQuery = clone $getpayment;
+          $pages = new Pagination(['totalCount' => $countQuery->count()]);
+          if ($pages) {
+            $getpayment = $getpayment->offset($pages->offset)
+                               ->limit($pages->limit);
+          }
 
-      return $this->render('paymentdetails',['getallreport'=>$getallreport,'lnacno'=>$lnacno]);
+         }
+      $getallreport =$getpayment->all();
+
+
+       if(yii::$app->request->get('export')){
+           $excel=new ExportExcel();
+           $sheet=[];
+            $amount=[];
+            $previouslypaid=[];
+           foreach($getallreport as $key => $value){
+             $totamnt=($value->usermser->LastMonthDue+$value->usermser->LatePenalty+$value->usermser->CurrentMonthDue);
+            
+               if(!isset($previouslypaid[$value->LOAN_ID]) )
+                  $previouslypaid[$value->LOAN_ID]=0;
+               
+                $dueamt=$totamnt-($previouslypaid[$value->LOAN_ID]);
+              
+               
+               $sheet['Type'][]=$value->TYPE;
+               $sheet['Branch Name'][]=$value->usermser->BranchName;
+               $sheet['User Id'][]=$value->USER_ID;
+               $sheet['Client Name'][]=$value->usermser->ClientName;
+               $sheet['Mobile No'][]=$value->usermser->MobileNo;
+               $sheet['Loan Account No.'][]=$value->LOAN_ID;
+               $sheet['Transaction Date'][]=date('d-m-Y H:i:s',strtotime($value->TXN_DATE));
+               $sheet['Bank Ref. No.'][]=(isset($value->transactionres->WALLET_BANK_REF))?$value->transactionres->WALLET_BANK_REF:'';
+               $sheet['Demand Date'][]=date('d-m-Y',strtotime($value->usermser->DemandDate));
+               $sheet['Demand Amount'][]=number_format($totamnt,2);
+               $sheet['Previous Received Amount'][]=number_format($previouslypaid[$value->LOAN_ID],2);
+               $sheet['Due Amount'][]=number_format($dueamt,2);
+               $sheet['Receipt Amount'][]=number_format($value->TXN_AMT,2);
+               $sheet['Receipt Mode'][]=(isset($value->transactionres->PG_MODE))?$value->transactionres->PG_MODE:'';
+               $sheet['Next Installment Date'][]=date('d-m-Y',strtotime($value->usermser->NextInstallmentDate));
+               
+               //$sheet['Total Amount Paid'][]=number_format($previouslypaid[$value->LOAN_ID]+$value->TXN_AMT,2);
+               $sheet['Status'][]=(($value->TXN_STATUS) == 1)?'Success':'Failed';
+               if($value->TXN_STATUS==1){
+                $previouslypaid[$value->LOAN_ID]+=$value->TXN_AMT;
+               }
+           }
+           $excel->Export($sheet);
+          
+         }
+
+      return $this->render('paymentdetails',['getallreport'=>$getallreport,'lnacno'=>$lnacno,'pages'=>$pages]);
 
     }
    
@@ -1124,35 +1174,57 @@ return $this->redirect(['index']);
           $this->layout = 'common';
           $zonename=$branchname=$product=$type='';
           $fromdate=date('Y-m-01');
-          $todate=date('Y-m-d', strtotime(date('Y-m-d')));
+          $todate=date('Y-m-d', strtotime(date('Y-m-d').'+1day'));
+          $ttdate=date('Y-m-d');
+          $frmdate=date('d-m-Y',strtotime($fromdate));
+          $tdate=date('d-m-Y',strtotime($ttdate));
+          $type=isset(Yii::$app->request->get()['type'])?Yii::$app->request->get()['type']:'';
+           $branchname=isset(Yii::$app->request->get()['branchname'])?Yii::$app->request->get()['branchname']:'';
+          $fromdate=isset(Yii::$app->request->get()['fromdate'])?Yii::$app->request->get()['fromdate']:$fromdate;
+          $todate=isset(Yii::$app->request->get()['todate'])?Yii::$app->request->get()['todate']:$todate;
+           if (isset(Yii::$app->request->get()['fromdate'])) {
+            $frmdate=date('d-m-Y',strtotime($fromdate));
+          }
+          
+          if (isset(Yii::$app->request->get()['todate'])) {
+            $tdate=date('d-m-Y',strtotime($todate));
+          }
+            
+          if($type=='MFI'){
+           $mod= new ExcelData();
+          }
+          else
+          {
+           $mod= new MsmeExcelData();
+          }
+          
+          
+
           $allcustomer=$alldetails=array();
           $branchnnm=ArrayHelper::map(MsmeExcelData::find()->where(['IsDelete'=>0])->groupBy(['BranchName'])->all(),'BranchName','BranchName');
-          $allcustomer = MsmeExcelData::find()->select(['RecordId','BranchName','Cluster','State','ProductVertical','DemandDate','count(ClientId) as totalcustomer'])->where(['IsDelete' => 0])->andWhere(['between','OnDate',$fromdate,$todate])->groupBy(['BranchName']);
+          $allcustomer = $mod->find()->select(['RecordId','BranchName','Cluster','State','ProductVertical','DemandDate','count(ClientId) as totalcustomer'])->where(['IsDelete' => 0])->groupBy(['BranchName']);
           $branchpayment=new MsmeExcelData();
-        
-          if (isset(Yii::$app->request->post()['report_search'])) {
-            $type=Yii::$app->request->post()['type']?Yii::$app->request->post()['type']:'';
-            $branchname=Yii::$app->request->post()['MsmeExcelData']['BranchName']?Yii::$app->request->post()['MsmeExcelData']['BranchName']:'';
-            $fromdate=Yii::$app->request->post()['fromdate']?Yii::$app->request->post()['fromdate']:$fromdate;
-            $todate=Yii::$app->request->post()['todate']?Yii::$app->request->post()['todate']:$todate;
-            if($fromdate)
-            {
-             $allcustomer=$allcustomer;
+          
+          //if (isset(Yii::$app->request->get()['report_search'])) {
+            //$type=Yii::$app->request->get()['type']?Yii::$app->request->get()['type']:'';
+           
+            
+            $fromdate=date('Y-m-d',strtotime($fromdate));
+            $todate=date('Y-m-d', strtotime(date('Y-m-d').'+1day'));
+            if ($branchname) {
+              $allcustomer=$allcustomer->andWhere(['BranchName'=>$branchname]);
             }
-            if (Yii::$app->request->post()['MsmeExcelData']['BranchName']) {
-              $allcustomer=$allcustomer->andWhere(['BranchName'=>Yii::$app->request->post()['MsmeExcelData']['BranchName']]);
-            }
-            if ($type) {
+           /* if ($type) {
               $allcustomer=$allcustomer;
-            }
+            }*/
            
             
            /* $fromdate=date('Y-m-d', strtotime($fromdt));
             $todate=date('Y-m-d', strtotime($todt. ' +1 day'));*/
 
           
-        }
-
+        //}
+        $allcustomer=$allcustomer->andWhere(['between','OnDate',$fromdate,$todate]);
         $pages=0;
          if (!empty(yii::$app->request->get('pagination')))
          {
@@ -1167,10 +1239,13 @@ return $this->redirect(['index']);
 
         $allcustomer=$allcustomer->all();
 
+
           if(yii::$app->request->get('export')){
            $excel=new ExportExcel();
            $sheet=[];
            $branches=[];
+          /* var_dump($allcustomer);
+           die();*/
            foreach($allcustomer as $key => $value){
             $branches[$value->BranchName]=$branchpayment->branchpayment($value->RecordId,$value->BranchName,$fromdate,$todate);
            $sheet['State'][]=$value->State;
@@ -1192,7 +1267,7 @@ return $this->redirect(['index']);
          $branches[$customer->BranchName]=$branchpayment->branchpayment($customer->RecordId,$customer->BranchName,$fromdate,$todate);
         }
          return $this->render('report', [
-          'model'=>$model,'allcustomer' => $allcustomer,'branchnnm'=>$branchnnm,'branchname'=>$branchname,'type'=>$type,'fromdate'=>$fromdate,'todate'=>$todate,'branchpayment'=>$branches,'pages'=>$pages
+          'model'=>$model,'allcustomer' => $allcustomer,'branchnnm'=>$branchnnm,'branchname'=>$branchname,'type'=>$type,'fromdate'=>$fromdate,'todate'=>$todate,'branchpayment'=>$branches,'pages'=>$pages,'frmdate'=>$frmdate,'tdate'=>$tdate
           ]);
       }
 
@@ -1200,36 +1275,49 @@ return $this->redirect(['index']);
           $model= new MsmeExcelData();
           $this->layout = 'common';
           $zonename=$branchname=$product=$type='';
+           $type=isset(Yii::$app->request->get()['type'])?Yii::$app->request->get()['type']:'';
+          if($type=='MFI'){
+           $mod= new ExcelData();
+          }
+          else
+          {
+           $mod= new MsmeExcelData();
+          }
           $fromdate=date('Y-m-01');
           $todate=date('Y-m-d', strtotime(date('Y-m-d'). ' +1 day'));
+          $ttdate=date('Y-m-d');
+          $frmdate=date('d-m-Y',strtotime($fromdate));
+          $tdate=date('d-m-Y',strtotime($ttdate));
           $allcustomer=$alldetails=array();
 
-          $branchnnm=ArrayHelper::map(BranchMaster::find()
-          ->where(['IsDelete'=>0])
-          ->orderBy(['BranchName' => SORT_ASC])
-          ->all(),'BranchName','BranchName');
+          $branchnnm=ArrayHelper::map(MsmeExcelData::find()->where(['IsDelete'=>0])->groupBy(['BranchName'])->all(),'BranchName','BranchName');
 
-          $allcustomer = MsmeExcelData::find()
+          $allcustomer = $mod->find()
           ->select(['RecordId','BranchName','Cluster','State','ProductVertical','DemandDate','count(ClientId) as totalcustomer'])
           ->where(['IsDelete' => 0])
           ->groupBy(['BranchName']);
           $branchpayment=new MsmeExcelData();
 
 
-          if (isset(Yii::$app->request->post()['report_search'])) {
-            $fromdt=Yii::$app->request->post()['fromdate']?Yii::$app->request->post()['fromdate']:$fromdate;
-            $todt=Yii::$app->request->post()['todate']?Yii::$app->request->post()['todate']:$todate;
-            if($fromdt)
+          if (isset(Yii::$app->request->get()['report_search'])) {
+            $fromdate=Yii::$app->request->get()['fromdate']?Yii::$app->request->get()['fromdate']:$fromdate;
+            $todate=Yii::$app->request->get()['todate']?Yii::$app->request->get()['todate']:$todate;
+            $type=Yii::$app->request->get()['type']?Yii::$app->request->get()['type']:'';
+            $branchname=Yii::$app->request->get()['branchname']?Yii::$app->request->get()['branchname']:'';
+
+            $frmdate=date('d-m-Y',strtotime($fromdate));
+            $tdate=date('d-m-Y',strtotime($todate));
+           /* if($fromdt)
             {
              $allcustomer=$allcustomer->andWhere(['between','OnDate',$fromdt,$todt]);
+            }*/
+            if ($branchname) {
+              $allcustomer=$allcustomer->andWhere(['BranchName'=>$branchname]);
             }
-            if (Yii::$app->request->post()['MsmeExcelData']['BranchName']) {
-              $allcustomer=$allcustomer->andWhere(['BranchName'=>Yii::$app->request->post()['MsmeExcelData']['BranchName']]);
-            }
-            $fromdate=date('Y-m-d', strtotime($fromdt));
-            $todate=date('Y-m-d', strtotime($todt. ' +1 day'));  
+            $fromdate=date('Y-m-d', strtotime($fromdate));
+            $todate=date('Y-m-d', strtotime($todate. ' +1 day'));  
         }
-
+        $allcustomer=$allcustomer->andWhere(['between','OnDate',$fromdate,$todate]);
 
         $pages=0;
          if (!empty(yii::$app->request->get('pagination')))
@@ -1273,7 +1361,7 @@ return $this->redirect(['index']);
         }
 
          return $this->render('report2', [
-          'model'=>$model,'allcustomer' => $allcustomer,'branchnnm'=>$branchnnm,'branchname'=>$branchname,'type'=>$type,'fromdate'=>$fromdate,'todate'=>$todate,'branchpayment'=>$branches,'pages'=>$pages
+          'model'=>$model,'allcustomer' => $allcustomer,'branchnnm'=>$branchnnm,'branchname'=>$branchname,'type'=>$type,'fromdate'=>$fromdate,'todate'=>$todate,'branchpayment'=>$branches,'pages'=>$pages,'frmdate'=>$frmdate,'tdate'=>$tdate
           ]);
       }
 
@@ -1582,6 +1670,68 @@ return $this->redirect(['index']);
       
       return $this->render('branch',['model'=>$model,'details'=>$details,'pages'=>$pages]);
 
+    }
+    public function actionExportbranch()
+    {
+         $spreadsheet = new Spreadsheet();
+         $sheet = $spreadsheet->getActiveSheet();
+    
+        $sheet->setCellValue('A1', 'SL NO');
+        $sheet->setCellValue('B1', 'BRANCH ID');
+        $sheet->setCellValue('C1', 'BRANCH NAME');
+        $sheet->setCellValue('D1', 'CLUSTER');
+        $sheet->setCellValue('E1', 'STATE');
+        $sheet->setCellValue('F1', 'ENTITY');
+        
+        $rowCount = 2;$i=0;
+        $allbranch=BranchMaster::find()->where(['IsDelete' => 0])->all();
+        if($allbranch)
+        {
+            foreach($allbranch as $ak=>$aval)
+            {
+                $i++;
+                $sheet->setCellValue('A' . $rowCount, $i);
+                $sheet->setCellValue('B' . $rowCount, $aval->BranchId);
+                $sheet->setCellValue('C' . $rowCount, $aval->BranchName);
+                $sheet->setCellValue('D' . $rowCount, $aval->Cluster);
+                $sheet->setCellValue('E' . $rowCount, $aval->State);
+                $sheet->setCellValue('F' . $rowCount, $aval->Entity);
+                
+                $rowCount++;
+            }
+        }
+        
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $fileName='Branch Deatils'.date('d-m-Y H:i:s');
+        $fileName = $fileName.'.xlsx';
+        
+        $styleArray = array(
+            'font'  => array(
+            'bold'  => false,
+            'color' => array('rgb' => '337ab7'),
+            'size'  => 13,
+            'name'  => 'Arial'
+            ));
+            $sheet->getStyle('A1:F1')->applyFromArray($styleArray);
+            $sheet->getParent()->getDefaultStyle()->getFont()->setName('Arial')->setSize(10);
+    
+            foreach(range('A','F') as $columnID) {
+                $sheet->getColumnDimension($columnID)
+                    ->setAutoSize(true);
+            }
+            foreach($sheet->getRowDimensions() as $rd) { 
+                $rd->setRowHeight(-1); 
+            }
+            $sheet->getRowDimension(1)->setRowHeight(20);
+            $sheet->getRowDimension(2)->setRowHeight(20);
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'.$fileName.'"');
+        header('Cache-Control: max-age=0');
+            
+        // Do your stuff here
+        ob_end_clean(); ob_start(); 
+        $writer->save('php://output');
     }
 
 

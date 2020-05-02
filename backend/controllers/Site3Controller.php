@@ -41,7 +41,7 @@ class Site3Controller extends Controller
       'class' => AccessControl::className(),
       'rules' => [
       [
-      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord','cust-payment','report2'],
+      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord','cust-payment','report2','agentdata','agentpassword'],
       'allow' => true,
       ],
       [
@@ -1822,4 +1822,102 @@ return $this->redirect(['index']);
     }
 
 
+    public function actionAgentdata(){
+      $loan='';
+      if (isset(Yii::$app->request->post()['search'])) {
+          $lnacno = Yii::$app->request->post('loanacno');
+          $det = TXNDETAILS::find()->select('sum(TXN_AMT) as TXN_AMT')->where(['TXN_STATUS'=>1,'LOAN_ID'=>$lnacno])->andWhere("DATE_FORMAT(MONTH,'%Y-%m') =DATE_FORMAT(NOW(),'%Y-%m')")->one();
+      }
+      return $this->render('',['det'=>$det]);
+    }
+
+
+     public function actionAgentpassword()
+    {
+      $this->layout = 'common';
+      $userid=Yii::$app->user->identity->UserId;
+      if(yii::$app->request->post()){
+      $npassword = yii::$app->request->post('npsw');
+      $cpassword = yii::$app->request->post('cpsw');
+      if ($npassword == $cpassword) {
+        $user=User::find()->where(['UserId'=>$userid])->one();
+
+        $user->Password=Yii::$app->getSecurity()->generatePasswordHash($npassword);
+
+        if($user->save())
+        {
+          Yii::$app->session->setFlash('success', "Password reset Success");
+          return $this->redirect(['agentpassword']);
+        }
+        else{
+          //var_dump($user->getErrors());die();
+          Yii::$app->session->setFlash('error', "Somthing went wrong,please try again!");
+          // return $this->redirect(['resetpassword']);
+        }
+      }
+      else{
+        Yii::$app->session->setFlash('error', "New Password and Confirm Password does not match!");
+        return $this->redirect(['agentpassword']);
+      }
+    }
+      
+      
+      return $this->render('agentreset');
+    }
+     public function actionChangemobile() {
+            $session=Yii::$app->session;
+            $session->open();
+            $loan=$session->get('loan');
+            $type=$session->get('type');
+            
+            if ($type =='MFI') {
+                $recordDetail=ExcelData::find()->where(['LoanAccountNo'=> $loan])->orderBy(['Eid'=> SORT_DESC])->all();
+            }
+
+            else {
+                $recordDetail=MsmeExcelData::find()->where(['LoanAccountNo'=> $loan])->orderBy(['Mid'=> SORT_DESC])->all();
+            }
+        
+        if(isset(Yii::$app->request->post()['submit']))
+        {
+            // echo "<pre>";var_dump($recordDetail);echo "</pre>";die();
+            $otp=Yii::$app->request->post('otp');
+            $mob=Yii::$app->request->post('mob');
+            // $checkotp=OtpVerification::find()->where(['MobileNo'=> $mob, 'OtpCode'=> $otp,'IsDelete'=> 0])->orderBy(['Id'=> SORT_DESC])->one();
+             $checkotp=OtpVerification::find()->where(['MobileNo'=> $mob, 'OtpCode'=> $otp, 'IsVerified'=> 0, 'IsDelete'=> 0])->orderBy(['Id'=> SORT_DESC])->one();
+             if (count($checkotp) > 0) {
+               /* if($mob == $recordDetail->MobileNo)
+                {
+                    Yii::$app->session->setFlash('error', 'Mobile Number already exist!');
+                    return $this->redirect(['home']);
+                }*/
+                $checkotp->IsVerified=1;
+                if ($checkotp->save()) {
+                foreach ($recordDetail as $key => $value) {
+                    $value->MobileNo=$mob;
+                     if ($value->save()){
+                        $otp=new OtpVerification();
+                        $otp->mobchangesuccessotp($mob,$loan);
+                    // var_dump($recordDetail->getErrors());
+                    Yii::$app->session->setFlash('success', 'Your Mobile Number Successfully Updated.');
+                    return $this->redirect(['home']); 
+                    }else{
+                        // var_dump($recordDetail->getErrors());
+                        Yii::$app->session->setFlash('error', 'Somthing Went wrong!.');
+                    }
+                    
+                }
+            }
+             }
+             else
+             {
+                $otp=new OtpVerification();
+                $otp->mobchangefailedotp($mob,$loan);
+                Yii::$app->session->setFlash('error', 'Please Enter valid Otp!.');
+             }
+
+
+        }
+        return $this->render('newmobile');      
+    }
   }

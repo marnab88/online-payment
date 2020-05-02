@@ -23,7 +23,7 @@ $this->title = 'Home';
     <div class="col-lg-12 grid-margin stretch-card" style="padding-left:0px;" >
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title">File Management</h4>
+          <h4 class="card-title col-sm-10">File Management</h4>
           <?php
           if($error)
           {?>

@@ -95,6 +95,7 @@ class MsmeExcelData extends \yii\db\ActiveRecord
     {
         return $this->hasOne(TXNDETAILS::className(), ['USER_ID' => 'Mid']);
     }
+   
     /*public function getPaymentdetails()
     {
         return $this->hasOne(TXNDETAILS::className(), ['USER_ID' => 'Mid' ])->select('sum(TXN_AMT) as TXNAMT')->andWhere(TXN_STATUS=>1);
