@@ -7,5 +7,4 @@ Yii::setAlias('@storage', dirname(dirname(__DIR__)) . '/storage');
 
 Yii::setAlias('@frontendUrl', "http://128.199.184.65/onlineportal");
 Yii::setAlias('@backendUrl',"http://128.199.184.65/onlineportal/backend");
-Yii::setAlias('@agentUrl',"http://128.199.184.65/onlineportal/agent");
 Yii::setAlias('@storageUrl', "http://128.199.184.65/onlineportal/storage");

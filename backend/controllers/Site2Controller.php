@@ -259,7 +259,7 @@ public function actionIndex()
 
    $model->File=$imageID;
    $model->OnDate=date('Y-m-d H:i:s');
- // $model->UploadedBy=Yii::$app->user->identity->UserId;
+ $model->UploadedBy=Yii::$app->user->identity->UserId;
    if ($model->save()) {
     Yii::$app->session->setFlash('success','successfully done');
 

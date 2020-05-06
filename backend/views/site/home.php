@@ -64,6 +64,12 @@ $this->title = 'Home';
 						elseif(Yii::$app->user->identity->Type == "MSME"){
 							echo $form->field($model, 'Type')->inline()->radioList(['MSME' => 'MSME'], ['separator' => '&nbsp; &nbsp;']); 
 						}
+						elseif(Yii::$app->user->identity->Type == "MSME" && Yii::$app->user->identity->Role == 1){
+							echo $form->field($model, 'Type')->inline()->radioList(['MSME' => 'MSME'], ['separator' => '&nbsp; &nbsp;']); 
+						}
+						elseif(Yii::$app->user->identity->Type == "MFI" && Yii::$app->user->identity->Role == 1){
+							echo $form->field($model, 'Type')->inline()->radioList(['MFI' => 'MFI'], ['separator' => '&nbsp; &nbsp;']); 
+						}
 						else{
 							echo $form->field($model, 'Type')->inline()->radioList(['MSME' => 'MSME', 'MFI' => 'MFI'], ['separator' => '&nbsp; &nbsp;']); 
 						}

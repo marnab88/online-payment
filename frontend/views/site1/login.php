@@ -206,7 +206,8 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 							<p style="padding:0px; font-weight:bold; color:#000; text-align:left;">Welcome <?=$recordDetail->ClientName?></p>
 						<?php }
 						?>
-						<?php $form = ActiveForm::begin(['id' => 'login-formm', 'options' => ['class' => 'form-horizontal']]); ?>
+						<form id="login-formm" method="post" action="<?= Url::toRoute(['site1/login']); ?>">
+						
 						<div class="form-group">
 							<div  class="row">
 								<div class="col-md-10 col-xs-10">
@@ -275,9 +276,10 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 						</div>
 						</div>
 						<div class="form-group lotpsuccess" style="margin-bottom:30px;display: none;">
-							<?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
-								'template' => '<div class="row"><div class="col-sm-4" id="refe">{image}<a href="#" id="foxx" title="refresh capcha"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
-							]) ?>
+							<?= Captcha::widget([
+                'name' => 'ContactForm[verifyCode]',
+            ]); ?>
+						
 						</div>
 						<div class="form-group lotpsuccess" style="display: none;">
 							<div class="row">
@@ -287,7 +289,7 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 							</div>
 						</div>
 						</div>
-						<?php ActiveForm::end(); ?>
+						</form>
 					</div>
 				  </div>
 				  <!-- for mobile login end -->
@@ -339,7 +341,7 @@ $this->registerJs($js);
 	function generateotp() {
 		var loanno = $('#loanpaymentform-loanaccno').val();
 		$.ajax({
-			url: "<?= Url::toRoute(['site/generateotp']); ?>?loanno=" + loanno,
+			url: "<?= Url::toRoute(['site1/generateotp']); ?>?loanno=" + loanno,
 			success: function(results) {
 				if (results == 0) {
 					alert("Wrong mobile no");
@@ -353,7 +355,7 @@ $this->registerJs($js);
 	function lgenerateotp() {
 		var loanno = $('#loannum').val();
 		$.ajax({
-			url: "<?= Url::toRoute(['site/generateotp']); ?>?loanno=" + loanno,
+			url: "<?= Url::toRoute(['site1/generateotp']); ?>?loanno=" + loanno,
 			success: function(results) {
 				if (results == 0) {
 					alert("Wrong mobile no");
@@ -371,7 +373,7 @@ $this->registerJs($js);
 		if (loannum) {
 			if (loannum.length > 5) {
 				$.ajax({
-					url: "<?= Url::toRoute(['site/fetchmob']); ?>?loannum=" + loannum,
+					url: "<?= Url::toRoute(['site1/fetchmob']); ?>?loannum=" + loannum,
 					success: function(results) {
 						if (results) {
 							var res=JSON.parse(results);
@@ -420,7 +422,7 @@ $this->registerJs($js);
 		if (mobile) {
 			if (mobile.length == 10) {
 				$.ajax({
-					url: "<?= Url::toRoute(['site/fetchloan']); ?>?mobile=" + mobile,
+					url: "<?= Url::toRoute(['site1/fetchloan']); ?>?mobile=" + mobile,
 					success: function(results) {
 						if (results) {
 							var res=JSON.parse(results);

@@ -8,7 +8,7 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
 
-$this->title = 'Subadmin';
+$this->title = 'Update MSME Details';
 
 ?>
 <style type="text/css">
@@ -50,7 +50,7 @@ $this->title = 'Subadmin';
                     </div>
                     <div class="col-sm-6">
                         <label>Demand Date</label>
-                        <input type="text" name="DemandDate" id="datepicker" placeholder="dd-mm-yy" class="form-control" value="<?= ('d-m-Y',strtotime($model->DemandDatedate)) ?>" autocomplete="off">
+                        <input type="text" name="DemandDate" id="datepicker" placeholder="dd-mm-yy" class="form-control" value="<?= date('d-m-Y',strtotime($model->DemandDate)) ?>" autocomplete="off">
                     </div>
                     <div class="col-sm-6">
                         <?= $form->field($model, 'LastMonthDue')->textInput(['pattern'=>'^[0-9]+$','maxlength' => true,'title'=>'LastMonthDue should be contain only number','required'=>true]) ?>

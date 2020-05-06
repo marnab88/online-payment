@@ -28,7 +28,7 @@ def sms_integration(Mid,RecordId,Type,LoanAccountNo,MobileNo,Amount,ClientName):
         mydb.commit()
         mydb.close()
         maskLoan='XXXX'+LoanAccountNo[-6:]
-        msg=("Dear %s, EMI of Rs. %s for Annapurna loan a/c no. %s is due. Make online payment at %s to avoid extra charges."%(str(ClientName),str(Amount),str(maskLoan),str(TinyUrl)))
+        msg=("Dear %s, EMI of Rs. %s for Annapurna loan a/c no. %s is due. Make online payment at %s ."%(str(ClientName),str(Amount),str(maskLoan),str(TinyUrl)))
         print(msg)
         msg = urllib.parse.quote(msg)
         
@@ -63,5 +63,8 @@ def checksms():
         time.sleep(1)
     mydb.close()
 while True:
-    checksms()
+    try:
+        checksms()
+    except Exception as e:
+        print(e)
     time.sleep(60)

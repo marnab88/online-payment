@@ -59,49 +59,59 @@ def insert_MFI(sheet,RecordId):
                 msg = ' loan account number is not a digit.'
                 error_msg = error_msg + str(msg)
 
-            if check_validation(client_id):
-                if not len(str(int(client_id))) >= 1 and not len(str(int(client_id))) <= 7 :
-                    error_count = 1
-                    msg = ' client id is not a valid .'
-                    error_msg = error_msg + str(msg)
-                else:
-                    database = mycus()
-                    cursor = database.cursor()
-                    Demand_date_t = date_strftime(Demand_date)
-                    sql = "SELECT *  from ExcelData WHERE ClientId='" + str(int(client_id)) + "' and DemandDate like '" + str(Demand_date_t) + "%'"
-                    cursor.execute(sql)
-                    rowcursor = cursor.fetchall()
-                    cursor.close()
-                    database.close()
-                    if len(rowcursor) > 0:
-                        error_count = 1
-                        msg = ' this client id already exist for this month.'
-                        error_msg = error_msg + str(msg)
 
-            else:
+            if client_id== '' :
                 error_count = 1
-                msg = ' Client Id is not a number.'
+                msg = ' Client Id is not empty.'
                 error_msg = error_msg + str(msg)
 
+            else:
+                if check_validation(client_id):
+                    if not len(str(int(client_id))) > 0:
+                        error_count = 1
+                        msg = ' client id is not a valid .'
+                        error_msg = error_msg + str(msg)
+                    else:
+                        database = mycus()
+                        cursor = database.cursor()
+                        Demand_date_t = date_strftime(Demand_date)
+                        sql = "SELECT *  from ExcelData WHERE ClientId='" + str(int(client_id)) + "' and DemandDate like '" + str(Demand_date_t) + "%'"
+                        cursor.execute(sql)
+                        rowcursor = cursor.fetchall()
+                        cursor.close()
+                        database.close()
+                        if len(rowcursor) > 0:
+                            error_count = 1
+                            msg = ' this client id already exist for this month.'
+                            error_msg = error_msg + str(msg)
+
+                else:
+                    error_count = 1
+                    msg = ' Client Id format wrong.'
+                    error_msg = error_msg + str(msg)
 
 
-            if check_validation(mobile_no):
+
+            if mobile_no == '':
+                msg = ' Mobile number cannot be empty.'
+                error_msg = error_msg + str(msg)
+                error_count = 1
+
+
+            elif check_validation(mobile_no):
                 if len(str(int(mobile_no))) != 10:
                     error_count = 1
-                    msg = ' not a valid mobile number.'
+                    msg = ' mobile number is invalid.'
                     error_msg = error_msg + str(msg)
-
-
-            else:
-                msg = ' Mobile number is not a number.'
-                error_msg = error_msg + str(msg)
-                error_count = 1
-
+                else:
+                    error_count = 1
+                    msg = ' mobile number is valid format.'
+                    error_msg = error_msg + str(msg)
 
             if check_validation(EMIsr_no):
                 if not int(EMIsr_no) < 60:
                     error_count = 1
-                    msg = ' duplicate emisr of this loanAc.'
+                    msg = ' EMIsr is Invalid.'
                     error_msg = error_msg + str(msg)
             else:
                 msg = ' EMIsr number is not a number.'
@@ -114,7 +124,7 @@ def insert_MFI(sheet,RecordId):
                     msg = ' Lastmonth due error.'
                     error_msg = error_msg + str(msg)
             else:
-                msg = ' Last month_due  is not a number.'
+                msg = ' Last month due  is not a number.'
                 error_count = 1
                 error_msg = error_msg + str(msg)
 
@@ -138,47 +148,66 @@ def insert_MFI(sheet,RecordId):
                 msg = ' BranchName cannot be empty.'
                 error_msg = error_msg + str(msg)
 
-            if client_name == '' or not len(client_name) >= 3 and not len(client_name) <= 20 or not client_name.isalpha():
+            if client_name == '' :
                 error_count = 1
-                msg = ' Client name is not valid'
+                msg = ' Client name is not empty'
                 error_msg = error_msg + str(msg)
 
-            if spouse_name == '' or not len(spouse_name) >= 3 and not len(spouse_name) <= 20  or not spouse_name.isalpha():
+            elif not len(client_name) >= 3 and not len(client_name) <= 20 or not alpha_check(client_name):
+                error_count = 1
+                msg = ' Client name is invalid'
+                error_msg = error_msg + str(msg)
+
+            if spouse_name == '' :
+                error_count = 1
+                msg = ' Spouse name is empty'
+                error_msg = error_msg + str(msg)
+
+            elif  not len(spouse_name) >= 3 and not len(spouse_name) <= 20 or not alpha_check(spouse_name):
                 error_count = 1
                 msg = ' Spouse name is not valid'
                 error_msg = error_msg + str(msg)
 
-            if village == '' or not len(village) >= 3 and not len(village) <= 20 or not village.isalpha() :
+            if village == '' :
+                error_count = 1
+                msg = ' Village is empty'
+                error_msg = error_msg + str(msg)
+
+            elif not len(village) >= 3 and not len(village) <= 20 or not alpha_check(village):
                 error_count = 1
                 msg = ' Village is not valid'
                 error_msg = error_msg + str(msg)
 
-            if center == '' or not len(center) >= 3 and not len(center) <= 20  or not center.isalpha():
+            if center == '' :
+                error_count = 1
+                msg = ' Center is empty'
+                error_msg = error_msg + str(msg)
+
+            elif not len(center) >= 3 and not len(center) <= 20 or not alpha_check(center):
                 error_count = 1
                 msg = ' Center is not valid'
                 error_msg = error_msg + str(msg)
 
-            if group == '' or not len(group) >= 3 and not len(group) <= 20  or not group.isalpha():
+            if group == '' :
                 error_count = 1
-                msg = ' Group is not valid'
+                msg = ' Group is empty'
                 error_msg = error_msg + str(msg)
 
+            elif not len(group) >= 3 and not len(group) <= 20 or not alpha_check(group):
+                error_count = 1
+                msg = ' Center is not valid'
+                error_msg = error_msg + str(msg)
 
             if Demand_date == '':
                 error_count = 1
                 msg = ' Demand date cannot be empty'
                 error_msg = error_msg + str(msg)
 
-            if check_validation(late_penalty):
-                if int(late_penalty)!= 0:
-                    error_count = 1
-                    msg = ' Late penalty is not be zero'
-                    error_msg = error_msg + str(msg)
-
-            else:
+            elif not demanddate_comparision(Demand_date):
                 error_count = 1
-                msg = ' Late penalty is not valid'
+                msg = ' Demand date is not valid'
                 error_msg = error_msg + str(msg)
+
 
             if check_validation(last_month_due):
                 if not len(str(int(last_month_due))) < 7:
@@ -200,10 +229,7 @@ def insert_MFI(sheet,RecordId):
                 msg = ' Current month due is not Number'
                 error_msg = error_msg + str(msg)
 
-            if not demanddate_comparision(Demand_date):
-                error_count = 1
-                msg = ' Demand date is not valid'
-                error_msg = error_msg + str(msg)
+
 
             if not nextinstallment_comparision(next_installment_date):
                 error_count = 1
@@ -215,6 +241,11 @@ def insert_MFI(sheet,RecordId):
                 msg = ' Upload month is not valid'
                 error_msg = error_msg + str(msg)
 
+            if product_vertical != 'MFI':
+                error_count = 1
+                msg = ' Product vertical is invalid'
+                error_msg = error_msg + str(msg)
+
 
             if (error_count == 1):
                 Mismatch = Mismatch + 1
@@ -223,9 +254,9 @@ def insert_MFI(sheet,RecordId):
             next_installment_date = date_conversion(next_installment_date)
             database = mycus()
             cursor = database.cursor()
-            sql = "INSERT INTO ExcelData (RecordId,BranchName,Cluster,State,ClientId,LoanAccountNo,ClientName,SpouseName,VillageName,Center,GroupName,MobileNo,EMISrNo,DemandDate,LastMonthDue,CurrentMonthDue,LatePenalty,NextInstallmentDate,UploadMonth,ProductVertical,errorMsg,errorCount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            sql = "INSERT INTO ExcelData (RecordId,BranchName,Cluster,State,ClientId,LoanAccountNo,ClientName,SpouseName,VillageName,Center,GroupName,MobileNo,EMISrNo,DemandDate,LastMonthDue,CurrentMonthDue,NextInstallmentDate,UploadMonth,ProductVertical,errorMsg,errorCount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
             val = (RecordId, branch_name, cluster, state, client_id, loan_account_no, client_name,spouse_name,village,center,group, mobile_no, EMIsr_no,
-                   Demand_date, last_month_due, current_month_due, late_penalty, next_installment_date, upload_month,
+                   Demand_date, last_month_due, current_month_due, next_installment_date, upload_month,
                    product_vertical, error_msg, error_count)
 
             cursor.execute(sql, val)

@@ -42,7 +42,7 @@ class SiteController extends Controller
       'class' => AccessControl::className(),
       'rules' => [
       [
-      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord','cust-payment','report2'],
+      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord','cust-payment','report2','exportbranch'],
       'allow' => true,
       ],
       [
@@ -643,9 +643,9 @@ $currentYear=date('Y');
 // else{
 //echo date('m');
   $MonthYear = array( 
-    "Jan/$currentYear" => "January, $currentYear", "Feb/$currentYear" => "February, $currentYear", "Mar/$currentYear" => "March, $currentYear", "Apr/$currentYear" => "April, $currentYear",
-    "May/$currentYear" => "May, $currentYear", "Jun/$currentYear" => "June, $currentYear", "Jul/$currentYear" => "July, $currentYear", "Aug/$currentYear" => "August, $currentYear",
-    "Sept/$currentYear" => "September, $currentYear", "Oct/$currentYear" => "October, $currentYear", "Nov/$currentYear" => "November, $currentYear", "Dec/$currentYear" => "December,$currentYear",);
+    "Jan/$currentYear" => "Jan, $currentYear", "Feb/$currentYear" => "Feb, $currentYear", "Mar/$currentYear" => "Mar, $currentYear", "Apr/$currentYear" => "Apr, $currentYear",
+    "May/$currentYear" => "May, $currentYear", "Jun/$currentYear" => "Jun, $currentYear", "Jul/$currentYear" => "Jul, $currentYear", "Aug/$currentYear" => "August, $currentYear",
+    "Sep/$currentYear" => "Sep, $currentYear", "Oct/$currentYear" => "Oct, $currentYear", "Nov/$currentYear" => "Nov, $currentYear", "Dec/$currentYear" => "Dec,$currentYear",);
 $MonthYear=array_slice($MonthYear, (date('m')-1),2); 
   $typee=Yii::$app->user->identity->Type;
   $uid=Yii::$app->user->identity->UserId;
@@ -929,10 +929,74 @@ public function actionUpdatemsme($id,$type,$mon){
          $mon=$value->MonthYear;
         }
   $details=$model->RecordId;
-  $model->errorMsg='';
-  $model->errorCount=0;
-  if ($model->load(Yii::$app->request->post()) && $model->save()) {
+ /* $model->errorMsg='';
+  $model->errorCount=0;*/
+  if ($model->load(Yii::$app->request->post())) {
+    $BranchName=Yii::$app->request->post()['MsmeExcelData']['BranchName'];
+    $Cluster=Yii::$app->request->post()['MsmeExcelData']['Cluster'];
+    $state=Yii::$app->request->post()['MsmeExcelData']['State'];
+    $ClientId=Yii::$app->request->post()['MsmeExcelData']['ClientId'];
+    $LoanAccountNo=Yii::$app->request->post()['MsmeExcelData']['LoanAccountNo'];
+    $ClientName=Yii::$app->request->post()['MsmeExcelData']['ClientName'];
+    $EmiSrNo=Yii::$app->request->post()['MsmeExcelData']['EmiSrNo'];
+    $LastMonthDue=Yii::$app->request->post()['MsmeExcelData']['LastMonthDue'];
+    $CurrentMonthDue=Yii::$app->request->post()['MsmeExcelData']['CurrentMonthDue'];
+    $latepenalty=Yii::$app->request->post()['MsmeExcelData']['LatePenalty'];
+    $MobileNo=Yii::$app->request->post()['MsmeExcelData']['MobileNo'];
+
+
+       $errorclient=MsmeExcelData::find()->where(['UploadMonth'=>$model->UploadMonth,'ClientId'=>$ClientId])->count();
+        $errormobile=MsmeExcelData::find()->where(['UploadMonth'=>$model->UploadMonth,'MobileNo'=>$MobileNo])->count();
+      //$DemandDateError=($uni=='')?1:0;
+      $ClientNameError =(trim($ClientName)=='')? 1:0;
+      $errorLoanAccountNo =MsmeExcelData::find()->where(['UploadMonth'=>$UploadMonth,'LoanAccountNo'=>$LoanAccountNo])->count();
+      $errormoblength=(strlen($MobileNo)!=10)? 1:0;
+      $errorEmiSrNo=(is_numeric($EmiSrNo) && $EmiSrNo<240)?0:1;
+      $LastMonthDueError=(is_numeric($LastMonthDue) && strlen($LastMonthDue)<8)?0:1;
+      $CurrentMonthDueError=(is_numeric($CurrentMonthDue) && strlen($CurrentMonthDue)<8)?0:1;
+      $LoanAccountNoError=(strlen($LoanAccountNo)==20)?0:1;
+      $ClusterError =(trim($Cluster)=='')? 1:0;
+      $BranchNameError =(trim($BranchName)=='')? 1:0;
+      $ClientNameError =(trim($ClientName)=='' && !(strlen($ClientName)>2 && strlen($ClientName)<21))? 1:0;
+      
+       $toterror=$errorclient+$errormobile+$errorEmiSrNo+$DemandDateError+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClusterError+$LastMonthDueError
+                +$CurrentMonthDueError+$LoanAccountNoError;
+      $msme->errorCount=$toterror;
+      $errormsg=null;
+      if($errorclient>0){
+       $errormsg.=' duplicate Clientid';
+      }
+      if($errorEmiSrNo>0){
+       $errormsg.=' duplicate emisr of this loanAc';
+      }
+      if($LoanAccountNoError>0)
+      $errormsg.=' not valid loan account number ';
+      if($errormobile>0){
+       $errormsg.=' this mobile no exists in this month';
+      }
+      if($errormoblength>0)
+      $errormsg.=' not a valid mobile number';
+      if($errorLoanAccountNo>0)
+       $errormsg.=' this loanAcct already exist for this month';
+      if($DemandDateError>0)
+       $errormsg.='Demand date cannot be empty';
+      if($BranchNameError>0)
+      $errormsg.='BranchName cannot be empty';
+      if($ClientNameError>0)
+      $errormsg.='Client name cant be empty';
+      if($ClusterError>0)
+      $errormsg.='cluster cannot be blank';
+      if($LastMonthDueError>0)
+      $errormsg.='Lastmonth due error';
+      if($CurrentMonthDueError>0)
+      $errormsg.='CurrentMonthDue due error';
+      $model->errorMsg=$errormsg;
+      if($toterror>0)
+      $model->errorCount=1;
+
+    if ($model->save()) {
     $uid=Yii::$app->user->identity->UserId;
+
     $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();
     $connection=\Yii::$app->db;
     $command=$connection->createCommand("SELECT COUNT(*) as cnt FROM `MsmeExcelData` WHERE `RecordId` = '$types->RecordId' and `IsDelete`= 0 GROUP BY LoanAccountNo HAVING cnt > 1 ");
@@ -954,8 +1018,13 @@ public function actionUpdatemsme($id,$type,$mon){
      return $this->redirect(['msme', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon]);
    }
  }
+ }
  return $this->render('msme_edit',['model'=>$model,'details'=>$details,'type'=>$type,'mon'=>$mon]);
 }
+
+
+
+
 
 public function actionUploaded()
 {
@@ -1102,13 +1171,48 @@ return $this->redirect(['index']);
 
     public function actionPaymentdetails(){
        $this->layout = 'common';
-       $lnacno='';
-       $getpayment = TXNDETAILS::find();
-       if (isset(Yii::$app->request->post()['search'])) {
-          $lnacno = Yii::$app->request->post('loanacno');
-          $getpayment=$getpayment->where(['LOAN_ID'=>$lnacno]);
-       }
-       
+       //$lnacno='';
+
+        $fromdate=date('Y-m-01');
+          $todate=date('Y-m-d', strtotime(date('Y-m-d'). ' +1 day'));
+          $ttdate=date('Y-m-d');
+          $frmdate=date('d-m-Y',strtotime($fromdate));
+          $tdate=date('d-m-Y',strtotime($ttdate));
+
+          $getpayment = TXNDETAILS::find();
+       /*if (isset(Yii::$app->request->post()['search'])) {
+          $lnacno = Yii::$app->request->get('loanacno');*/
+          $lnacno=isset(Yii::$app->request->get()['loanacno'])?Yii::$app->request->get()['loanacno']:'';
+          $status=isset(Yii::$app->request->get()['status'])?Yii::$app->request->get()['status']:'';
+          $fromdate=isset(Yii::$app->request->get()['fromdate'])?Yii::$app->request->get()['fromdate']:$fromdate;
+          $todate=isset(Yii::$app->request->get()['todate'])?Yii::$app->request->get()['todate']:$todate;
+
+           if (isset(Yii::$app->request->get()['fromdate'])) {
+            $frmdate=date('d-m-Y',strtotime($fromdate));
+          }
+          
+          if (isset(Yii::$app->request->get()['todate'])) {
+            $tdate=date('d-m-Y',strtotime($todate));
+          }
+           
+
+
+          
+           $fromdate=date('Y-m-d',strtotime($fromdate));
+            $todate=date('Y-m-d', strtotime(date('Y-m-d').'+1day'));
+          
+       //}
+
+           
+            $getpayment=$getpayment->Where(['between','TXN_DATE',$fromdate,$todate]);
+             if ($lnacno) {
+              $getpayment=$getpayment->andWhere(['LOAN_ID'=>$lnacno]);
+            }
+            if ($status >= 0 && $status !='') {
+              $getpayment=$getpayment->andWhere(['TXN_STATUS'=>$status]);
+            }
+            
+
          $pages=0;
          if (!empty(yii::$app->request->get('pagination')))
          {
@@ -1141,7 +1245,7 @@ return $this->redirect(['index']);
                $sheet['Branch Name'][]=$value->usermser->BranchName;
                $sheet['User Id'][]=$value->USER_ID;
                $sheet['Client Name'][]=$value->usermser->ClientName;
-               $sheet['Mobile No'][]=$value->usermser->MobileNo;
+               $sheet['Mobile No'][]=$value->MOB_NO;
                $sheet['Loan Account No.'][]=$value->LOAN_ID;
                $sheet['Transaction Date'][]=date('d-m-Y H:i:s',strtotime($value->TXN_DATE));
                $sheet['Bank Ref. No.'][]=(isset($value->transactionres->WALLET_BANK_REF))?$value->transactionres->WALLET_BANK_REF:'';
@@ -1163,7 +1267,7 @@ return $this->redirect(['index']);
           
          }
 
-      return $this->render('paymentdetails',['getallreport'=>$getallreport,'lnacno'=>$lnacno,'pages'=>$pages]);
+      return $this->render('paymentdetails',['getallreport'=>$getallreport,'status'=>$status,'lnacno'=>$lnacno,'pages'=>$pages,'frmdate'=>$frmdate,'tdate'=>$tdate,'fromdate'=>$fromdate,'todate'=>$todate]);
 
     }
    
@@ -1275,7 +1379,24 @@ return $this->redirect(['index']);
           $model= new MsmeExcelData();
           $this->layout = 'common';
           $zonename=$branchname=$product=$type='';
+          $fromdate=date('Y-m-01');
+          $todate=date('Y-m-d', strtotime(date('Y-m-d'). ' +1 day'));
+          $ttdate=date('Y-m-d');
+          $frmdate=date('d-m-Y',strtotime($fromdate));
+          $tdate=date('d-m-Y',strtotime($ttdate));
            $type=isset(Yii::$app->request->get()['type'])?Yii::$app->request->get()['type']:'';
+           $branchname=isset(Yii::$app->request->get()['branchname'])?Yii::$app->request->get()['branchname']:'';
+          $fromdate=isset(Yii::$app->request->get()['fromdate'])?Yii::$app->request->get()['fromdate']:$fromdate;
+          $todate=isset(Yii::$app->request->get()['todate'])?Yii::$app->request->get()['todate']:$todate;
+           if (isset(Yii::$app->request->get()['fromdate'])) {
+            $frmdate=date('d-m-Y',strtotime($fromdate));
+          }
+          
+          if (isset(Yii::$app->request->get()['todate'])) {
+            $tdate=date('d-m-Y',strtotime($todate));
+          }
+
+
           if($type=='MFI'){
            $mod= new ExcelData();
           }
@@ -1283,11 +1404,7 @@ return $this->redirect(['index']);
           {
            $mod= new MsmeExcelData();
           }
-          $fromdate=date('Y-m-01');
-          $todate=date('Y-m-d', strtotime(date('Y-m-d'). ' +1 day'));
-          $ttdate=date('Y-m-d');
-          $frmdate=date('d-m-Y',strtotime($fromdate));
-          $tdate=date('d-m-Y',strtotime($ttdate));
+          
           $allcustomer=$alldetails=array();
 
           $branchnnm=ArrayHelper::map(MsmeExcelData::find()->where(['IsDelete'=>0])->groupBy(['BranchName'])->all(),'BranchName','BranchName');
@@ -1299,14 +1416,14 @@ return $this->redirect(['index']);
           $branchpayment=new MsmeExcelData();
 
 
-          if (isset(Yii::$app->request->get()['report_search'])) {
-            $fromdate=Yii::$app->request->get()['fromdate']?Yii::$app->request->get()['fromdate']:$fromdate;
+          //if (isset(Yii::$app->request->get()['report_search'])) {
+            /*$fromdate=Yii::$app->request->get()['fromdate']?Yii::$app->request->get()['fromdate']:$fromdate;
             $todate=Yii::$app->request->get()['todate']?Yii::$app->request->get()['todate']:$todate;
             $type=Yii::$app->request->get()['type']?Yii::$app->request->get()['type']:'';
-            $branchname=Yii::$app->request->get()['branchname']?Yii::$app->request->get()['branchname']:'';
+            $branchname=Yii::$app->request->get()['branchname']?Yii::$app->request->get()['branchname']:'';*/
 
-            $frmdate=date('d-m-Y',strtotime($fromdate));
-            $tdate=date('d-m-Y',strtotime($todate));
+           /* $frmdate=date('d-m-Y',strtotime($fromdate));
+            $tdate=date('d-m-Y',strtotime($todate));*/
            /* if($fromdt)
             {
              $allcustomer=$allcustomer->andWhere(['between','OnDate',$fromdt,$todt]);
@@ -1316,7 +1433,7 @@ return $this->redirect(['index']);
             }
             $fromdate=date('Y-m-d', strtotime($fromdate));
             $todate=date('Y-m-d', strtotime($todate. ' +1 day'));  
-        }
+       // }
         $allcustomer=$allcustomer->andWhere(['between','OnDate',$fromdate,$todate]);
 
         $pages=0;

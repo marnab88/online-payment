@@ -25,4 +25,5 @@ class CaptchaAction extends DefaultCaptchaAction
         }
         return $code;
     }
+
 }

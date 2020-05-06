@@ -56,18 +56,18 @@ input[type=number] {
 							<div class="col-sm-12">
 								<input type="number" name="otp" id="otp" required="required" onkeypress="return isNumber(event)" class="form-control onlynumber" placeholder="OTP">
 							</div>
-							<div class="form-group">
-							<div class="col-sm-offset-4 col-sm-7" style="margin-top:30px;">
-								
-								<input type="submit" class="btn btn-primary" id="newmile" value="Submit" style="width:150px;">
-							</div>
-						</div>
+							
 						</div>
 						<div class="form-group">
-						<div class="col-sm-offset-4 col-sm-7" style="margin-top:30px;">
-						<button type="submit" class="btn btn-primary" id="newotp" style="display: none;"  onclick="gotp();$(this).html('Resend OTP')">Generate OTP</button>
+							<div class="col-sm-offset-4 col-sm-7" style="margin-top:20px;">
+								<button type="submit" class="btn btn-primary" id="newotp" style="display: none;"  onclick="gotp();$(this).html('Resend OTP')">Generate OTP</button>
+							</div>
 						</div>
-					</div>					
+						<div class="form-group otpsuccess" style="margin-top:15px !important;display: none;">
+							<div class="col-sm-offset-4 col-sm-7" style="margin-top:20px;">
+								<input type="submit" class="btn btn-primary" id="newmile" value="Submit" style="width:150px;">
+							</div>
+						</div>					
 					<?php ActiveForm::end(); ?>
 					<div class="row  col-sm-offset-4 col-sm-7 col-xs-12" style="margin-top:20px;">
 							<a href="<?= Url::to(['site/home']);  ?>" data-method="post"><button type="submit" class="btn btn-success"  style="width:150px;"><i class="fa fa-home"></i> Home</button></a>

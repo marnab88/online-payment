@@ -24,7 +24,7 @@ class LoanPaymentForm extends Model
         return [
             [['loanaccno', 'otp'], 'required'],
             // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha'],
+            ['verifyCode', 'captcha']
         ];
     }
 
@@ -36,7 +36,7 @@ class LoanPaymentForm extends Model
         return [
             'mobileno'=>'Mobile Number',
             'loanaccno'  => 'Loan Acc. Number',
-            'verifyCode' => 'Verification Code',
+            'verifyCode' => 'Verification Code'
         ];
     }
 }

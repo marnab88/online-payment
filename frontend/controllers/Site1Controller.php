@@ -26,7 +26,7 @@ use yii\web\Session;
 /**
  * Site controller
  */
-class SiteController extends Controller {
+class Site1Controller extends Controller {
 
     /**
      * {@inheritdoc}

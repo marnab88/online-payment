@@ -104,7 +104,13 @@ class UserController extends Controller
 
             
         }
-      	$type=array( "MSME" => "MSME", "MFI" => "MFI" ,"both" => "Both"  );
+        $type=array( "MSME" => "MSME", "MFI" => "MFI" ,"both" => "Both"  );
+        if (Yii::$app->user->identity->Type == "MSME" && Yii::$app->user->identity->Role == 1) {
+            $type=array( "MSME" => "MSME");
+        } 
+        if(Yii::$app->user->identity->Type == "MFI" && Yii::$app->user->identity->Role == 1) {
+            $type=array( "MFI" => "MFI" );
+      	}
 
         $details = User::find()->where(['IsDelete' => 0])->all();
         return $this->render('create', [

@@ -31,7 +31,7 @@ def insert_MSME(sheet,RecordId):
 		if slno != '':
 			totrows=totrows+1
 
-			if len(loan_account_no) != 20 :
+			if  len(loan_account_no) < 8 :
 				error_count =  1
 				msg = ' not valid loan account number.'
 				error_msg = error_msg + str(msg)
@@ -82,9 +82,9 @@ def insert_MSME(sheet,RecordId):
 
 
 			if check_validation( EMIsr_no ) :
-				if not int(EMIsr_no) <= 240 :
+				if not int(EMIsr_no) <= 240:
 					error_count =  1
-					msg = ' duplicate emisr of this loanAc.'
+					msg = ' EmI Sr of this loanAc is invalid.'
 					error_msg =error_msg +str(msg)
 			else:
 				msg = ' EMIsr number is not a number.'
@@ -125,38 +125,73 @@ def insert_MSME(sheet,RecordId):
 				error_msg =error_msg +str(msg)
 
 
-			if client_name == '' or not len(client_name)>=2 and not len(client_name)<=21:
+			if client_name == '' or not len(client_name) > 2 and not len(client_name) < 21:
 				error_count = 1
-				msg = ' Client name cannot be empty'
+				msg = ' Client name invalid'
 				error_msg =error_msg+str(msg)
 
 			if Demand_date == '' :
 				error_count = 1
-				msg = ' Demand date cannot be empty'
+				msg = ' Demand date cannot be empty.'
 				error_msg =error_msg+str(msg)
 
+			else:
+				if not demanddate_comparision(Demand_date):
+					error_count = 1
+					msg = ' Demand date is not valid.'
+					error_msg = error_msg + str(msg)
 
+			if not nextinstallment_comparision(next_installment_date):
+				error_count = 1
+				msg = ' Next installment date is not valid.'
+				error_msg = error_msg + str(msg)
+
+
+			if product_vertical !='MSME':
+				error_count = 1
+				msg = ' Product vertical is invalid.'
+				error_msg = error_msg + str(msg)
+
+			if check_validation(late_penalty):
+				if int(late_penalty) != 0:
+					error_count = 1
+					msg = ' Late penalty should be zero.'
+					error_msg = error_msg + str(msg)
+			else:
+				error_count = 1
+				msg = ' Late penalty is invalid.'
+				error_msg = error_msg + str(msg)
+
+			if client_id == '':
+				error_count = 1
+				msg = ' Client ID cannot be empty.'
+				error_msg = error_msg + str(msg)
+
+			if not upload_comparision(upload_month):
+				error_count = 1
+				msg = ' Upload month is not valid.'
+				error_msg = error_msg + str(msg)
 
 			if(error_count==1):
 			   Mismatch=Mismatch+1
 
-			Demand_date = date_conversion(Demand_date)
-			next_installment_date = date_conversion(next_installment_date)
-			database = mycus()
-			cursor = database.cursor()
-			sql = "INSERT INTO MsmeExcelData (RecordId,BranchName,Cluster,State,ClientId,LoanAccountNo,ClientName,MobileNo,EMISrNo,DemandDate,LastMonthDue,CurrentMonthDue,LatePenalty,NextInstallmentDate,UploadMonth,ProductVertical,errorMsg,errorCount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-			val = (RecordId,branch_name, cluster, state, client_id, loan_account_no, client_name, mobile_no, EMIsr_no, Demand_date,last_month_due, current_month_due, late_penalty, next_installment_date, upload_month, product_vertical,error_msg,error_count)
-
-			cursor.execute(sql, val)
-			database.commit()
-
-
-
-	cursor.execute("UPDATE UploadRecords SET  Status = 1,Mismatch='"+str(Mismatch)+"' , Count = '"+ str(totrows) +"' WHERE RecordId = '" + str(RecordId) + "' ")
-	cursor.close()
-	database.commit()
-	database.close()
-	print('Data Successfully Inserted')
+	# 		Demand_date = date_conversion(Demand_date)
+	# 		next_installment_date = date_conversion(next_installment_date)
+	# 		database = mycus()
+	# 		cursor = database.cursor()
+	# 		sql = "INSERT INTO MsmeExcelData (RecordId,BranchName,Cluster,State,ClientId,LoanAccountNo,ClientName,MobileNo,EMISrNo,DemandDate,LastMonthDue,CurrentMonthDue,LatePenalty,NextInstallmentDate,UploadMonth,ProductVertical,errorMsg,errorCount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+	# 		val = (RecordId,branch_name, cluster, state, client_id, loan_account_no, client_name, mobile_no, EMIsr_no, Demand_date,last_month_due, current_month_due, late_penalty, next_installment_date, upload_month, product_vertical,error_msg,error_count)
+	#
+	# 		cursor.execute(sql, val)
+	# 		database.commit()
+	#
+	#
+	#
+	# cursor.execute("UPDATE UploadRecords SET  Status = 1,Mismatch='"+str(Mismatch)+"' , Count = '"+ str(totrows) +"' WHERE RecordId = '" + str(RecordId) + "' ")
+	# cursor.close()
+	# database.commit()
+	# database.close()
+	# print('Data Successfully Inserted')
 
 
 

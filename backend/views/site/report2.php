@@ -8,7 +8,7 @@ use yii\helpers\Url;
 use kartik\date\DatePicker;
 
 //use yii\widgets\ActiveForm;
-$this->title = 'Report';
+$this->title = 'Transaction History Report';
 $model->BranchName=$branchname;
 ?>
 <style>
@@ -44,7 +44,7 @@ $model->BranchName=$branchname;
             </select>
            </div>
            <div class="col-sm-3" style="padding-top:10px;">
-            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['name'=>'branchname','label'=>'Branch Name','prompt'=>'---Select Branch---']
+            <?= $form->field($model, 'BranchName')->dropDownList($branchnnm,['name'=>'branchname','label'=>'Branch Name','prompt'=>'All']
           ) ?>
            
            </div>
@@ -82,7 +82,7 @@ if($allcustomer){
                 <a href="<?= Url::toRoute(['site/cust-payment','branch' => '','fromdt' =>$fromdate,'todt' =>$todate,'export' => 'yes']);  ?>" class="btn btn-success">Export All</a>
             </div>
           <div class="col-sm-3 text-right">
-                <a href="<?= Url::toRoute(['site/report2','export' => 'yes']);  ?>" class="btn btn-success">Export Summery</a>
+                <a href="<?= Url::toRoute(['site/report2','type'=>$type,'branchname' => $branchname,'fromdate' =>$fromdate,'todate' =>$todate,'export' => 'yes']);  ?>" class="btn btn-success">Export Summery</a>
             </div>
           <div class="table-responsive">
           <table class="table table-striped table-bordered" id="table_emp">

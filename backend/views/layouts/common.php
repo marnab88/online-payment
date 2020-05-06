@@ -108,13 +108,19 @@ AppAsset::register($this);
          if (Yii::$app->user->identity->Role == 1 || Yii::$app->user->identity->ViewReports == 1) {
           ?>
           <li class="nav-item">
-            <a class="nav-link"  href="<?= Url::to(['site/report','pagination'=>'true']) ?>" >
+            <a class="nav-link" href="<?= Url::to(['site/report','pagination'=>'true']) ?>" >
               <span class="menu-title">Loan wise Payment Report</span>
               <i class="mdi mdi-plus menu-icon"></i>
             </a>
           </li>
+            <?php
+          }
+          ?>
+           <?php
+         if (Yii::$app->user->identity->Role == 1 || Yii::$app->user->identity->ViewReports == 1) {
+          ?>
           <li class="nav-item">
-            <a class="nav-link"  href="<?= Url::to(['site/report2','pagination'=>'true']) ?>" >
+            <a class="nav-link" href="<?= Url::to(['site/report2','pagination'=>'true']) ?>" >
               <span class="menu-title">Transaction history Report</span>
               <i class="mdi mdi-plus menu-icon"></i>
             </a>
