@@ -16,6 +16,9 @@ $this->title = 'Update MSME Details';
   display: block;
   font-weight: 100;
 }
+.hide-calendar .ui-datepicker-calendar{
+  display: none;
+}
 </style>
 <div class="site-login">
     <div class="row">
@@ -66,10 +69,16 @@ $this->title = 'Update MSME Details';
                         <input type="text" name="NextInstallmentDate" id="datepicker1" placeholder="dd-mm-yy" class="form-control" value="<?= date('d-m-Y',strtotime($model->NextInstallmentDate)) ?>" autocomplete="off">
                     </div>
                     <div class="col-sm-6">
-                        <?= $form->field($model, 'UploadMonth')->textInput(['maxlength' => true,'required'=>true]) ?>
+                        <?php
+                        $yeararray = explode("'", $model->UploadMonth);
+                         $month=$yeararray[0];
+                          $year=DateTime::createFromFormat('y', $yeararray[1])->format('Y');
+                          $upldmnth=$month." ".$year;?>
+                        <label>Upload Month</label>
+                        <input type="text" name="UploadMonth" id="datepicker2" placeholder="mm-yy" class="form-control" value="<?= $upldmnth ?>" autocomplete="off">
                     </div>
-                    <div class="form-group col-sm-12">
-                   <?= Html::submitButton('Submit',['class'=>'btn btn-success']) ?>
+                    <div class="form-group col-sm-12" style="margin-top:20px;">
+                   <?= Html::submitButton('Submit',['class'=>'btn btn-success','name'=>'update','value'=>'update']) ?>
                    <?php if ($type == 34) {?>
                      <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site1/msme','id' => $details,'type' => '34','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
@@ -104,6 +113,32 @@ $this->title = 'Update MSME Details';
         $("#datepicker1").datepicker({
             dateFormat: "dd-mm-yy"
         });
+    
+    $("#datepicker2").datepicker({ 
+        dateFormat: "MM yy",
+        changeMonth: true,
+        changeYear: true,
+        showButtonPanel: true,
+
+        onClose: function(dateText, inst) {  
+            var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val(); 
+            var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val(); 
+            $(this).val($.datepicker.formatDate("MM yy", new Date(year, month, 1)));
+        }
+    });
+
+    $("#datepicker2").focus(function () {
+        $(".ui-datepicker-calendar").hide();
+        $("#ui-datepicker-div").position({
+            my: "center top",
+            at: "center bottom",
+            of: $(this)
+        });    
+    });
+
+
+
+
     });
 ');
   ?>

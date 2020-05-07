@@ -14,7 +14,7 @@ class LoanPaymentForm extends Model
     public $mobileno;
     public $otp;
     public $verifyCode;
-
+    public $verifyCode2;
 
     /**
      * {@inheritdoc}

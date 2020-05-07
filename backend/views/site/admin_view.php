@@ -53,26 +53,26 @@ $this->title = 'record_update';
 								if ($value->Type == 'MFI') {?>
 									
 
-									<span style="color:#FF3333;"><?=$value->Count?></span>
+									<span style="color:#FF3333;"><?=($value->Status != 1)?'Processing':$value->Count?></span>
 								 <?php	
 								 } 
 								 else{
 								 	?>
 
-									<span style="color:#FF3333;"><?=$value->Count?></span>
+									<span style="color:#FF3333;"><?=($value->Status != 1)?'Processing':$value->Count?></span>
 								 <?php	
 								 }
 								  ?></td>
-								<td><span style="color:#00CC00"><?=$value->Count-($value->Mismatch+$value->MobileCount) ?></span></td>
+								<td><span style="color:#00CC00"><?=($value->Status != 1)?'Processing':$value->Count-($value->Mismatch+$value->MobileCount) ?></span></td>
 								<td><?php
 								if ($value->Type == 'MFI') {?>
-								<span style="color:#FF3333;"><?=$value->Mismatch+$value->MobileCount?></span>
+								<span style="color:#FF3333;"><?=($value->Status != 1)?'Processing':$value->Mismatch+$value->MobileCount?></span>
 
 								<?php
 									}
 								else{
 									?>
-									<span style="color:#FF3333;"><?=$value->Mismatch+$value->MobileCount?></span>
+									<span style="color:#FF3333;"><?=($value->Status != 1)?'Processing':$value->Mismatch+$value->MobileCount?></span>
 
 								
 								<?php
@@ -81,7 +81,12 @@ $this->title = 'record_update';
 									
 								</td>
 
-								<td><a href="<?php 
+								<td>
+									<?php
+									if($value->Status == 1)
+                                    {
+                                    ?>
+                                    <a href="<?php 
 								 if(Yii::$app->user->identity->Role == 1){
 								 echo Url::toRoute(['site/both','id' => $value->RecordId,'type'=>34,'mon'=>$value->MonthYear,'pagination'=>'yes']);}
 								 elseif(Yii::$app->user->identity->Type == "MFI"){
@@ -94,7 +99,7 @@ $this->title = 'record_update';
 
 								 ?>" data-method="post"  style="float:left;color:#ff3300; margin-top:5px;">View Details</a></td>
 								
-								
+								<?php } ?>
 								</tr>
 							</tr>
 							<?php

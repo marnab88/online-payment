@@ -4,9 +4,8 @@ namespace common\captcha;
 
 use yii\captcha\CaptchaAction as DefaultCaptchaAction;
 
-class CaptchaAction extends DefaultCaptchaAction
+class CaptchaAction2 extends DefaultCaptchaAction
 {
-    
     protected function generateVerifyCode()
     {
         if ($this->minLength > $this->maxLength) {

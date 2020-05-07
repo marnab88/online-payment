@@ -157,20 +157,23 @@ $this->title = 'Home';
                                     <td><?php
                                     if ($details->Type == 'MFI') {?>
     
-                                        <span style="color:#FF3333;"><?= $details->Count?></span>
+                                        <span style="color:#FF3333;"><?= ($details->Status != 1)?'Processing':$details->Count?></span>
                                      <?php	
                                      } 
                                      else{
                                         ?>
     
-                                        <span style="color:#FF3333;"><?=$details->Count?></span>
+                                        <span style="color:#FF3333;"><?=($details->Status != 1)?'Processing':$details->Count?></span>
                                      <?php	
                                      }
                                       ?></td>
                                     
-                                    <td><span style="color:#00CC00"><?=$details->Count-($details->Mismatch+$details->MobileCount) ?></span></td>
+                                    <td><span style="color:#00CC00"><?=($details->Status != 1)?'Processing':$details->Count-($details->Mismatch+$details->MobileCount) ?></span></td>
                                     <td>
                                         <?php
+                                        if ($details->Status != 1) { ?>
+                                        	<span style="color:#FF3333;">Processing</span>
+                                        <?php } else{
                                         if ($details->Type == 'MFI') {?>
                                             <span style="color:#FF3333;"><?=($details->Mismatch+$details->MobileCount>0)?Html::a($details->Mismatch+$details->MobileCount, ['site/mfi','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'error'=>'true'],['target'=>'_blank']):'0'?></span>
                                         <?php
@@ -179,10 +182,15 @@ $this->title = 'Home';
                                             ?>
                                             <span style="color:#FF3333;"><?=($details->Mismatch+$details->MobileCount>0) ? Html::a($details->Mismatch+$details->MobileCount, ['site/msme','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'error'=>'true'],['target'=>'_blank']):'0'?></span>
                                         <?php
-                                        }
+                                        }}
                                         ?>
                                     </td>
-                                    <td><a href="<?php
+                                    <td>
+                                    <?php 
+                                    if($details->Status == 1)
+                                    {
+                                    ?>
+                                    <a href="<?php
                                     if(Yii::$app->user->identity->Type == "MFI"){
                                      echo Url::toRoute(['site/mfi','id' => $details->RecordId,'mon'=>$details->MonthYear,'type' =>35,'pagination'=>'show']);}
                                      elseif(Yii::$app->user->identity->Type == "MSME"){
@@ -192,7 +200,7 @@ $this->title = 'Home';
                                      }							 
                                     ?>" data-method="post"  style="float:left;color:#ff3300; margin-top:5px;">View Details</a>
                                     &nbsp;&nbsp;
-                                    <?php 
+                                    <?php } 
                                     if ($details->IsApproved == '0') { ?>
                                     	<a href="<?=Url::toRoute(['site/deleterecord','recordid' => $details->RecordId,'type'=>$details->Type])?>"> delete</a>
                                    <?php }
