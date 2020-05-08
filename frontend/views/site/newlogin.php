@@ -180,7 +180,7 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 						<div class="form-group otpsuccess" style="margin-bottom:30px;display: none;">
 
 							<?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
-								'template' => '<div class="row"><div class="col-sm-4" id="newmf">{image}<a href="#" id="fox" title="refresh capcha"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
+								'template' => '<div class="row"><div class="col-sm-4" id="newmf">{image}<a href="#" id="fox" title="refresh capcha"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>'
 							]) ?>
 						</div>
 						<div class="form-group otpsuccess" style="display: none;">
@@ -224,7 +224,7 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 								 <div class="col-md-2 col-xs-2">
 								 	<div class="arow">
 										<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png" style="margin-top:30px;" />
-										<p id="display_info1" style="color:red;text-align:left;"></p>
+										<!-- <p id="display_info" style="color:red;text-align:left;"></p> -->
 									</div>
 								</div>
 								<div class="col-md-12">
@@ -275,8 +275,8 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 						</div>
 						</div>
 						<div class="form-group lotpsuccess" style="margin-bottom:30px;display: none;">
-							<?= $form->field($model, 'verifyCode2')->widget(Captcha::className(), [
-								'template' => '<div class="row"><div class="col-sm-4" id="refe">{image}<a href="#" title="refresh capcha2"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
+							<?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
+								'template' => '<div class="row"><div class="col-sm-4" id="refe">{image}<a href="#" id="foxx" title="refresh capcha"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
 							]) ?>
 						</div>
 						<div class="form-group lotpsuccess" style="display: none;">
@@ -389,13 +389,12 @@ $this->registerJs($js);
 			                 if (res == '') {
 			                 	$('#display_info').html('');
 			                 	$('#mob_info').html('Mobile Number not Found');
-			                 	
 			                 };
 						}/*else if (results == []){
-							$('#display_info').html('Mobile Number not Found');*/
-						else{
-							alert("Invalid Acount Number");
-						}
+							$('#display_info').html('Mobile Number not Found');
+						}else{
+							$('#display_info').html('');
+						}*/
 					}
 				});
 			}else{
@@ -430,38 +429,23 @@ $this->registerJs($js);
 								$('#mobnum').val(res.MobileNo);								
 								$("#loanlabel").show();
 								$('#lgeneratebttn').show();
-								$('#display_info1').html(''); 
-						}
-						else{
-							// $('#display_info').html('');
-							$('#display_info1').html('Mobile Number not found');
-							$('#loannum').val('');
-							$('#loannum').hide();
-							$('#mobnum').val('');
-							$('#lgeneratebttn').hide();
-							$("#loanlabel").hide();
-							$('.help-block-error').remove();
-							// alert("mobile Number not found");
+								$('#display_info').html(''); 
 						}
 					}
 				});
 			}else{
-				$('#display_info1').html('Please Enter Valid Mobile Number');
+				$('#display_info').html('Please Enter Valid Mobile Number');
 				$('#loannum').val('');
-				$('#loannum').hide();
 				$('#mobnum').val('');
 				$('#lgeneratebttn').hide();
 				$("#loanlabel").hide();
-				$('.help-block-error').remove();
 			}
 		 }else{
-			$('#display_info1').html('');
+			$('#display_info').html('');
 			$('#loannum').val('');
-			$('#loannum').hide();
 				$('#mobnum').val('');
 				$('#lgeneratebttn').hide();
 				$("#loanlabel").hide();
-				$('.help-block-error').remove();
 		 }
 	}
 	

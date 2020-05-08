@@ -13,26 +13,71 @@ $this->title = 'Payment Details';
 .pagination {
     float: right;
 }
+.report label{
+  display: block;
+  font-weight: 100;
+}
 </style>
 <div class="site-login">
+
+	<div class="col-lg-12 grid-margin stretch-card report" style="padding-left:0px;" >
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Payment Details Report</h4>
+          <?php $form = ActiveForm::begin(['id' => 'report_form','method'=>'get']); ?>
+          <div class="row">
+           <div class="col-sm-3">
+           	 <label>Loan Account Number</label>
+				<input type="text" class="form-control" value="<?= $lnacno ?>" autocomplete="off" name="loanacno" placeholder="Enter LoanAccountNo"> 
+           </div>
+           <div class="col-sm-3" class="form-control">
+           	 <label>Status</label>
+            <select name="status" class="form-control">
+            	<option value="">-- Select Status--</option>
+            	<option value="1" <?= ($status == '1')?'selected':''?>>Success</option>
+            	<option value="0" <?= ($status == '0')?'selected':''?>>Failed</option>
+            </select>
+           
+           </div>
+           <div class="col-sm-3">
+            <label>From Date</label>
+              <input type="text" name="fromdate" id="datepicker" placeholder="dd-mm-yy" class="form-control" value="<?= $frmdate ?>" autocomplete="off">
+            </div>
+            <div class="col-sm-3">
+              <label>To Date</label>
+              <input type="text" name="todate" id="datepicker1" placeholder="dd-mm-yy" class="form-control" value="<?= $tdate ?>" autocomplete="off">
+             </div>
+            </div>
+           <div class="row">
+
+
+             <div class="col-sm-3" style="padding-top: 34px;">
+              <input class="btn btn-success" type="submit" value="Search" name="search" class="btn btn-success">
+             </div>
+           </div>
+           
+          
+
+           <?php ActiveForm::end(); ?>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+<?php if ($getallreport) {?>
 	<div class="row">
 		<div class="col-lg-12 grid-margin stretch-card">
 			<div class="card">
 				<div class="card-body">
-					<h4 class="card-title col-sm-4">Payment Details</h4>
-					
-					<?php $form = ActiveForm::begin(['action'=>['site/paymentdetails'],'options'=>['class' => 'form-horizontal']]); ?>
-					<div class="col-sm-4">
-					 		<input type="text" class="form-control" value="<?= $lnacno ?>" autocomplete="off" required name="loanacno" placeholder="Enter LoanAccountNo"> 
-					</div>
-					<div class="col-sm-2"> 
-					 		<input class="btn btn-success" type="submit" value="Search" name="search" class="btn btn-success exportToExcel">
-		            </div>
-		            <?php ActiveForm::end(); ?>
-					 <div class="col-sm-2">
-					 	 <?php if ($getallreport) {?>
-				              <a href="<?= Url::toRoute(['site/paymentdetails','export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
-				          <?php } ?>
+					<h4 class="card-title col-sm-10">Report Details</h4>
+					 <div class="col-sm-2 text-right">
+				              <a href="<?= Url::toRoute(['site/paymentdetails','status'=>$status,'loanacno' => $lnacno,'fromdate' =>$fromdate,'todate' =>$todate,'export' => 'yes']);  ?>" class="btn btn-success">Export Report</a>
+				          
 		            </div>
 		            
 					<div class="table-responsive">
@@ -92,7 +137,7 @@ $this->title = 'Payment Details';
 				                <td><?= $value->usermser->BranchName ?></td>
 				                <td><?= $value->USER_ID ?></td>
 				                <td><?= $value->usermser->ClientName ?></td>
-				                <td><?= $value->usermser->MobileNo ?></td>
+				                <td><?= $value->MOB_NO ?></td>
 				                <td><?= $value->LOAN_ID ?></td>
 				                <td><?= date('d-m-Y H:i:s',strtotime($value->TXN_DATE)) ?></td>
 				                <td><?= (isset($value->transactionres->WALLET_BANK_REF))?$value->transactionres->WALLET_BANK_REF:'' ?></td>
@@ -138,4 +183,21 @@ $this->title = 'Payment Details';
 	
 </div>
 
+<?php } ?>
 
+
+<?php
+    $this->registerJs('
+   
+    $( document ).ready(function() {
+        $("#datepicker").datepicker({
+            maxDate: 0,
+            dateFormat: "dd-mm-yy"
+        });
+        $("#datepicker1").datepicker({
+            maxDate: 0,
+            dateFormat: "dd-mm-yy"
+        });
+    });
+');
+  ?>

@@ -48,14 +48,15 @@ $this->title = 'Previous Payment History';
 										  </td>
 										<td class="text-center">
 											<!-- <a href="<?php echo Url::toRoute(['site/samplepdf','date' => $value->TXN_DATE,'loanid' => $value->LOAN_ID,'userid' => $value->USER_ID]);?>" data-method ="get">gen</a>  -->
-											<input type="hidden" id="loanid" value="<?=$value->LOAN_ID?>">
-											<input type="hidden" id="userid" value="<?=$value->USER_ID?>">
-											<input type="hidden" id="txndate" value="<?=$value->TXN_DATE?>">
+											<!-- <input type="hidden" id="loanid" value="<?=$value->LOAN_ID?>">
+											<input type="hidden" id="userid" value="<?=$value->USER_ID?>"> -->
+											<input type="hidden" id="txnid" value="<?=$value->TXN_ID?>">
+											<input type="hidden" id="typ" value="<?=$value->TYPE?>">
 											<?php 
 											if ($value->TXN_STATUS==1)
 												{
 											?>
-											<button type="button" class="btn btn-success pdfdownload" data="<?=$value->id?>" style="margin-bottom: 0px;padding: 1px 8px;"><i class="fa fa-download"></i></button>
+											<a class="btn btn-success pdfdownload" id="print" style="margin-bottom: 0px;padding: 1px 8px;" data="<?=$value->TXN_ID?>"><i class="fa fa-download"></i></a>
 											<?php
 												}
 											else 
@@ -107,8 +108,20 @@ $(document).ready(function(){
  <?php
  $printUrl = Url::toRoute(['site/print']);
 $js = <<<JS
+$("a[id^=print]").click(function(event) {
+      var ops=$('#typ').val();
+      var txnid=$(this).attr('data');
+      window.location.href='http://128.199.184.65:8080/amplpg/pdfgen?opstype='+ops+'&txnid='+txnid;
+ });
+JS;
+$this->registerJs($js);
+?>
+<!--  console.log(txnid);
+      console.log(txnid);
+      console.log('http://128.199.184.65:8080/amplpg/pdfgen?opstype='+ops+'&txnid='+txnid); -->
 
- $(document).ready(function(){
+<!-- window.location.href='http://128.199.184.65:8080/amplpg/pdfgen?opstype='+ops+'&txnid='+txnid; -->
+<!--  $(document).ready(function(){
 $('.pdfdownload').click(function() {
         var txndate=$('#txndate').val();
         var loanid=$('#loanid').val();
@@ -127,10 +140,4 @@ $('.pdfdownload').click(function() {
             
         });
     });
-});
-
-JS;
-$this->registerJs($js);
-?>
-
-<!-- setTimeout(function(){newWin.close();},0.2); -->
+}); -->

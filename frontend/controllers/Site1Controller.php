@@ -26,7 +26,7 @@ use yii\web\Session;
 /**
  * Site controller
  */
-class SiteController extends Controller {
+class Site1Controller extends Controller {
 
     /**
      * {@inheritdoc}
@@ -58,9 +58,6 @@ class SiteController extends Controller {
         return [ 'error'=>[ 'class'=>'yii\web\ErrorAction',
         ],
         'captcha'=>[ 'class'=>'common\captcha\CaptchaAction',
-        'fixedVerifyCode'=>YII_ENV_TEST ? 'testme': null,
-            ],
-        'captcha2'=>[ 'class'=>'common\captcha\CaptchaAction2',
         'fixedVerifyCode'=>YII_ENV_TEST ? 'testme': null,
             ],
             ];
@@ -211,15 +208,11 @@ class SiteController extends Controller {
     }
     public function actionFetchmob() {
         $loannum=isset(Yii::$app->request->get()['loannum'])?Yii::$app->request->get()['loannum']:'';
-        if(strlen($loannum)<6){
-           return false;
-        }
-
         $result=array();
         $fetchsom=MsmeExcelData::find()->where(['IsDelete'=>0,'IsApproved'=>1])->andWhere(['like', 'LoanAccountNo' , $loannum ])->orderBy(['Mid'=> SORT_DESC])->one();
        /* $fetchmob=Yii::$app->db->createCommand("(SELECT LoanAccountNo,MobileNo FROM ExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY Eid DESC) UNION ALL (SELECT LoanAccountNo,MobileNo FROM MsmeExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY Mid DESC)");
         $fetchsom =$fetchmob->queryOne();*/
-        $result=false;
+
         if ($fetchsom) {
              $result['LoanAccountNo']=$fetchsom->LoanAccountNo;
             // $result['MobileNo']=$fetchsom['MobileNo'];
@@ -228,15 +221,9 @@ class SiteController extends Controller {
         
         }else{
             $fetchsom=ExcelData::find()->where(['IsDelete'=>0,'IsApproved'=>1])->andWhere(['like', 'LoanAccountNo' , $loannum ])->orderBy(['Eid'=> SORT_DESC])->one();
-            if($fetchsom){
             $result['LoanAccountNo']=$fetchsom->LoanAccountNo;
             // $result['MobileNo']=$fetchsom['MobileNo'];
             $result['maskMobileNo']=str_repeat("X", strlen($fetchsom->MobileNo)-4) . substr($fetchsom->MobileNo, -4);
-            }
-            else
-            {
-                return false;
-            }
         }
         
         echo json_encode($result);
@@ -254,14 +241,8 @@ class SiteController extends Controller {
              $result['MobileNo']=$fetchall->MobileNo;
         }else{
             $fetchall=ExcelData::find()->where(['MobileNo'=> $mobile,'IsDelete'=>0,'IsApproved'=>1])->orderBy(['Eid'=> SORT_DESC])->one();
-            if($fetchall){
-                $result['LoanAccountNo']=$fetchall->LoanAccountNo;
+            $result['LoanAccountNo']=$fetchall->LoanAccountNo;
              $result['MobileNo']=$fetchall->MobileNo;
-            }
-            else{
-                return false;
-            }
-            
         }
         
         echo json_encode($result);
@@ -328,7 +309,7 @@ class SiteController extends Controller {
             $session->set('payment_amount', $payment_amount);
             // return $this->redirect(['payment']);
 
-            return $this->redirect("https://afpl.pay2annapurnafinance.in/amplpg/index.jsp?txnid=$txni&txntype=$type");
+            return $this->redirect("http://128.199.184.65:8080/amplpg/index.jsp?txnid=$txni&txntype=$type");
 
         }
 

@@ -80,25 +80,28 @@ $this->title = 'Update MSME Details';
                     <div class="form-group col-sm-12" style="margin-top:20px;">
                    <?= Html::submitButton('Submit',['class'=>'btn btn-success','name'=>'update','value'=>'update']) ?>
                    <?php if ($type == 34) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '34','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site1/msme','id' => $details,'type' => '34','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
                    <?php if ($type == 35) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '35','mon'=>$mon]) ?>"  style="float:left;color:#fff;">Back</a></button>
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site1/msme','id' => $details,'type' => '35','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
                    <?php if ($type == 36) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '36','mon'=>$mon]) ?>"  style="float:left;color:#fff;">Back</a></button>
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site1/msme','id' => $details,'type' => '36','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
                     <?php if ($type == 37) {?>
-                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site/msme','id' => $details,'type' => '37','mon'=>$mon]);  ?>"  style="float:left;color:#fff;">Back</a></button>
+                     <button class="btn btn-danger" type="button"><a href="<?= Url::to(['site1/msme','id' => $details,'type' => '37','mon'=>$mon]);  ?>" data-method="post"  style="float:left;color:#fff;">Back</a></button>
                   <? } ?>
                </div>
 
-                    <?php ActiveForm::end(); ?>
+                    <?php ActiveForm::end() ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
+
 <?php
     $this->registerJs('
    

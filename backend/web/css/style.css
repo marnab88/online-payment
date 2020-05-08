@@ -14060,7 +14060,7 @@ html {
   overflow: auto !important; }
 
 .content-wrapper {
-  background: #F6F8FA;
+  background-image: url("../images/bg1.jpg");
   margin-left: 200px;
   min-height: 100vh;
   padding: 1rem .5rem;

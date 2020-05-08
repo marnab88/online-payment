@@ -2,6 +2,7 @@
 namespace backend\controllers;
 
 use Yii;
+use DateTime;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
@@ -891,10 +892,118 @@ public function actionUpdatemsme($id,$type,$mon){
          $mon=$value->MonthYear;
         }
   $details=$model->RecordId;
+
   $model->errorMsg='';
   $model->errorCount=0;
-  if ($model->load(Yii::$app->request->post()) && $model->save()) {
+  if (Yii::$app->request->post('update') == 'update') {
+  /*  echo "hiiiiiiiiiii";
+    var_dump(Yii::$app->request->post());
+    die();*/
+    $BranchName=Yii::$app->request->post()['MsmeExcelData']['BranchName'];
+    $Cluster=Yii::$app->request->post()['MsmeExcelData']['Cluster'];
+    $state=Yii::$app->request->post()['MsmeExcelData']['State'];
+    $ClientId=Yii::$app->request->post()['MsmeExcelData']['ClientId'];
+    $LoanAccountNo=Yii::$app->request->post()['MsmeExcelData']['LoanAccountNo'];
+    $ClientName=Yii::$app->request->post()['MsmeExcelData']['ClientName'];
+    $EmiSrNo=Yii::$app->request->post()['MsmeExcelData']['EmiSrNo'];
+    $DemandDate=Yii::$app->request->post()['DemandDate'];
+    $LastMonthDue=Yii::$app->request->post()['MsmeExcelData']['LastMonthDue'];
+    $CurrentMonthDue=Yii::$app->request->post()['MsmeExcelData']['CurrentMonthDue'];
+    $latepenalty=Yii::$app->request->post()['MsmeExcelData']['LatePenalty'];
+    $MobileNo=Yii::$app->request->post()['MsmeExcelData']['MobileNo'];
+    $NextInstallmentDate=Yii::$app->request->post()['NextInstallmentDate'];
+    $UploadMonth=Yii::$app->request->post()['UploadMonth'];
+
+
+    $yeararray = explode(" ", $UploadMonth);
+    $month=$yeararray[0];
+    $year=date('y',strtotime($yeararray[1]));
+    $UploadMonth=$month."'".$year;
+
+
+    $model->BranchName=$BranchName;
+    $model->Cluster=$Cluster;
+    $model->State=$state;
+    $model->ClientId=$ClientId;
+    $model->LoanAccountNo=$LoanAccountNo;
+    $model->ClientName=$ClientName;
+    $model->EmiSrNo=$EmiSrNo;
+    $model->DemandDate=$DemandDate;
+    $model->LastMonthDue=$LastMonthDue;
+    $model->CurrentMonthDue=$CurrentMonthDue;
+    $model->LatePenalty=$latepenalty;
+    $model->MobileNo=$MobileNo;
+    $model->NextInstallmentDate=$NextInstallmentDate;                  
+    $model->UploadMonth=$UploadMonth;
+
+
+    $Currentmonth=date('m');
+    $Currentyear=date('Y');
+    $nextmonth= date('m', strtotime('+1 month'));
+
+
+
+      $errorclient=MsmeExcelData::find()->where(['UploadMonth'=>$model->UploadMonth,'ClientId'=>$ClientId])->count();
+      $errormobile=MsmeExcelData::find()->where(['UploadMonth'=>$model->UploadMonth,'MobileNo'=>$MobileNo])->count();
+
+      $LatePenaltyError=($latepenalty=='')?1:0;
+      $ClientNameError =(trim($ClientName)=='')? 1:0;
+      $errorLoanAccountNo =MsmeExcelData::find()->where(['UploadMonth'=>$UploadMonth,'LoanAccountNo'=>$LoanAccountNo])->count();
+      $errormoblength=(strlen($MobileNo)!=10)? 1:0;
+      $errorEmiSrNo=(is_numeric($EmiSrNo) && $EmiSrNo<240)?0:1;
+      $LastMonthDueError=(is_numeric($LastMonthDue) && strlen($LastMonthDue)<8)?0:1;
+      $CurrentMonthDueError=(is_numeric($CurrentMonthDue) && strlen($CurrentMonthDue)<8)?0:1;
+      $LoanAccountNoError=(strlen($LoanAccountNo)==20)?0:1;
+      $ClusterError =(trim($Cluster)=='')? 1:0;
+      $BranchNameError =(trim($BranchName)=='')? 1:0;
+      $ClientNameError =(trim($ClientName)=='' && !(strlen($ClientName)>2 && strlen($ClientName)<21))? 1:0;
+      $NextInstallmentDateError=((date('m',strtotime($NextInstallmentDate)) == $Currentmonth && date('Y',strtotime($NextInstallmentDate)) == $Currentyear)|| (date('m',strtotime($NextInstallmentDate)) == $nextmonth && date('Y',strtotime($NextInstallmentDate)) == $Currentyear) )?0:1;
+      $DemandDateError=((date('m',strtotime($DemandDate)) == $Currentmonth && date('Y',strtotime($DemandDate)) == $Currentyear)|| (date('m',strtotime($DemandDate)) == $nextmonth && date('Y',strtotime($DemandDate)) == $Currentyear) )?0:1;
+      
+       $toterror=($errorclient+$errormobile+$LatePenaltyError+$errorEmiSrNo+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClusterError+$LastMonthDueError
+                +$CurrentMonthDueError+$LoanAccountNoError);
+      $model->errorCount=$toterror;
+      $errormsg=null;
+      if($errorclient>0){
+       $errormsg.=' duplicate Clientid.';
+      }
+      if($errorEmiSrNo>0){
+       $errormsg.=' duplicate emisr of this loanAc.';
+      }
+      if($LoanAccountNoError>0)
+      $errormsg.=' not valid loan account number. ';
+      if($errormobile>0){
+       $errormsg.=' this mobile no exists in this month.';
+      }
+      if($errormoblength>0)
+      $errormsg.=' not a valid mobile number.';
+      if($errorLoanAccountNo>0)
+       $errormsg.=' this loanAcct already exist for this month.';
+      if($LatePenaltyError>0)
+       $errormsg.='Late Penalty cannot be empty.';
+      if($BranchNameError>0)
+      $errormsg.='BranchName cannot be empty.';
+      if($ClientNameError>0)
+      $errormsg.='Client name cant be empty.';
+      if($ClusterError>0)
+      $errormsg.='cluster cannot be blank.';
+      if($LastMonthDueError>0)
+      $errormsg.='Lastmonth due error.';
+      if($CurrentMonthDueError>0)
+      $errormsg.='CurrentMonthDue due error.';
+      if ($NextInstallmentDateError>0) {
+        $errormsg.='Next Installment Date must be Current month or next month. ';
+      }
+      if ($DemandDateError>0) {
+        $errormsg.='Demand Date must be Current month or next month. ';
+      }
+      $model->errorMsg=$errormsg;
+      if($toterror>0)
+      $model->errorCount=1;
+
+    if ($model->save()) {
     $uid=Yii::$app->user->identity->UserId;
+
     $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();
     $connection=\Yii::$app->db;
     $command=$connection->createCommand("SELECT COUNT(*) as cnt FROM `MsmeExcelData` WHERE `RecordId` = '$types->RecordId' and `IsDelete`= 0 GROUP BY LoanAccountNo HAVING cnt > 1 ");
@@ -913,8 +1022,9 @@ public function actionUpdatemsme($id,$type,$mon){
     }
     if ($types->save()) {
      Yii::$app->session->setFlash('success', "Account Updated successfully");
-     return $this->redirect(['msme', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon]);
+     return $this->redirect(['msme', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon,'pagination'=>'show']);
    }
+ }
  }
  return $this->render('msme_edit',['model'=>$model,'details'=>$details,'type'=>$type,'mon'=>$mon]);
 }

@@ -8,7 +8,7 @@ use yii\helpers\Url;
 use kartik\date\DatePicker;
 
 //use yii\widgets\ActiveForm;
-$this->title = 'Report';
+$this->title = 'Loan Wise Payment Report';
 
 ?>
 <style>

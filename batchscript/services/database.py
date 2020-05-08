@@ -2,8 +2,9 @@ import MySQLdb
 
 def mycus():
     database = MySQLdb.connect (
-    host="localhost",
-    user = "root",
-    passwd = "colourfade",
-    db = "onlineportal")
+    host="10.16.3.196",
+    user = "admin",
+    passwd = "xSQPJKXRT2nq",
+    db = "amplweb_db")
     return database
+

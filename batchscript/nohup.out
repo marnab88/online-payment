@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "datainsert.py", line 21, in <module>
+    insert_MSME(sheet,RecordId)
+  File "/var/www/html/onlineportal/batchscript/services/datainsertMSME.py", line 170, in insert_MSME
+    if not upload_comparision(upload_month):
+  File "/var/www/html/onlineportal/batchscript/services/funfile.py", line 62, in upload_comparision
+    year = upload_month[1]
+IndexError: list index out of range
+Data Successfully Inserted
+Data Successfully Inserted
+Traceback (most recent call last):
+  File "datainsert.py", line 29, in <module>
+    time.sleep(10)
+NameError: name 'time' is not defined
