@@ -24,7 +24,8 @@ class LoanPaymentForm extends Model
         return [
             [['loanaccno', 'otp'], 'required'],
             // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha']
+            ['verifyCode', 'captcha','captchaAction' => 'site/captcha'],
+            //['verifyCode2', 'captcha','captchaAction' => 'site/captcha2']
         ];
     }
 

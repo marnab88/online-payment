@@ -126,8 +126,12 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 								 <div class="col-md-2 col-xs-2">
 									<div class="arow">
 										<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png" style="margin-top:30px;" />
-										<p id="display_info" style="color:red;text-align:left;"></p>
+										
 									</div>
+									
+								</div>
+								<div style="float:left; width:90%; text-align:center;">
+									<p id="display_info" style="color:red;text-align:center;"></p>
 								</div>
 								<div class="col-md-12">
 
@@ -180,8 +184,7 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 						<div class="form-group otpsuccess" style="margin-bottom:30px;display: none;">
 
 							<?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
-								'template' => '<div class="row"><div class="col-sm-4" id="newmf">{image}<a href="#" id="fox" title="refresh capcha"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
-								'captchaAction'=>'captcha'
+								'template' => '<div class="row"><div class="col-sm-4" id="cap1">{image}<a href="#" id="captcha1" title="refresh capcha"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
 							]) ?>
 						</div>
 						<div class="form-group otpsuccess" style="display: none;">
@@ -225,8 +228,11 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 								 <div class="col-md-2 col-xs-2">
 								 	<div class="arow">
 										<img src="<?= Yii::getAlias('@frontendUrl'); ?>/images/proceed.png" style="margin-top:30px;" />
-										<p id="display_info1" style="color:red;text-align:left;"></p>
+										
 									</div>
+								</div>
+								<div style="float:left; width:90%; text-align:center;">
+									<p id="display_info1" style="color:red;text-align:center;"></p>
 								</div>
 								<div class="col-md-12">
 
@@ -276,9 +282,10 @@ label{font-weight:normal; opacity:0.6; color:#000;}
 						</div>
 						</div>
 						<div class="form-group lotpsuccess" style="margin-bottom:30px;display: none;">
-							<?= $form->field($model, 'verifyCode2')->widget(Captcha::className(), [
-								'template' => '<div class="row"><div class="col-sm-4" id="refe">{image}<a href="#" title="refresh capcha2"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
-									'captchaAction'=>'captcha2'
+							<?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
+								'template' => '<div class="row"><div class="col-sm-4" id="cap2">{image}<a href="#" id="captcha2" title="refresh capcha2"><i class="fa fa-refresh" aria-hidden="true"></i></a></div><div class="col-sm-8">{input}</div></div>',
+						//'captchaAction' => 'site/captcha2'
+						
 							]) ?>
 						</div>
 						<div class="form-group lotpsuccess" style="display: none;">
@@ -310,13 +317,16 @@ $(".inputs").keyup(function () {
 
 });
 
- $("#fox").click(function(event){
+ $("#captcha1").click(function(event){
     event.preventDefault();
     $("img[id$='-verifycode-image']").click();
   });
-$("#foxx").click(function(event){
+$("#captcha2").click(function(event){
     event.preventDefault();
-    $("img[id$='-verifyccode-image']").click();
+    $("#loanpaymentform-verifycode-image").click();
+		thisid=$(this);
+		setTimeout(function(){ thisid.siblings().attr('src',$("#loanpaymentform-verifycode-image").attr('src')) }, 1000);
+		
   });
 
 $('#otpgen').click(function(){
