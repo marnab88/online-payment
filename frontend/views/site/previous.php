@@ -111,7 +111,7 @@ $js = <<<JS
 $("a[id^=print]").click(function(event) {
       var ops=$('#typ').val();
       var txnid=$(this).attr('data');
-      window.location.href='http://128.199.184.65:8080/amplpg/pdfgen?opstype='+ops+'&txnid='+txnid;
+      window.location.href='https://afpl.pay2annapurnafinance.in/amplpg/pdfgen?opstype='+ops+'&txnid='+txnid;
  });
 JS;
 $this->registerJs($js);

@@ -518,7 +518,7 @@ class SiteController extends Controller {
 
             else {
 
-                Yii::$app->session->setFlash('error', 'Please fill otp');
+                Yii::$app->session->setFlash('error', 'Please fill otp'.json_encode($model->getErrors()));
                 return $this->redirect(['login']);
             }
 
