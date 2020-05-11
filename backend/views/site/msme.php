@@ -130,7 +130,7 @@ $this->title = 'Home';
                 <td><a href="#" class="badge badge-danger">N/A</a></td>
                  <?php }*/?>
                 <?php if ($approve == 0) { ?>
-                <!-- <?php if ($type == 34) {?>
+                 <?php if ($type == 34) {?>
                    <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>34,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
                <?php  } ?>
                 <?php if ($type == 35) {?>
@@ -144,7 +144,7 @@ $this->title = 'Home';
               <?php } ?>
                 <?php if ($type == 39) {?>
                  <td>  <a href="<?= Url::toRoute(['site/updatemsme','id' => $value->Mid,'type'=>39,'mon'=>$mon]);  ?>"   style="float:left;">EDIT</a></td>
-              <?php } ?> -->
+              <?php } ?> 
                  
                   <?php
                 

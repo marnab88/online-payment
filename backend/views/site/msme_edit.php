@@ -46,7 +46,7 @@ $this->title = 'Update MSME Details';
                         <?= $form->field($model, 'ClientName')->textInput(['maxlength' => true,'required'=>true]) ?>
                     </div>
                     <div class="col-sm-6">
-                        <?= $form->field($model, 'MobileNo')->textInput(['pattern'=>"[6789][0-9]{9}",'maxlength' => 10,'minlength'=>10,'title'=>'Mobile should be contain only number','required'=>true]) ?>
+                        <?= $form->field($model, 'MobileNo')->textInput(['pattern'=>"[6789][0-9]{9}",'maxlength' => 10,'minlength'=>10,'title'=>'Mobile should be contain only number and 10 digit','required'=>true]) ?>
                     </div>
                     <div class="col-sm-6">
                         <?= $form->field($model, 'EmiSrNo')->textInput(['maxlength' => true,'required'=>true]) ?>
@@ -70,12 +70,23 @@ $this->title = 'Update MSME Details';
                     </div>
                     <div class="col-sm-6">
                         <?php
-                        $yeararray = explode("'", $model->UploadMonth);
+                        $string = "`";
+                        $string1 = "'";
+                        if(strpos($model->UploadMonth, $string) !== false){
+                            $yeararray = explode("`", $model->UploadMonth);
+                        } else{
+                            $yeararray = explode("'", $model->UploadMonth);
+}
+                        //$yeararray = explode("`", $model->UploadMonth);
                          $month=$yeararray[0];
                           $year=DateTime::createFromFormat('y', $yeararray[1])->format('Y');
                           $upldmnth=$month." ".$year;?>
                         <label>Upload Month</label>
-                        <input type="text" name="UploadMonth" id="datepicker2" placeholder="mm-yy" class="form-control" value="<?= $upldmnth ?>" autocomplete="off">
+                        <input type="text" name="UploadMonth" id="datepicker2" placeholder="MM-yy" class="form-control" value="<?= $upldmnth ?>" autocomplete="off">
+                    </div>
+                     <div class="col-sm-6" style="margin-top:10px;">
+                        <?= $form->field($model, 'ProductVertical')->textInput(['maxlength' => true,'required'=>true]) ?>
+                        
                     </div>
                     <div class="form-group col-sm-12" style="margin-top:20px;">
                    <?= Html::submitButton('Submit',['class'=>'btn btn-success','name'=>'update','value'=>'update']) ?>
@@ -107,7 +118,6 @@ $this->title = 'Update MSME Details';
    
     $( document ).ready(function() {
         $("#datepicker").datepicker({
-            maxDate: 0,
             dateFormat: "dd-mm-yy"
         });
         $("#datepicker1").datepicker({

@@ -8,9 +8,12 @@ def insert_MFI(sheet, RecordId):
     Mismatch = 0
     for i in range(1, sheet.nrows):
         try:
-            data = insertData(i,sheet,RecordId)
-            totrows = totrows + 1
-            Mismatch = Mismatch + data
+            row = sheet.row_values(i)
+            slno = row[0]
+            if (slno != ''):
+                data = insertData(i,sheet,RecordId)
+                totrows = totrows + 1
+                Mismatch = Mismatch + data
 
         except Exception as e:
             message = 'Error occur in MFI in row ' + str(i)+' and error- '+str(e)
@@ -266,19 +269,19 @@ def insertData(i,sheet,RecordId):
             error_msg = error_msg + str(msg)
 
         if (error_count == 1):
-            Mismatch = Mismatch + 1
+            Mismatch = 1
 
         Demand_date = date_conversion(Demand_date)
         next_installment_date = date_conversion(next_installment_date)
         database = mycus()
         cursor = database.cursor()
-        sql = "INSERT INTO ExcelData (RecordId,BranchName,Cluster,State,ClientId,LoanAccountNo,ClientName,SpouseName,VillageName,Center,GroupName,MobileNo,EMISrNo,DemandDate,LastMonthDue,CurrentMonthDue,NextInstallmentDate,UploadMonth,ProductVertical,errorMsg,errorCount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO ExcelData (RecordId,BranchName,Cluster,State,ClientId,LoanAccountNo,ClientName,SpouseName,VillageName,Center,GroupName,MobileNo,EMISrNo,DemandDate,LastMonthDue,CurrentMonthDue,NextInstallmentDate,UploadMonth,ProductVertical,Type,errorMsg,errorCount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         val = (
             RecordId, branch_name, cluster, state, client_id, loan_account_no, client_name, spouse_name, village,
             center,
             group, mobile_no, EMIsr_no,
             Demand_date, last_month_due, current_month_due, next_installment_date, upload_month,
-            product_vertical, error_msg, error_count)
+            product_vertical, 'MFI' ,error_msg, error_count)
 
         cursor.execute(sql, val)
         database.commit()
