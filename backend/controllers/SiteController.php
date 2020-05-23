@@ -42,7 +42,7 @@ class SiteController extends Controller
       'class' => AccessControl::className(),
       'rules' => [
       [
-      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord','cust-payment','report2','exportbranch'],
+      'actions' => ['login', 'error','subadmin','process','mfi','mfidetails','mfidet','msmedet','previous','msme','adminprev','msmedetails','updatemfi','both','updatemsme','sendsms','mfisms','adminview','delete','url','report','customerdetails','resetpassword','subaddresetpassword','branch','paymentdetails','deleterecord','cust-payment','report2','exportbranch','ajaxrelaodetails'],
       'allow' => true,
       ],
       [
@@ -309,6 +309,33 @@ return $this->render('home', ['model' => $model, 'MonthYear' => $MonthYear, 'all
 
 }
 
+
+
+
+
+public function actionAjaxrelaodetails()
+{
+
+ $this->layout='blanklayout';
+
+$typee=Yii::$app->user->identity->Type;
+$uid=Yii::$app->user->identity->UserId;
+
+if ($typee !="both") {
+
+ $details = UploadRecords::find()->where(['UploadedBy'=>$uid,'Type'=>$typee,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->all();
+
+}
+
+$details = UploadRecords::find()->where(['UploadedBy'=>$uid,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->all();
+return $this->render('ajaxrelaodetails', ['alldetails' => $details]);
+
+}
+
+
+
+
+
 public function actionDeleterecord(){
  $recordid=Yii::$app->request->get('recordid');
  $type=Yii::$app->request->get('type');
@@ -372,29 +399,103 @@ public function actionBoth($id,$type,$mon){
 
 }
 
-public function actionMfi($id,$type,$mon)
+public function actionMfi($id,$type,$mon,$error=false)
 {   
  $this->layout = 'common';
  list($month, $year) =explode("/",$mon);
  $month = date("m",strtotime($month));  
  $getid=array();
+
+
+
+
+
+ if($error){
+   $details = ExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])
+             ->andWhere(['!=','errorMsg','0']);         
+  }
+  else{
+  $details = ExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0]);
+  }
+  $pages=0;
+  if(!empty(yii::$app->request->get('pagination'))){
+  $countQuery = clone $details;
+  $pages = new Pagination(['totalCount' => $countQuery->count()]);
+  if ($pages) {
+            $details = $details->offset($pages->offset)
+                               ->limit($pages->limit);
+          }
+  }
+ $details=$details->all();
+
+  if (!empty(yii::$app->request->get('export'))) {
+    $excel= new ExportExcel();
+    $sheet=[];
+    foreach ($details as $key => $details) {
+      $sheet['BranchName'][]=$details->BranchName;
+      $sheet['Cluster'][]=$details->Cluster;
+      $sheet['State'][]=$details->State;
+      $sheet['ClientId'][]=$details->ClientId;
+      $sheet['LoanAccountNo'][]=$details->LoanAccountNo;
+      $sheet['ClientName'][]=$details->ClientName;
+      $sheet['SpouseName'][]=$details->SpouseName;
+      $sheet['VillageName'][]=$details->VillageName;
+      $sheet['Center'][]=$details->Center;
+      $sheet['GroupName'][]=$details->GroupName;
+      $sheet['MobileNo'][]=$details->MobileNo;
+      $sheet['EmiSrNo'][]=$details->EmiSrNo;
+      $sheet['DemandDate'][]=date('d-m-Y',strtotime($details->DemandDate));
+      $sheet['LastMonthDue'][]=number_format($details->LastMonthDue,2);
+      $sheet['CurrentMonthDue'][]=number_format($details->CurrentMonthDue,2);
+      $sheet['LatePenalty'][]=number_format($details->LatePenalty,2);
+      $sheet['NextInstallmentDate'][]=date('d-m-Y',strtotime($details->NextInstallmentDate));
+      $sheet['UploadMonth'][]=$details->UploadMonth;
+      $sheet['ProductVertical'][]=$details->ProductVertical;
+      $sheet['Tiny URL'][]=$details->TinnyUrl;
+      $sheet['SmsStatus'][]=($details->SmsStatus == 1)?'Initiated':'Not Initiated';
+    }
+    $excel->Export($sheet);
+  }
+
+
+
+
+
+
+
+
  $details = ExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])->all();
  $approve= ExcelData::find()->where(['RecordId'=>$id,'IsApproved'=>1,'IsDelete'=>0])->count();   
  $upload=UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
  foreach ($upload as $key => $value) {
  $mon=$value->MonthYear;
  }
- $command = Yii::$app->db->createCommand("SELECT Eid FROM ExcelData WHERE LoanAccountNo IN (SELECT LoanAccountNo  FROM ExcelData WHERE RecordId='$id'AND IsDelete = 0 GROUP BY LoanAccountNo HAVING COUNT(LoanAccountNo) > 1) and RecordId = '$id'");
- $getallid = $command->queryAll();
- foreach ($getallid as $key => $value) {
-    //var_dump($value);
+/* $command = Yii::$app->db->createCommand("SELECT Eid FROM ExcelData WHERE LoanAccountNo IN (SELECT LoanAccountNo  FROM ExcelData WHERE RecordId='$id'AND IsDelete = 0 GROUP BY LoanAccountNo HAVING COUNT(LoanAccountNo) > 1) and RecordId = '$id'");
+ $getallid = $command->queryAll();*/
+
+$getallid=ExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0]) 
+               ->andWhere(['!=','errorCount','0'])  
+               ->all();
+
+
+  $getblankvalue = count($getallid);
+ 
+  foreach ($getallid as $key => $value) {
+   $getid[]= $value->Eid;
+ }
+
+
+  $smsstat = UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->one();
+
+
+/* foreach ($getallid as $key => $value) {
    $getid[]= $value['Eid'];
  }
  foreach ($details as $key => $value) {
   $sms=$value->SmsStatus;
    $paymetdetails = TXNDETAILS::find()->select('SUM(TXN_AMT) as TXN_AMT,TXN_STATUS' )->where(['USER_ID'=>$value->Eid,'month(TXN_DATE)'=>$month,'year(TXN_DATE)' => $year,'TXN_STATUS'=>1,'TYPE'=>'MFI'])->one();
- }
- return $this->render('mfi',['details'=>$details, 'id'=>$id, 'approve'=>$approve,'getid'=>$getid,'sms'=>$sms,'type'=>$type,'paymetdetails'=>$paymetdetails,'mon'=>$mon]);
+ }*/
+ return $this->render('mfi',['details'=>$details, 'id'=>$id, 'approve'=>$approve,'getid'=>$getid,'getblankvalue'=>$getblankvalue,'sms'=>'','type'=>$type,'paymetdetails'=>'','mon'=>$mon,'error'=>$error,'pages'=>$pages,'smsstat'=>$smsstat,]);
 
 
 }
@@ -432,8 +533,7 @@ public function actionMsme($id,$type,$mon,$error=false)
 
   if($error){
    $details = MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0])
-             ->andWhere(['!=','errorMsg','0']);
-             
+             ->andWhere(['!=','errorMsg','0']);         
   }
   else{
   $details = MsmeExcelData::find()->where(['RecordId'=>$id,'IsDelete' => 0]);
@@ -446,8 +546,8 @@ public function actionMsme($id,$type,$mon,$error=false)
             $details = $details->offset($pages->offset)
                                ->limit($pages->limit);
           }
-        }
-           $details=$details->all();
+  }
+ $details=$details->all();
 
   if (!empty(yii::$app->request->get('export'))) {
     $excel= new ExportExcel();
@@ -530,101 +630,44 @@ public function actionMsmedetails($id,$type,$mon)
 
 }
 public function actionUpdatemfi($id,$type,$mon){
-  $this->layout = 'common';
-  $model = ExcelData::find()->where(['Eid'=> $id,'IsDelete'=>0])->one();
-   $upload=UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
-        foreach ($upload as $key => $value) {
-         $mon=$value->MonthYear;
-        }
-  $details = $model->RecordId;
-  $model->errorMsg=null;
-  $model->errorCount=0;
-  if ($model->load(Yii::$app->request->post()) && $model->save()) {
-   $uid=Yii::$app->user->identity->UserId;
-   $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();
-        //$mismatch=UploadRecords::find()->where(['RecordId'=>$types->RecordId,'IsDelete'=>0])->one();
-   $connection = \Yii::$app->db;
-   $command = $connection->createCommand("SELECT COUNT(*) as cnt FROM `ExcelData` WHERE `RecordId` = '$types->RecordId' and `IsDelete`= 0 GROUP BY LoanAccountNo HAVING cnt > 1 ");
-   $result = $command->queryAll(); 
-          
-   if ($result) {
-     //$types->Mismatch=$result[0]['cnt'];
-     $types->Mismatch=0;
-   }
-   else{
-    $types->Mismatch=0 ;
-  }
-  
-  if ($types->save()) {
-    $connection = \Yii::$app->db;
-    $mismatchmobile=$connection->createCommand("SELECT COUNT(*) as cnt from ExcelData WHERE `RecordId`='$types->RecordId' and  `IsDelete`=0 and length(`MobileNo`) != 10");
-    $result =$mismatchmobile->queryAll();
-    $types->MobileCount=$result[0]['cnt'];
-    if ($types->save()){
-      Yii::$app->session->setFlash('success', "Account Updated successfully");
-      return $this->redirect(['mfi', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon]);
-    }
-  }
+    $this->layout = 'common';
+    $errormsg='';
+    $model = ExcelData::find()->where(['Eid'=> $id,'IsDelete'=>0])->one();
+    $upload=UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
+      foreach ($upload as $key => $value) {
+       $mon=$value->MonthYear;
+      }
 
-}
-return $this->render('mfi_edit',['model'=>$model,'details'=>$details,'type'=>$type,'mon'=>$mon]); 
+    $uid=Yii::$app->user->identity->UserId;
+    $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();     
+    $details=$model->RecordId;
 
-}
-
-
-
-public function actionUpdatemsme($id,$type,$mon){
-  $this->layout='common';
-  $model= MsmeExcelData::find()->where(['Mid'=>$id,'IsDelete'=>0])->one();
-  $upload=UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
-        foreach ($upload as $key => $value) {
-         $mon=$value->MonthYear;
-        }
-
-   $uid=Yii::$app->user->identity->UserId;
-
-  $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();     
-  $details=$model->RecordId;
-
-  $model->errorMsg='';
-  $model->errorCount=0;
   if (Yii::$app->request->post('update') == 'update') {
-  /*  echo "hiiiiiiiiiii";
-    var_dump(Yii::$app->request->post());
-    die();*/
-    $BranchName=Yii::$app->request->post()['MsmeExcelData']['BranchName'];
-    $Cluster=Yii::$app->request->post()['MsmeExcelData']['Cluster'];
-    $state=Yii::$app->request->post()['MsmeExcelData']['State'];
-    $ClientId=Yii::$app->request->post()['MsmeExcelData']['ClientId'];
-    $LoanAccountNo=Yii::$app->request->post()['MsmeExcelData']['LoanAccountNo'];
-    $ClientName=Yii::$app->request->post()['MsmeExcelData']['ClientName'];
-    $EmiSrNo=Yii::$app->request->post()['MsmeExcelData']['EmiSrNo'];
+    $BranchName=Yii::$app->request->post()['ExcelData']['BranchName'];
+    $Cluster=Yii::$app->request->post()['ExcelData']['Cluster'];
+    $state=Yii::$app->request->post()['ExcelData']['State'];
+    $ClientId=Yii::$app->request->post()['ExcelData']['ClientId'];
+    $LoanAccountNo=Yii::$app->request->post()['ExcelData']['LoanAccountNo'];
+    $ClientName=Yii::$app->request->post()['ExcelData']['ClientName'];
+    $SpouseName=Yii::$app->request->post()['ExcelData']['SpouseName'];
+    $VillageName=Yii::$app->request->post()['ExcelData']['VillageName'];
+    $Center=Yii::$app->request->post()['ExcelData']['Center'];
+    $GroupName=Yii::$app->request->post()['ExcelData']['GroupName'];
+    $MobileNo=Yii::$app->request->post()['ExcelData']['MobileNo'];
+    $EmiSrNo=Yii::$app->request->post()['ExcelData']['EmiSrNo'];
     $DemandDate=Yii::$app->request->post()['DemandDate'];
-    
-    $LastMonthDue=Yii::$app->request->post()['MsmeExcelData']['LastMonthDue'];
-    $CurrentMonthDue=Yii::$app->request->post()['MsmeExcelData']['CurrentMonthDue'];
-    $latepenalty=Yii::$app->request->post()['MsmeExcelData']['LatePenalty'];
-    $MobileNo=Yii::$app->request->post()['MsmeExcelData']['MobileNo'];
+    $LastMonthDue=Yii::$app->request->post()['ExcelData']['LastMonthDue'];
+    $CurrentMonthDue=Yii::$app->request->post()['ExcelData']['CurrentMonthDue'];
+    $latepenalty=Yii::$app->request->post()['ExcelData']['LatePenalty'];
     $NextInstallmentDate=Yii::$app->request->post()['NextInstallmentDate'];
     $UploadMonth=Yii::$app->request->post()['UploadMonth'];
-    $ProductVertical=Yii::$app->request->post()['MsmeExcelData']['ProductVertical'];
+    $ProductVertical=Yii::$app->request->post()['ExcelData']['ProductVertical'];
 
-    /*if (preg_match("/^[a-zA-Z][a-zA-Z\\s]+$/", $ClientName)) {
-      echo 'yes';
-      echo $ClientName;
-    }else{
-      echo "no";
-       echo $ClientName;
+
+    if ($latepenalty =='') {
+      $latepenalty = 0;
     }
-    die();*/
-   /* if (preg_match("/^[A-Z]{3}+$/", substr($ClientId, 0, 3))) {
-      echo 'yes';
-      substr($ClientId, 0, 3);
-    }else{
-      echo "no";
-      echo substr($ClientId, 0, 3);
-    }
-    die();*/
+
     $yeararray = explode(" ", $UploadMonth);
     $month=date('M',strtotime($yeararray[0]));
     $year=date('y',strtotime($yeararray[1]));
@@ -633,55 +676,86 @@ public function actionUpdatemsme($id,$type,$mon){
 
     $dmddt=date('Y-m-d',strtotime($DemandDate));
     $nxtinst=date('Y-m-d',strtotime($NextInstallmentDate));
-    //die();
-    $model->BranchName=$BranchName;
-    $model->Cluster=$Cluster;
-    $model->State=$state;
-    $model->ClientId=$ClientId;
-    $model->LoanAccountNo=$LoanAccountNo;
-    $model->ClientName=$ClientName;
-    $model->EmiSrNo=$EmiSrNo;
-    $model->DemandDate=$dmddt;
-    $model->LastMonthDue=$LastMonthDue;
-    $model->CurrentMonthDue=$CurrentMonthDue;
-    $model->LatePenalty=$latepenalty;
-    $model->MobileNo=$MobileNo;
-    $model->NextInstallmentDate=$nxtinst;                  
-    $model->UploadMonth=$UploadMonth;
-    $model->ProductVertical=$ProductVertical;
+   
 
 
     $Currentmonth=date('m');
     $Currentyear=date('Y');
     $nextmonth= date('m', strtotime('+1 month'));
+    $newdemanddate=date('Y-m',strtotime($DemandDate));
 
-
-
-      //$errorclient=MsmeExcelData::find()->where(['UploadMonth'=>$model->UploadMonth,'ClientId'=>$ClientId])->count();
-      
-      //$ClientidError=((preg_match("/^[A-Z]{3}+$/", substr($ClientId, 0, 3))) && (strlen($ClientId)>3))?1:0;
-      $ClientidError=(strlen($ClientId)>3)?0:1;
-     
+      if (is_numeric($ClientId)) {
+        if (strlen($ClientId)>3 && $ClientId>0) {
+          $ClientidError=0;
+        }else{
+          $ClientidError=1;
+        }
+      }else{
+        $ClientidError=(strlen($ClientId)>3)?0:1;
+      }
       $ClientNameError =(trim($ClientName)=='')? 0:1;
-      $errorLoanAccountNo =MsmeExcelData::find()->where(['UploadMonth'=>$UploadMonth,'LoanAccountNo'=>$LoanAccountNo])->count();
       $errormoblength=(strlen($MobileNo)!=10)? 1:0;
-      $errorEmiSrNo=(is_numeric($EmiSrNo) && ($EmiSrNo>0) && ($EmiSrNo<241))?0:1;
+      $errorEmiSrNo=(is_numeric($EmiSrNo) && ($EmiSrNo>0) && ($EmiSrNo<61))?0:1;
       $LastMonthDueError=(is_numeric($LastMonthDue) && strlen($LastMonthDue)<8)?0:1;
       $CurrentMonthDueError=(is_numeric($CurrentMonthDue) && strlen($CurrentMonthDue)<8)?0:1;
-      $LatePenaltyError=(is_numeric($latepenalty) && strlen($latepenalty)<8)?0:1;
-      $LoanAccountNoError=(strlen($LoanAccountNo)>7)?0:1;
+      //$LatePenaltyError=(is_numeric($latepenalty) && strlen($latepenalty)<8)?0:1;
+      $LoanAccountNoError=(strlen($LoanAccountNo)>5 && strlen($LoanAccountNo)<10)?0:1;
       $ClusterError =(trim($Cluster)=='')? 1:0;
       $BranchNameError =(trim($BranchName)=='')? 1:0;
-      $ClientName1Error =((preg_match("/^[a-zA-Z][a-zA-Z\\s]+$/", $ClientName)) && (strlen($ClientName)>3))? 0:1;
-      $ProductVerticalError=(trim($ProductVertical)=='MSME')? 1:0;
+      $ClientName1Error =((preg_match("/^[a-zA-Z ]*$/", $ClientName)) && (strlen($ClientName)>3))? 0:1;
+      $ProductVerticalError=(trim($ProductVertical)=='MFI')? 1:0;
+      /*if (preg_match("/^[a-zA-Z ]*$/", $SpouseName)) {
+        echo "yes";
+        if (strlen($SpouseName)>3) {
+          echo $SpouseNameError=0;
+
+        }else{
+          echo $SpouseNameError=1;
+        }
+      }else{
+        echo "no";
+      }*/
+      //die();
+      $SpouseNameError =((preg_match("/^[a-zA-Z ]*$/", $SpouseName)) && (strlen($SpouseName)>3))? 0:1;
+   /* echo $SpouseNameError;
+    die();*/
+      $VillageError =((preg_match("/^[a-zA-Z0-9 -]*$/", $VillageName)) && (strlen($VillageName)>3))? 0:1;
+      $CenterError =((preg_match("/^[a-zA-Z0-9 -]*$/", $Center)) && (strlen($Center)>3))? 0:1;
+      $GroupError =((preg_match("/^[a-zA-Z0-9 -]*$/", $GroupName)) && (strlen($GroupName)>3))? 0:1;
       
       $NextInstallmentDateError=(date('m',strtotime($NextInstallmentDate)) == $nextmonth && date('Y',strtotime($NextInstallmentDate)) == $Currentyear)?0:1;
       $DemandDateError=((date('m',strtotime($DemandDate)) == $Currentmonth && date('Y',strtotime($DemandDate)) == $Currentyear)|| (date('m',strtotime($DemandDate)) == $nextmonth && date('Y',strtotime($DemandDate)) == $Currentyear) )?0:1;
       $uplodmonthError=((date('m',strtotime($yeararray[0])) == $Currentmonth && date('Y',strtotime($yeararray[1])) == $Currentyear)|| (date('m',strtotime($yeararray[0])) == $nextmonth && date('Y',strtotime($yeararray[1])) == $Currentyear) )?0:1;
+      /*$errorclientid=ExcelData::find()->where(['month(DemandDate)'=>date('m',strtotime($dmddt)),'ClientId'=>$ClientId])->count();
+        $errorLoanAccountNo =ExcelData::find()->where(['month(DemandDate)'=>date('m',strtotime($dmddt)),'LoanAccountNo'=>$LoanAccountNo])->count();
+*/
+
+
+      $errorclientid=ExcelData::find()
+      ->where(['like', 'date_format(`DemandDate`, "%Y-%m")', $newdemanddate . '%', false])
+      ->andFilterWhere(['ClientId'=>$ClientId])
+      ->count();
       
+
+      $errorLoanAccountNo=ExcelData::find()
+      ->where(['like', 'date_format(`DemandDate`, "%Y-%m")', $newdemanddate . '%', false])
+      ->andFilterWhere(['LoanAccountNo'=>$LoanAccountNo])
+      ->count();
+     
       
-      $errormsg=null;
-      $errormobile=0;
+
+      if($SpouseNameError>0)
+      $errormsg.='Spouse name is invalid.';
+
+      if($VillageError>0)
+        $errormsg.='Village name is invalid.';
+
+      if($CenterError>0)
+        $errormsg.='Center name is invalid.';
+
+      if($GroupError>0)
+        $errormsg.='Group name is invalid.';
+
       if($BranchNameError>0)
       $errormsg.='BranchName cannot be empty.';
     
@@ -696,10 +770,333 @@ public function actionUpdatemsme($id,$type,$mon){
     
       if($LoanAccountNoError>0)
       $errormsg.='Not valid loan account number. ';
-    
-      if($errorLoanAccountNo>1)
+
+      if($errormoblength>0)
+      $errormsg.=' not a valid mobile number.';
+
+      if($ClientNameError<1)
+      $errormsg.='Client name cant be empty.';
+
+      if($ClientName1Error>0)
+      $errormsg.='client name is invalid.';
+
+      if($errorEmiSrNo>0)
+      $errormsg.='Emisr must be 1 to 60.';
+
+      if ($DemandDateError>0) 
+      $errormsg.='Demand Date must be Current month or next month of current year. ';
+
+      if($errorclientid>1 && ($model->ClientId==$ClientId ))
+    $errormsg.='Duplicate Clientid.';
+
+      if($errorclientid>0 && ($model->ClientId!=$ClientId))
+      $errormsg.='Duplicate Clientid.';
+
+    //echo $errorclientid.'---'.$model->ClientId.'---'.$ClientId.'<br/>';
+
+    if($errorLoanAccountNo>1 && ($model->LoanAccountNo==$LoanAccountNo))
       $errormsg.='This loan a/c already exist for this month.';
+
+     if($errorLoanAccountNo>0 && ($model->LoanAccountNo!=$LoanAccountNo))
+      $errormsg.='This loan a/c already exist for this month.';
+//echo $errorLoanAccountNo.'---'.$model->LoanAccountNo.'---'.$LoanAccountNo.'<br/>';echo$errormsg; die();
+
+      if($LastMonthDueError>0)
+      $errormsg.='Lastmonth due is not valid.';
+
+      if($CurrentMonthDueError>0)
+      $errormsg.='CurrentMonthDue due is not valid.';
+
+     /* if($LatePenaltyError>0)
+      $errormsg.='Late Penalty is not valid.';*/
+
+      if ($NextInstallmentDateError>0) 
+      $errormsg.='Next Installment Date must be next month of current year. ';
+
+      if ($uplodmonthError>0) 
+      $errormsg.='Upload month must be Current month or next month of current year. ';
+
+      if($ProductVerticalError<1)
+      $errormsg.='Product Vertical is not valid.';
+      /*echo $errormsg;
+      die();*/
+
+
+      $model->BranchName=$BranchName;
+        $model->Cluster=$Cluster;
+        $model->State=$state;
+        $model->ClientId=$ClientId;
+        $model->LoanAccountNo=$LoanAccountNo;
+        $model->ClientName=$ClientName;
+        $model->SpouseName=$SpouseName;
+        $model->VillageName=$VillageName;
+        $model->Center=$Center;
+        $model->GroupName=$GroupName;
+        $model->EmiSrNo=$EmiSrNo;
+        $model->DemandDate=$dmddt;
+        $model->LastMonthDue=$LastMonthDue;
+        $model->CurrentMonthDue=$CurrentMonthDue;
+        $model->LatePenalty=$latepenalty;
+        $model->MobileNo=$MobileNo;
+        $model->NextInstallmentDate=$nxtinst;                  
+        $model->UploadMonth=$UploadMonth;
+        $model->ProductVertical=$ProductVertical;
+
+      if ($model->errorMsg =='' && $model->errorCount==0 && $errormsg=='') {
+        $model->errorCount=0;
+          $types->Mismatch=$types->Mismatch;
+      }
+      if ($model->errorMsg !='' && $model->errorCount==1 && $errormsg!='') {
+        $model->errorCount=1;
+          $types->Mismatch=$types->Mismatch;
+      }
+      if ($model->errorMsg =='' && $model->errorCount==1 && $errormsg !='') {
+        $model->errorCount=1;
+          $types->Mismatch=$types->Mismatch+1;
+      }
+       if ($model->errorMsg =='' && $model->errorCount==0 && $errormsg !='') {
+        $model->errorCount=1;
+          $types->Mismatch=$types->Mismatch+1;
+      }
+      if ($model->errorMsg !='' && $model->errorCount==1 && $errormsg =='') {
+        $model->errorCount=0;
+          $types->Mismatch=$types->Mismatch-1;
+      }
+     
+      //$model->errorCount=$toterror;
+      //echo $toterror.'/';
+      /*if($errormsg !=''){
+      $model->errorCount=1;
+      $types->Mismatch=$types->Mismatch;
+      if ($model->errorMsg =='') {
+       $types->Mismatch=($types->Mismatch)+1;
+      }
+      if ($types->Mismatch == 0) {
+          $types->Mismatch=$types->Mismatch+1;
+        }
+      }else{
+         $model->errorCount=0;
+         $types->Mismatch=$types->Mismatch-1;
+      }*/
+
+       $model->errorMsg=$errormsg;
+
+
+      /* $toterror=($errormobile+$errorEmiSrNo+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClientName1Error+$ClusterError+$LastMonthDueError
+                +$CurrentMonthDueError+$LoanAccountNoError+$uplodmonthError+$ProductVerticalError+$ClientidError);*/
+      /*if ($errormsg !='' && $types->Mismatch == 0) {
+       $types->Mismatch=($types->Mismatch)+1;
+      }*/
+     /* echo $model->errorMsg.'<br/>';
+      echo $model->errorCount.'<br/>';
+      echo $types->Mismatch;
+      
+      die();*/
+     /* echo $model->errorCount.'/';
+      echo $model->errorMsg.'/';*/
+          if ($model->save()) {
+          /*if ($types->save()) {
+            $connection = \Yii::$app->db;
+            $mismatchmobile=$connection->createCommand("SELECT COUNT(*) as cnt from `ExcelData` WHERE `RecordId`='$types->RecordId' and  `IsDelete`=0 and length(`MobileNo`) != 10");
+            $result =$mismatchmobile->queryAll();
+            $types->MobileCount=$result[0]['cnt'];*/
+          //}
+          if ($types->save()) {
+           Yii::$app->session->setFlash('success', "Account Updated successfully");
+           return $this->redirect(['mfi', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon,'pagination'=>'show']);
+         }
+      // }
+       }
+ }     
+  /*$details = $model->RecordId;
+  $model->errorMsg=null;
+  $model->errorCount=0;
+  if ($model->load(Yii::$app->request->post()) && $model->save()) {
+   $uid=Yii::$app->user->identity->UserId;
+   $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();
     
+   $connection = \Yii::$app->db;
+   $command = $connection->createCommand("SELECT COUNT(*) as cnt FROM `ExcelData` WHERE `RecordId` = '$types->RecordId' and `IsDelete`= 0 GROUP BY LoanAccountNo HAVING cnt > 1 ");
+   $result = $command->queryAll(); 
+          
+   if ($result) {
+     $types->Mismatch=0;
+   }
+   else{
+    $types->Mismatch=0 ;
+  }*/
+  
+  /*if ($types->save()) {
+    $connection = \Yii::$app->db;
+    $mismatchmobile=$connection->createCommand("SELECT COUNT(*) as cnt from ExcelData WHERE `RecordId`='$types->RecordId' and  `IsDelete`=0 and length(`MobileNo`) != 10");
+    $result =$mismatchmobile->queryAll();
+    $types->MobileCount=$result[0]['cnt'];
+    if ($types->save()){
+      Yii::$app->session->setFlash('success', "Account Updated successfully");
+      return $this->redirect(['mfi', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon]);
+    }
+  }
+
+}*/
+return $this->render('mfi_edit',['model'=>$model,'details'=>$details,'type'=>$type,'mon'=>$mon]); 
+
+}
+
+
+
+public function actionUpdatemsme($id,$type,$mon){
+  $this->layout='common';
+  $getallloan=$dupclient=$dupmob=array();
+  $errormsg='';
+  $model= MsmeExcelData::find()->where(['Mid'=>$id,'IsDelete'=>0])->one();
+  $upload=UploadRecords::find()->where(['RecordId'=>$id,'IsDelete'=>0])->all();
+        foreach ($upload as $key => $value) {
+         $mon=$value->MonthYear;
+        }
+  $mdeamnddate=date("Y-m-d",strtotime($model->DemandDate));    
+  $uid=Yii::$app->user->identity->UserId;
+
+  $types=UploadRecords::find()->where(['UploadedBy'=>$uid,'RecordId'=>$model->RecordId,'IsDelete' => 0])->orderBy(['RecordId'=>SORT_DESC])->one();     
+  $details=$model->RecordId;
+
+  if (Yii::$app->request->post('update') == 'update') {
+    $BranchName=Yii::$app->request->post()['MsmeExcelData']['BranchName'];
+    $Cluster=Yii::$app->request->post()['MsmeExcelData']['Cluster'];
+    $state=Yii::$app->request->post()['MsmeExcelData']['State'];
+    $ClientId=Yii::$app->request->post()['MsmeExcelData']['ClientId'];
+    $LoanAccountNo=Yii::$app->request->post()['MsmeExcelData']['LoanAccountNo'];
+    $ClientName=Yii::$app->request->post()['MsmeExcelData']['ClientName'];
+    $EmiSrNo=Yii::$app->request->post()['MsmeExcelData']['EmiSrNo'];
+    $DemandDate=Yii::$app->request->post()['DemandDate'];
+    $LastMonthDue=Yii::$app->request->post()['MsmeExcelData']['LastMonthDue'];
+    $CurrentMonthDue=Yii::$app->request->post()['MsmeExcelData']['CurrentMonthDue'];
+    $latepenalty=Yii::$app->request->post()['MsmeExcelData']['LatePenalty'];
+    $MobileNo=Yii::$app->request->post()['MsmeExcelData']['MobileNo'];
+    $NextInstallmentDate=Yii::$app->request->post()['NextInstallmentDate'];
+    $UploadMonth=Yii::$app->request->post()['UploadMonth'];
+    $ProductVertical=Yii::$app->request->post()['MsmeExcelData']['ProductVertical'];
+
+    $yeararray = explode(" ", $UploadMonth);
+    $month=date('M',strtotime($yeararray[0]));
+    $year=date('y',strtotime($yeararray[1]));
+    $UploadMonth=$month."`".$year;
+
+    $dmddt=date('Y-m-d',strtotime($DemandDate));
+    $nxtinst=date('Y-m-d',strtotime($NextInstallmentDate));
+    
+
+
+    $Currentmonth=date('m');
+    $Currentyear=date('Y');
+    $nextmonth= date('m', strtotime('+1 month'));
+    $newdemanddate=date('Y-m',strtotime($DemandDate));
+
+
+    
+    //$DemandDateError=$BranchNameError=$ClusterError=$ClientidError=$LoanAccountNoError=$errormoblength=$ClientNameError=$ClientName1Error=$errorEmiSrNo=$errorclient=$errorLoanAccountNo=$errormobile=$LastMonthDueError=$CurrentMonthDueError=$LatePenaltyError=$NextInstallmentDateError=$uplodmonthError=$ProductVerticalError=0;
+
+
+
+      //$errorclient=MsmeExcelData::find()->where(['UploadMonth'=>$model->UploadMonth,'ClientId'=>$ClientId])->count();
+      
+      //$ClientidError=((preg_match("/^[A-Z]{3}+$/", substr($ClientId, 0, 3))) && (strlen($ClientId)>3))?1:0;
+      //$ClientidError=(strlen($ClientId)>3)?0:1;
+      //$ClientidError1=(is_numeric($ClientId) && ($ClientId>0))?0:1;
+    
+      if (is_numeric($ClientId)) {
+        if (strlen($ClientId)>3 && $ClientId>0) {
+          $ClientidError=0;
+        }else{
+          $ClientidError=1;
+        }
+      }else{
+        $ClientidError=(strlen($ClientId)>3)?0:1;
+      }
+      $ClientNameError =(trim($ClientName)=='')? 0:1;
+      $errormoblength=(strlen($MobileNo)!=10)? 1:0;
+      $errorEmiSrNo=(is_numeric($EmiSrNo) && ($EmiSrNo>0) && ($EmiSrNo<241))?0:1;
+      $LastMonthDueError=(is_numeric($LastMonthDue) && strlen($LastMonthDue)<8)?0:1;
+      $CurrentMonthDueError=(is_numeric($CurrentMonthDue) && strlen($CurrentMonthDue)<8)?0:1;
+      $LatePenaltyError=(is_numeric($latepenalty) && strlen($latepenalty)<8)?0:1;
+      $LoanAccountNoError=(strlen($LoanAccountNo)>7)?0:1;
+      $ClusterError =(trim($Cluster)=='')? 1:0;
+      $BranchNameError =(trim($BranchName)=='')? 1:0;
+      $ClientName1Error =((preg_match("/^[a-zA-Z !@#$%^&*)(']*$/", $ClientName)) && (strlen($ClientName)>3))? 0:1;
+      $ProductVerticalError=(trim($ProductVertical)=='MSME')? 1:0;
+      $NextInstallmentDateError=(date('m',strtotime($NextInstallmentDate)) == $nextmonth && date('Y',strtotime($NextInstallmentDate)) == $Currentyear)?0:1;
+      $DemandDateError=((date('m',strtotime($DemandDate)) == $Currentmonth && date('Y',strtotime($DemandDate)) == $Currentyear)|| (date('m',strtotime($DemandDate)) == $nextmonth && date('Y',strtotime($DemandDate)) == $Currentyear) )?0:1;
+      $uplodmonthError=((date('m',strtotime($yeararray[0])) == $Currentmonth && date('Y',strtotime($yeararray[1])) == $Currentyear)|| (date('m',strtotime($yeararray[0])) == $nextmonth && date('Y',strtotime($yeararray[1])) == $Currentyear) )?0:1;
+      
+      //SELECT * FROM MsmeExcelData WHERE ClientId IN (SELECT ClientId FROM MsmeExcelData WHERE date_format(`DemandDate`, "%Y-%m")='2020-05' GROUP BY ClientId HAVING COUNT(ClientId) > 1) and date_format(`DemandDate`, "%Y-%m")='2020-05'
+      //SELECT * FROM MsmeExcelData WHERE MobileNo IN (SELECT MobileNo FROM MsmeExcelData WHERE date_format(`DemandDate`, "%Y-%m")='2020-05' GROUP BY MobileNo HAVING COUNT(ClientId) > 1) and date_format(`DemandDate`, "%Y-%m")='2020-05'
+      /*$commandclint = Yii::$app->db->createCommand("SELECT ClientId FROM MsmeExcelData WHERE ClientId IN (SELECT ClientId  FROM MsmeExcelData WHERE date_format(`DemandDate`, '%Y-%m')='$newdemanddate' GROUP BY ClientId HAVING COUNT(ClientId) > 1) and date_format(`DemandDate`, '%Y-%m')='$newdemanddate'");      
+       $getallclientid = $commandclint->queryAll();
+      foreach ($getallclientid as $key => $val) {
+         $dupclient[]= $val['ClientId'];
+       }
+       var_dump($dupclient);
+       echo $ClientId;
+     if (in_array("$ClientId", array_values($dupclient))){$errormsg.='Duplicate Clientid.';}
+
+
+
+     $commandmob = Yii::$app->db->createCommand("SELECT MobileNo FROM MsmeExcelData WHERE MobileNo IN (SELECT MobileNo  FROM MsmeExcelData WHERE date_format(`DemandDate`, '%Y-%m')='$newdemanddate' GROUP BY MobileNo HAVING COUNT(MobileNo) > 1) and date_format(`DemandDate`, '%Y-%m')='$newdemanddate'");     
+     $getalldupmob = $commandmob->queryAll();
+    foreach ($getalldupmob as $key => $vall) {
+       $dupmob[]= $vall['LoanAccountNo'];
+     }
+
+     if (in_array("$MobileNo", array_values($dupmob))){$errormsg.='this mobile number is available for this month.';}
+
+
+
+
+     $command = Yii::$app->db->createCommand("SELECT LoanAccountNo FROM MsmeExcelData WHERE LoanAccountNo IN (SELECT LoanAccountNo  FROM MsmeExcelData WHERE date_format(`DemandDate`, '%Y-%m')='$newdemanddate' GROUP BY LoanAccountNo HAVING COUNT(LoanAccountNo) > 1) and date_format(`DemandDate`, '%Y-%m')='$newdemanddate'");    
+     $getallid = $command->queryAll();
+    foreach ($getallid as $key => $value) {
+       $getallloan[]= $value['LoanAccountNo'];
+     }
+
+     if (in_array("$LoanAccountNo", array_values($getallloan))){$errormsg.='This loan a/c already exist for this month.';}*/
+    
+
+
+      $errorclient=MsmeExcelData::find()
+      ->where(['like', 'date_format(`DemandDate`, "%Y-%m")', $newdemanddate . '%', false])
+      ->andFilterWhere(['ClientId'=>$ClientId])
+      ->count();
+
+      $errormobile=MsmeExcelData::find()
+      ->where(['like', 'date_format(`DemandDate`, "%Y-%m")', $newdemanddate . '%', false])
+      ->andFilterWhere(['MobileNo'=>$MobileNo])
+      ->count();
+      
+
+      $errorLoanAccountNo=MsmeExcelData::find()
+      ->where(['like', 'date_format(`DemandDate`, "%Y-%m")', $newdemanddate . '%', false])
+      ->andFilterWhere(['LoanAccountNo'=>$LoanAccountNo])
+      ->count();
+      
+
+      
+      
+      //$errorclient=$errormobile=$errorLoanAccountNo=0;
+       if ($DemandDateError>0) 
+      $errormsg.='Demand Date must be Current month or next month of current year. ';
+   
+
+      if($BranchNameError>0)
+      $errormsg.='BranchName cannot be empty.';
+    
+      if($ClusterError>0)
+      $errormsg.='cluster cannot be blank.';
+    
+      if($ClientidError>0)
+      $errormsg.='Client Id is Not Valid. ';
+
+      if($LoanAccountNoError>0)
+      $errormsg.='Not valid loan account number. ';
+
       if($errormoblength>0)
       $errormsg.=' not a valid mobile number.';
 
@@ -712,15 +1109,34 @@ public function actionUpdatemsme($id,$type,$mon){
       if($errorEmiSrNo>0)
       $errormsg.='Emisr must be 1 to 240.';
 
-      if ($DemandDateError>0) 
-      $errormsg.='Demand Date must be Current month or next month of current year. ';
+      if ($model->ClientId==$ClientId) {
+        # code...
+      }
 
-      if ($DemandDateError<1) 
-      $errormobile=MsmeExcelData::find()->where(['month(DemandDate)'=>date('m',strtotime($dmddt)),'MobileNo'=>$MobileNo])->count();
+    if($errorclient>1 && ($model->ClientId==$ClientId ))
+    $errormsg.='Duplicate Clientid.';
 
+      if($errorclient>0 && ($model->ClientId!=$ClientId))
+      $errormsg.='Duplicate Clientid.';
 
-      if($errormobile>1)
-      $errormsg.='this mobile number is available for this month .';
+//echo $errorclient.'---'.$model->ClientId.'---'.$ClientId.'<br/>';
+      
+
+     if($errorLoanAccountNo>1 && ($model->LoanAccountNo==$LoanAccountNo))
+      $errormsg.='This loan a/c already exist for this month.';
+
+     if($errorLoanAccountNo>0 && ($model->LoanAccountNo!=$LoanAccountNo))
+      $errormsg.='This loan a/c already exist for this month.';
+    
+//echo $errorLoanAccountNo.'---'.$model->LoanAccountNo.'---'.$LoanAccountNo.'<br/>';
+
+      if($errormobile>1 && ($model->MobileNo==$MobileNo))
+      $errormsg.='this mobile number is available for this month.';
+
+     if($errormobile>0 && ($model->MobileNo!=$MobileNo))
+      $errormsg.='this mobile number is available for this month.';
+  
+//echo $errormobile.'---'.$model->MobileNo.'---'.$MobileNo.'<br/>';
 
       if($LastMonthDueError>0)
       $errormsg.='Lastmonth due is not valid.';
@@ -739,20 +1155,92 @@ public function actionUpdatemsme($id,$type,$mon){
 
       if($ProductVerticalError<1)
       $errormsg.='Product Vertical is not valid.';
+//echo $errormsg;
+    // die();
+    
+    /*echo $errorclient.'--'.$errormobile.'-----'. $errorLoanAccountNo;
+    echo $errormsg;
+    die();*/
 
-      $model->errorMsg=$errormsg;
+   /* $toterror=($errormobile+$LatePenaltyError+$errorEmiSrNo+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClientName1Error+$ClusterError+$LastMonthDueError
+                +$CurrentMonthDueError+$LoanAccountNoError+$uplodmonthError+$ProductVerticalError+$ClientidError);*/
 
-       $toterror=($errormobile+$LatePenaltyError+$errorEmiSrNo+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClientName1Error+$ClusterError+$LastMonthDueError
-                +$CurrentMonthDueError+$LoanAccountNoError+$uplodmonthError+$ProductVerticalError+$ClientidError);
-      //$model->errorCount=$toterror;
-      //echo $toterror.'/';
+        $model->BranchName=$BranchName;
+        $model->Cluster=$Cluster;
+        $model->State=$state;
+        $model->ClientId=$ClientId;
+        $model->LoanAccountNo=$LoanAccountNo;
+        $model->ClientName=$ClientName;
+        $model->EmiSrNo=$EmiSrNo;
+        $model->DemandDate=$dmddt;
+        $model->LastMonthDue=$LastMonthDue;
+        $model->CurrentMonthDue=$CurrentMonthDue;
+        $model->LatePenalty=$latepenalty;
+        $model->MobileNo=$MobileNo;
+        $model->NextInstallmentDate=$nxtinst;                  
+        $model->UploadMonth=$UploadMonth;
+        $model->ProductVertical=$ProductVertical;
+
+
+    
+       if ($model->errorMsg =='' && $model->errorCount==0 && $errormsg=='') {
+        $model->errorCount=0;
+          $types->Mismatch=$types->Mismatch;
+      }
+      if ($model->errorMsg !='' && $model->errorCount==1 && $errormsg!='') {
+        $model->errorCount=1;
+          $types->Mismatch=$types->Mismatch;
+      }
+      if ($model->errorMsg =='' && $model->errorCount==1 && $errormsg !='') {
+        $model->errorCount=1;
+          $types->Mismatch=$types->Mismatch+1;
+      }
+       if ($model->errorMsg =='' && $model->errorCount==0 && $errormsg !='') {
+        $model->errorCount=1;
+          $types->Mismatch=$types->Mismatch+1;
+      }
+      if ($model->errorMsg !='' && $model->errorCount==1 && $errormsg =='') {
+        $model->errorCount=0;
+          $types->Mismatch=$types->Mismatch-1;
+      }
+
+
+
+
+/*
+      if ($types->Mismatch == 0) {
+          $types->Mismatch=($types->Mismatch)+1;
+        }
       if($errormsg !=''){
       $model->errorCount=1;
       $types->Mismatch=$types->Mismatch;
       }else{
          $model->errorCount=0;
          $types->Mismatch=$types->Mismatch-1;
+      }*/
+     
+
+     /* if ($errormsg !='' && $model->errorMsg =='') {
+       $types->Mismatch=($types->Mismatch)+1;
       }
+
+       if ($errormsg !='' && $types->Mismatch == 0) {
+          $types->Mismatch=($types->Mismatch)+1;
+        }*/
+//die();
+        //if ($errormsg != '') {
+          $model->errorMsg=$errormsg;
+        /*}else{
+          $model->errorMsg='NULL';
+        }*/
+
+       
+
+      /* $toterror=($errormobile+$LatePenaltyError+$errorEmiSrNo+$errorLoanAccountNo+$errormoblength+$BranchNameError+$ClientNameError+$ClientName1Error+$ClusterError+$LastMonthDueError
+                +$CurrentMonthDueError+$LoanAccountNoError+$uplodmonthError+$ProductVerticalError+$ClientidError);*/
+    /*  if ($errormsg !='' && $types->Mismatch == 0) {
+       $types->Mismatch=($types->Mismatch)+1;
+      }*/
      /* echo $model->errorMsg.'<br/>';
       echo $model->errorCount.'<br/>';
       echo $types->Mismatch;
@@ -783,12 +1271,12 @@ public function actionUpdatemsme($id,$type,$mon){
            echo $types->Mismatch.'========';
           }
           die();*/
-          if ($types->save()) {
+       /*   if ($types->save()) {
             $connection = \Yii::$app->db;
             $mismatchmobile=$connection->createCommand("SELECT COUNT(*) as cnt from `MsmeExcelData` WHERE `RecordId`='$types->RecordId' and  `IsDelete`=0 and length(`MobileNo`) != 10");
             $result =$mismatchmobile->queryAll();
             $types->MobileCount=$result[0]['cnt'];
-          }
+          }*/
           if ($types->save()) {
            Yii::$app->session->setFlash('success', "Account Updated successfully");
            return $this->redirect(['msme', 'id' => $types->RecordId,'type'=>$type,'mon'=>$mon,'pagination'=>'show']);

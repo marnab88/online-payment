@@ -118,8 +118,13 @@ class SiteController extends Controller {
 
     public function actionGenerateotp() {
         $loanno=Yii::$app->request->get()['loanno'];
-         $msme=MsmeExcelData::find()->where(['LoanAccountNo'=> $loanno,'IsDelete'=>0,'IsApproved'=>1])->orderBy(['Mid'=> SORT_DESC])->one();
-         $mobileno= $msme->MobileNo;
+        $msme=MsmeExcelData::find()->where(['LoanAccountNo'=> $loanno,'IsDelete'=>0,'IsApproved'=>1])->orderBy(['Mid'=> SORT_DESC])->one();
+        $mfi=ExcelData::find()->where(['LoanAccountNo'=>$loanno,'IsDelete'=>0,'IsApproved'=>1])->orderBy(['Eid' => SORT_DESC])->one();
+        if(isset($msme->MobileNo))
+             $mobileno=$msme->MobileNo;
+        else
+           $mobileno=$mfi->MobileNo;
+
         $otp=new OtpVerification();
         $result=$otp->generateOtp($mobileno);
         echo json_encode($result);
@@ -216,7 +221,7 @@ class SiteController extends Controller {
         }
 
         $result=array();
-        $fetchsom=MsmeExcelData::find()->where(['IsDelete'=>0,'IsApproved'=>1])->andWhere(['like', 'LoanAccountNo' , $loannum ])->orderBy(['Mid'=> SORT_DESC])->one();
+        $fetchsom=MsmeExcelData::find()->where(['IsDelete'=>0,'IsApproved'=>1])->andWhere(['like', 'LoanAccountNo' , '%'.$loannum,false ])->orderBy(['Mid'=> SORT_DESC])->one();
        /* $fetchmob=Yii::$app->db->createCommand("(SELECT LoanAccountNo,MobileNo FROM ExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY Eid DESC) UNION ALL (SELECT LoanAccountNo,MobileNo FROM MsmeExcelData WHERE LoanAccountNo like '%$loannum' AND MobileNo !='' AND IsApproved=1  ORDER BY Mid DESC)");
         $fetchsom =$fetchmob->queryOne();*/
         $result=false;
@@ -288,6 +293,16 @@ class SiteController extends Controller {
         $userid=$session->get('datarecordid');
         $mobile=$session->get('mobile');
 
+        if ($type == 'MSME') {
+                $getmmob=MsmeExcelData::find()->where(['LoanAccountNo'=>$loan,'IsApproved'=>1])->orderBy(['Mid' => SORT_DESC])->one();
+            }else {
+                 $getmmob=ExcelData::find()->where(['LoanAccountNo'=>$loan,'IsApproved'=>1])->orderBy(['Eid' => SORT_DESC])->one();
+                 
+            }
+            $currentob=$getmmob->MobileNo;
+
+
+
         if(isset(Yii::$app->request->post()['payment'])) {
             $payment_amount=Yii::$app->request->post()['payment_amount'];
             $emi_amount=Yii::$app->request->post()['emi'];
@@ -311,7 +326,7 @@ class SiteController extends Controller {
             $model->TXN_AMT=$payment_amount;
             $model->TXN_FOR="EMI PAYMENT";
             $model->TYPE=$type;
-            $model->MOB_NO=$mobile;
+            $model->MOB_NO=$currentob;
 
             //  var_dump($model->UserId=$userid);die();
             if($model->save()) {

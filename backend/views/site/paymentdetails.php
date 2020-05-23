@@ -108,7 +108,8 @@ $this->title = 'Payment Details';
 				              $previouslypaid=[];
 				            foreach ($getallreport as $key => $value) {
 				            	// var_dump($value);
-				              $totamnt=($value->usermser->LastMonthDue+$value->usermser->LatePenalty+$value->usermser->CurrentMonthDue);
+
+				              $totamnt=(isset($value->usermser->LastMonthDue)?$value->usermser->LastMonthDue:0+isset($value->usermser->LatePenalty)?$value->usermser->LatePenalty:0+isset($value->usermser->CurrentMonthDue)?$value->usermser->CurrentMonthDue:0);
 				              //$dueamt=$totamnt-($value->TXN_AMT);
 				              /*if($value->TXN_STATUS == 1){
 				                    if (isset($amount[$value->LOAN_ID])) {
@@ -134,19 +135,19 @@ $this->title = 'Payment Details';
 				              <tr>
 				                <td><?= $key+1 ?></td>
 				                <td><?= $value->TYPE ?></td>
-				                <td><?= $value->usermser->BranchName ?></td>
+				                <td><?= isset($value->usermser->BranchName)?$value->usermser->BranchName:'' ?></td>
 				                <td><?= $value->USER_ID ?></td>
-				                <td><?= $value->usermser->ClientName ?></td>
+				                <td><?= isset($value->usermser->ClientName)?$value->usermser->ClientName:'' ?></td>
 				                <td><?= $value->MOB_NO ?></td>
 				                <td><?= $value->LOAN_ID ?></td>
 				                <td><?= date('d-m-Y H:i:s',strtotime($value->TXN_DATE)) ?></td>
 				                <td><?= (isset($value->transactionres->WALLET_BANK_REF))?$value->transactionres->WALLET_BANK_REF:'' ?></td>
-				                <td><?= date('d-m-Y',strtotime($value->usermser->DemandDate)) ?></td>
+				                <td><?= isset($value->usermser->DemandDate)?date('d-m-Y',strtotime($value->usermser->DemandDate)):'' ?></td>
 				                <td><?= number_format($totamnt,2) ?></td>
 				                <td><?= number_format($previouslypaid[$value->LOAN_ID],2); ?></td>
 				                <td><?= number_format($value->TXN_AMT,2) ?></td>
 				                <td><?= (isset($value->transactionres->PG_MODE))?$value->transactionres->PG_MODE:'' ?></td>
-				                <td><?= date('d-m-Y',strtotime($value->usermser->NextInstallmentDate)) ?></td>
+				                <td><?= isset($value->usermser->NextInstallmentDate)?date('d-m-Y',strtotime($value->usermser->NextInstallmentDate)):'' ?></td>
 				                <td><?= number_format($dueamt,2) ?></td>
 				                <td><?= ($value->TXN_STATUS == 1)?'<b>success</b>':'<b style="color:#ff0000">failed</b>' ?></td>
 				                <?php if($value->TXN_STATUS==1){

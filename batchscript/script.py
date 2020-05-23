@@ -6,6 +6,7 @@ import datetime
 import time
 import sys
 import urllib
+from threading import Thread
 
 key='dda89bd7de98c135306a92146667cd1a3e943'
 def mycus():
@@ -33,11 +34,18 @@ def sms_integration(Mid,RecordId,Type,LoanAccountNo,MobileNo,Amount,ClientName):
         longurl=urllib.parse.quote_plus(longurl)
         url = ("https://cutt.ly/api/api.php?key=%s&short=%s"%(key,longurl))
         response = requests.post(url=url)
+        print('df',response)
         data = response.json()
+        table='MsmeExcelData'
+        if(Type=='MFI'):
+            table='ExcelData'
         TinyUrl=data['url']['shortLink']
         mydb = mycus()
         mycursor = mydb.cursor()
-        mycursor.execute("UPDATE MsmeExcelData SET TinnyUrl = '" + str(TinyUrl) + "' WHERE Mid = '" + str(Mid) + "'")
+        if(Type=='MFI'):
+            mycursor.execute("UPDATE "+table+" SET TinnyUrl = '" + str(TinyUrl) + "' WHERE Eid = '" + str(Mid) + "'")
+        else:
+            mycursor.execute("UPDATE "+table+" SET TinnyUrl = '" + str(TinyUrl) + "' WHERE Mid = '" + str(Mid) + "'")
         mydb.commit()
         mydb.close()
         maskLoan='XXXX'+LoanAccountNo[-6:]
@@ -52,7 +60,10 @@ def sms_integration(Mid,RecordId,Type,LoanAccountNo,MobileNo,Amount,ClientName):
         resp=response.text
         mydb = mycus()
         mycursor = mydb.cursor()
-        que=("UPDATE MsmeExcelData SET SmsStatus = 1, SmsAlert='%s' WHERE Mid = '%s' "%(str(resp),Mid))
+        if(Type=='MFI'):
+             que=("UPDATE "+table+" SET SmsStatus = 1, SmsAlert='%s' WHERE Eid = '%s' "%(str(resp),Mid))
+        else:
+             que=("UPDATE "+table+" SET SmsStatus = 1, SmsAlert='%s' WHERE Mid = '%s' "%(str(resp),Mid))
         mycursor.execute(que)
         mydb.commit()
         mydb.close()
@@ -61,7 +72,14 @@ def checksms():
     mycursor = mydb.cursor()
     mycursor.execute("SELECT Mid,RecordId,LoanAccountNo,ClientName,MobileNo,DemandDate,Type,(LastMonthDue+CurrentMonthDue+LatePenalty) FROM MsmeExcelData WHERE SmsStatus=2 ORDER BY Mid ASC")
     rowcursor = mycursor.fetchall()
+    mydb.close()
     if(rowcursor):
+        recordId = rowcursor[0][1]
+        mydb = mycus()
+        mycursor = mydb.cursor()
+        mycursor.execute("Update MsmeExcelData set SmsStatus = 3 WHERE RecordId = '" + str(recordId) + "' ")
+        mydb.commit()
+        mydb.close()
         for i in rowcursor:
             Mid = i[0]
             RecordId = i[1]
@@ -74,14 +92,51 @@ def checksms():
             Type = i[6]
             sms_integration(Mid,RecordId,Type,LoanAccountNo,MobileNo,Amount,ClientName)
             time.sleep(1)
-        que =("UPDATE UploadRecords SET SmsStatus = 1 WHERE RecordId = '%s' "%(str(RecordId)))
+        que = ("UPDATE UploadRecords SET SmsStatus = 1 WHERE RecordId = '%s' " % (str(RecordId)))
+        print(que)
+        mydb = mycus()
+        mycursor = mydb.cursor()
         mycursor.execute(que)
         mydb.commit()
+        mydb.close()
+def checksmsMFI():
+    mydb = mycus()
+    mycursor = mydb.cursor()
+    mycursor.execute("SELECT Eid,RecordId,LoanAccountNo,ClientName,MobileNo,DemandDate,Type,(LastMonthDue+CurrentMonthDue+LatePenalty) FROM ExcelData WHERE SmsStatus=2 ORDER BY Eid ASC")
+    rowcursor = mycursor.fetchall()
     mydb.close()
+    if(rowcursor):
+        recordId=rowcursor[0][1]
+        mydb = mycus()
+        mycursor = mydb.cursor()
+        mycursor.execute("Update ExcelData set SmsStatus = 3 WHERE RecordId = '" +str(recordId)+ "' ")
+        mydb.commit()
+        mydb.close()
+        for i in rowcursor:
+            Mid = i[0]
+            RecordId = i[1]
+            LoanAccountNo = i[2]
+            ClientName = i[3]
+            MobileNo = i[4]
+            DemandDate = i[5]
+            Amount=i[7]
+            DemandDate = datetime.datetime.strptime(DemandDate, '%Y-%m-%d').strftime('%d-%m-%Y')
+            Type = i[6]
+            sms_integration(Mid,RecordId,Type,LoanAccountNo,MobileNo,Amount,ClientName)
+            time.sleep(1)
+        
+        que = ("UPDATE UploadRecords SET SmsStatus = 1 WHERE RecordId = '%s' " % (str(RecordId)))
+        print(que)
+        mydb = mycus()
+        mycursor = mydb.cursor()
+        mycursor.execute(que)
+        mydb.commit()
+        mydb.close()
 while True:
     try:
-        checksms()
+        Thread(target=checksms).start()
+        Thread(target=checksmsMFI).start()
     except Exception as e:
         message = 'Error occur in SMS Integration-' + str(e)
         send_msg(str(message))
-    time.sleep(60)
+    time.sleep(5)

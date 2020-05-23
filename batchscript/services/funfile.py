@@ -100,7 +100,15 @@ def alpha_check(userdate):
 		if re.search('[A-Za-z ]+$', userdate):
 			return True
 
+def alpha_num(userdate):
+	if userdate !='':
+		if re.search('^[a-zA-Z0-9 -]*$', userdate):
+			return True
 
+def mobile_check(userdate):
+	if userdate !='':
+		if re.search('[6789][0-9]{9}', str(int(userdate))):
+			return True
 
 
 

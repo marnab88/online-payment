@@ -4,30 +4,45 @@ from services.funfile import *
 
 
 def insert_MSME(sheet, RecordId):
-    totrows = 0
-    Mismatch = 0
-    for i in range(1, sheet.nrows):
-        try:
-            row = sheet.row_values(i)
-            slno = row[0]
-            if (slno != ''):
-                data = insertMSME(i, sheet, RecordId)
-                totrows = totrows + 1
-                Mismatch = Mismatch + data
 
-        except Exception as e:
-            message = 'Error occur in MSME in row ' + str(i) + ' and error - ' + str(e)
-            send_msg(str(message))
+    if sheet.ncols == 16:
+        totrows = 0
+        Mismatch = 0
+        for i in range(1, sheet.nrows):
+            try:
+                row = sheet.row_values(i)
+                slno = row[0]
+                Status = -1
+                if slno != '' :
 
-    database = mycus()
-    cursor = database.cursor()
-    cursor.execute("UPDATE UploadRecords SET  Status = 1,Mismatch='" + str(Mismatch) + "' , Count = '" + str(
-        totrows) + "' WHERE RecordId = '" + str(RecordId) + "' ")
-    cursor.close()
-    database.commit()
-    database.close()
-    print('Data Successfully Inserted')
+                    data = insertMSME(i, sheet, RecordId)
+                    totrows = totrows + 1
+                    Mismatch = Mismatch + data
 
+
+            except Exception as e:
+                message = 'Error occur in MSME in row ' + str(i) + ' and error - ' + str(e)
+                send_msg(str(message))
+
+        database = mycus()
+        cursor = database.cursor()
+        cursor.execute("UPDATE UploadRecords SET  Status = 1,Mismatch='" + str(Mismatch) + "' , Count = '" + str(
+            totrows) + "' WHERE RecordId = '" + str(RecordId) + "' ")
+        cursor.close()
+        database.commit()
+        database.close()
+        print('data successfully inserted')
+
+
+    else:
+
+        database = mycus()
+        cursor = database.cursor()
+        cursor.execute("UPDATE UploadRecords SET Status = -1 WHERE RecordId = '" + str(RecordId) + "' ")
+        cursor.close()
+        database.commit()
+        database.close()
+        print('data successfully Updated')
 
 def insertMSME(i, sheet, RecordId):
     Mismatch = 0
@@ -51,8 +66,13 @@ def insertMSME(i, sheet, RecordId):
     upload_month = row[14]
     product_vertical = row[15]
 
-    if slno != '':
 
+    if slno != '':
+        try:
+            loan_account_no = str(loan_account_no)
+            loan_account_no = loan_account_no[:loan_account_no.index('.')]
+        except :
+            print('hello')
         if len(loan_account_no) < 8:
             error_count = 1
             msg = ' not valid loan account number.'
@@ -62,8 +82,8 @@ def insertMSME(i, sheet, RecordId):
             database = mycus()
             cursor = database.cursor()
             Demand_date_t = date_strftime(Demand_date)
-            sql = "SELECT *  from MsmeExcelData WHERE LoanAccountNo='" + str(
-                loan_account_no) + "' and DemandDate like '" + str(Demand_date_t) + "%'"
+            sql = "SELECT *  from MsmeExcelData WHERE LoanAccountNo='" + str(loan_account_no) + "' and DemandDate like '" + str(Demand_date_t) + "%'"
+
             cursor.execute(sql)
             rowcursor = cursor.fetchall()
             cursor.close()
@@ -75,7 +95,7 @@ def insertMSME(i, sheet, RecordId):
                 error_msg = error_msg + str(msg)
 
         if check_validation(mobile_no):
-            if len(str(int(mobile_no))) != 10:
+            if not mobile_check(mobile_no) :
                 error_count = 1
                 msg = ' not a valid mobile number.'
                 error_msg = error_msg + str(msg)
@@ -84,8 +104,7 @@ def insertMSME(i, sheet, RecordId):
                 database = mycus()
                 cursor = database.cursor()
                 Demand_date_t = date_strftime(Demand_date)
-                sql = "SELECT *  from MsmeExcelData WHERE MobileNo='" + str(
-                    int(mobile_no)) + "' and  DemandDate like '" + str(Demand_date_t) + "%'"
+                sql = "SELECT *  from MsmeExcelData WHERE MobileNo='" + str(int(mobile_no)) + "' and  DemandDate like '" + str(Demand_date_t) + "%'"
                 cursor.execute(sql)
                 rowcursor = cursor.fetchall()
                 cursor.close()
@@ -102,7 +121,7 @@ def insertMSME(i, sheet, RecordId):
             error_count = 1
 
         if check_validation(EMIsr_no):
-            if not int(EMIsr_no) <= 240:
+            if int(EMIsr_no) > 240  or int(EMIsr_no) < 1 :
                 error_count = 1
                 msg = ' EmI Sr of this loanAc is invalid.'
                 error_msg = error_msg + str(msg)
@@ -168,7 +187,7 @@ def insertMSME(i, sheet, RecordId):
             msg = ' Next installment date is invalid.'
             error_msg = error_msg + str(msg)
 
-        if product_vertical != 'MSME':
+        if product_vertical.strip() != 'MSME':
             error_count = 1
             msg = ' Product vertical should be MSME.'
             error_msg = error_msg + str(msg)
@@ -183,15 +202,29 @@ def insertMSME(i, sheet, RecordId):
             msg = ' Late penalty is wrong format.'
             error_msg = error_msg + str(msg)
 
-        if client_id == '':
+        try:
+            client_id = str(client_id)
+            client_id = client_id[:client_id.index('.')]
+        except:
+            print('hello')
+        if len(client_id) < 4:
             error_count = 1
-            msg = ' Client ID cannot be empty.'
+            msg = ' client id is invalid .'
             error_msg = error_msg + str(msg)
+        else:
+            database = mycus()
+            cursor = database.cursor()
+            Demand_date_t = date_strftime(Demand_date)
+            sql = "SELECT *  from MsmeExcelData WHERE ClientId='" + str(client_id) + "' and DemandDate like '" + str(Demand_date_t) + "%'"
+            cursor.execute(sql)
+            rowcursor = cursor.fetchall()
+            cursor.close()
+            database.close()
+            if len(rowcursor) > 0:
+                error_count = 1
+                msg = ' this client id already exist for this month.'
+                error_msg = error_msg + str(msg)
 
-        elif len(str(client_id)) < 4:
-            error_count = 1
-            msg = ' Client ID is invalid.'
-            error_msg = error_msg + str(msg)
 
         if not upload_comparision(upload_month):
             error_count = 1
@@ -212,4 +245,5 @@ def insertMSME(i, sheet, RecordId):
 
         cursor.execute(sql, val)
         database.commit()
+
     return Mismatch

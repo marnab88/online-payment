@@ -58,21 +58,26 @@ $this->title = 'Home';
               <?php if($sms == ''){?>
                  
               <?php }else{?> 
-                  <!--<th>Sms Status</th>
+                  <!-- <th>Sms Status</th>
                <th>TinyUrl Link</th>
                <th>Payment Status</th>
-               <th>Payment Amount</th>-->
+               <th>Payment Amount</th> -->
+
               <?php }?>
-             <?php if ( $approve == 0) {?>
-              <!-- <th>Action</th> -->
-            <?php  }
-            else{
-            ?>
-            <th>TinyUrl</th>
+             
+              <?php if ($approve == 0 ) {?>
+              <th>Action</th>
+              <?php  }else{?>
+               <th>TinyUrl</th>
             <?php }
-            ?>
-            <th>SMS Status</th>
-            <th><?=( $approve == 0)?'ErrorMsg':''?></th>
+            ?> 
+             <th>SMS Status</th>
+            <?php if ($approve == 0 ) {?>
+              <th>ErrorMsg</th>
+              <?php  }?>
+             
+            
+            
             
             </tr>
           <?php

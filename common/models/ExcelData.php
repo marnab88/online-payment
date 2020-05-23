@@ -50,8 +50,8 @@ class ExcelData extends \yii\db\ActiveRecord
         return [
             [['RecordId'], 'required'],
             [['RecordId', 'IsDelete'], 'integer'],
-            [['OnDate', 'UpdateDate','Type', 'BranchName'], 'safe'],
-            [['BranchName', 'Cluster', 'State', 'ClientId', 'LoanAccountNo', 'ClientName', 'MobileNo', 'EmiSrNo', 'LastMonthDue', 'CurrentMonthDue', 'LatePenalty', 'SpouseName', 'VillageName', 'Center', 'GroupName'], 'string', 'max' => 100],
+            [['OnDate', 'UpdateDate','Type', 'BranchName', 'LatePenalty'], 'safe'],
+            [['BranchName', 'Cluster', 'State', 'ClientId', 'LoanAccountNo', 'ClientName', 'MobileNo', 'EmiSrNo', 'LastMonthDue', 'CurrentMonthDue', 'SpouseName', 'VillageName', 'Center', 'GroupName'], 'string', 'max' => 100],
             // [['MobileNo'],'match', 'pattern' => '/((\+[0-9]{6})|0)[-]?[0-9]{7}/'],
         ];
     }

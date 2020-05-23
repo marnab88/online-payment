@@ -340,19 +340,13 @@ function check(){
     if($getrefresh !='')
     {
     ?>
-     
-	    	refreshPage();
-
-	 
-  
+	   refreshPage();
     <?php
     }
     ?>
     function refreshPage() {
-
-   setTimeout(function(){window.location.href ='<?= Url::to(['site/home']) ?>';},200);
-
-}
+	   setTimeout(function(){window.location.href ='<?= Url::to(['site/home']) ?>';},2000);
+	}
 </script>
  
 
@@ -368,6 +362,7 @@ $('input[name="payment"]').change(function(){
         {
           $('#amount').attr('readonly','readonly');
           $('#amount').val($(this).val());
+          $("#errormessage").html("");
         } 
     });
 

@@ -28,13 +28,16 @@ def export():
         wb = xlrd.open_workbook(loc)
         sheet = wb.sheet_by_index(0)
         if type == 'MSME':
+
             try:
                 insert_MSME(sheet, RecordId)
+
             except Exception as e :
                 message = 'Error occur in MSME '+str(e)+' Record id- '+str(RecordId)
                 send_msg(str(message))
 
         else:
+
             try:
                 insert_MFI(sheet, RecordId)
             except Exception as e:
