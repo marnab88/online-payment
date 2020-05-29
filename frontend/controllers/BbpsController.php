@@ -17,7 +17,7 @@ use common\models\TXNRESPDETAILS;
 class BbpsController extends Controller {
 
    
-
+    
     public function beforeAction($action)
         {
            
@@ -26,7 +26,7 @@ class BbpsController extends Controller {
         }
 
     public function actionFetch(){
-        
+        $targetFile=Yii::getAlias('@frontend').'/web/assets/dump/dumprequest'.date('Y-m').'.txt';
         $content = file_get_contents('php://input');
         $data =json_decode($content);
         $month=date('Y-m');
@@ -115,9 +115,15 @@ class BbpsController extends Controller {
        }
        $statusinfo=array("status"=>$status,"statusCode"=>$statusCode);
        $resp=array("statusInfo"=>$statusinfo,"Details"=>$Details);
+       file_put_contents(
+			$targetFile,
+			 json_encode($resp). "\n",
+			FILE_APPEND
+		);
        echo json_encode($resp);
     }
     public function actionPayment(){
+        $targetFile=Yii::getAlias('@frontend').'/web/assets/dump/dumprequest'.date('Y-m').'.txt';
         $content = file_get_contents('php://input'); 
         $requests=json_decode($content);
         $requests=$requests->request;
@@ -206,6 +212,11 @@ class BbpsController extends Controller {
                                 "payment_notification" => "sorry couldnot collect correct data" 
                              ]; 
         }
+        file_put_contents(
+			$targetFile,
+			 json_encode($jayParsedAry). "\n",
+			FILE_APPEND
+		);
         echo json_encode($jayParsedAry);
     }
 
@@ -213,3 +224,55 @@ class BbpsController extends Controller {
 
     
 }
+
+class DumpHTTPRequestToFile {
+
+	public function execute($targetFile) {
+		header('Status: 200');
+		$data = sprintf(
+			"%s %s %s\n\nHTTP headers:\n",
+			$_SERVER['REQUEST_METHOD'],
+			$_SERVER['REQUEST_URI'],
+			$_SERVER['SERVER_PROTOCOL']
+		);
+
+		foreach ($this->getHeaderList() as $name => $value) {
+			$data .= $name . ': ' . $value . "\n";
+		}
+		$data.='timestamp : '.round(microtime(true) * 1000);
+
+		$data .= "\nRequest body:\n";
+
+		if(file_put_contents(
+			$targetFile,
+			$data . file_get_contents('php://input') . "\n",
+			FILE_APPEND
+		))
+        {
+            //echo("Done!\n\n");
+        }
+        else
+        {
+            echo 'fail';
+        }
+		
+	}
+	private function getHeaderList() {
+
+		$headerList = [];
+		foreach ($_SERVER as $name => $value) {
+			if (preg_match('/^HTTP_/',$name)) {
+				// convert HTTP_HEADER_NAME to Header-Name
+				$name = strtr(substr($name,5),'_',' ');
+				$name = ucwords(strtolower($name));
+				$name = strtr($name,' ','-');
+
+				// add to list
+				$headerList[$name] = $value;
+			}
+		}
+
+		return $headerList;
+	}
+}
+(new DumpHTTPRequestToFile)->execute(Yii::getAlias('@frontend').'/web/assets/dump/dumprequest'.date('Y-m').'.txt');
