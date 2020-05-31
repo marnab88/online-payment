@@ -26,6 +26,16 @@ class BbpsController extends Controller {
         }
 
     public function actionFetch(){
+        $ip=$this->get_client_ip();
+        if($ip!='113.19.128.126'){
+            $statusInfo = ["status" => "fail", 
+                                      "statusCode" => "414", 
+                                      "statusText" => "Your IP is not whitelisted. Please contact admin,"
+                                   ];
+             $resp=array("statusInfo"=>$statusInfo,"Details"=>array());
+             echo json_encode($resp);
+             die();
+        }
         $targetFile=Yii::getAlias('@frontend').'/web/assets/dump/dumprequest'.date('Y-m').'.txt';
         $content = file_get_contents('php://input');
         $data =json_decode($content);
@@ -123,6 +133,16 @@ class BbpsController extends Controller {
        echo json_encode($resp);
     }
     public function actionPayment(){
+        $ip=$this->get_client_ip();
+        if($ip!='113.19.128.126'){
+            $statusInfo = ["status" => "fail", 
+                                      "statusCode" => "414", 
+                                      "statusText" => "Your IP is not whitelisted. Please contact admin,"
+                                   ];
+             $resp=array("statusInfo"=>$statusInfo,"Details"=>array());
+             echo json_encode($resp);
+             die();
+        }
         $targetFile=Yii::getAlias('@frontend').'/web/assets/dump/dumprequest'.date('Y-m').'.txt';
         $content = file_get_contents('php://input'); 
         $requests=json_decode($content);
@@ -158,7 +178,9 @@ class BbpsController extends Controller {
                         $txnRespDetails->TXN_FOR='EMI PAYMENT';
                         $txnRespDetails->PG_NAME='BBPS';
                         $txnRespDetails->PG_MODE='UPI';
+                        $txnRespDetails->PG_TXN_ID=$bankTxnNo;
                         $txnRespDetails->WALLET_BANK_REF=$bankTxnNo;
+                        $txnRespDetails->WALLET_TXN_DATE=date('Y-m-d H:i:s');
                         $txnRespDetails->LOAN_ID=$loanAccountNo;
                         $txnRespDetails->MOB_NO=$txnDetails->MOB_NO;
                         $txnRespDetails->TYPE=$txnDetails->TYPE;
@@ -220,7 +242,27 @@ class BbpsController extends Controller {
         echo json_encode($jayParsedAry);
     }
 
- 
+ function get_client_ip()
+{
+    $ipaddress = '';
+    if (getenv('HTTP_CF_CONNECTING_IP'))
+        $ipaddress = getenv('HTTP_CF_CONNECTING_IP');
+    else if (getenv('HTTP_CLIENT_IP'))
+        $ipaddress = getenv('HTTP_CLIENT_IP');
+    else if (getenv('HTTP_X_FORWARDED_FOR'))
+        $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    else if (getenv('HTTP_X_FORWARDED'))
+        $ipaddress = getenv('HTTP_X_FORWARDED');
+    else if (getenv('HTTP_FORWARDED_FOR'))
+        $ipaddress = getenv('HTTP_FORWARDED_FOR');
+    else if (getenv('HTTP_FORWARDED'))
+        $ipaddress = getenv('HTTP_FORWARDED');
+    else if (getenv('REMOTE_ADDR'))
+        $ipaddress = getenv('REMOTE_ADDR');
+    else
+        $ipaddress = 'UNKNOWN';
+    return $ipaddress;
+}
 
     
 }
